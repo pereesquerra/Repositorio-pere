@@ -236,8 +236,7 @@ header .sub{font-family:'DM Mono',monospace;font-size:.7rem;color:#999}
       </div>
       <div class="fg"><label>Vedells</label><input type="number" id="fig-qty" min="1" placeholder="Nº"></div>
       <div class="fg"><label>Lot</label><select id="fig-lot" onchange="onLotC('fig')"></select></div>
-      <div class="fg">
-        <label>Cartilla</label>
+      <div class="fg"><label>Cartilla</label>
         <select id="fig-cart">
           <option value="ECO">ECO</option>
           <option value="SATF">SATF</option>
@@ -387,37 +386,729 @@ function defState(){
     fig:{
       "preu":0.4,
       "lots":[
-        {"num":4,"v":0,"vIni":205,"actiu":false,"carts":{"ECO":0},"emp":"Ecofutur"},
-        {"num":5,"v":0,"vIni":200,"actiu":false,"carts":{"ECO":0,"PE":0},"emp":"Ecofutur"},
-        {"num":6,"v":0,"vIni":0,"actiu":false,"carts":{"ECO":0,"SATF":0},"emp":"Ecofutur"},
-        {"num":7,"v":0,"vIni":0,"actiu":false,"carts":{"MIX":0},"emp":"Ecofutur"},
-        {"num":8,"v":0,"vIni":0,"actiu":false,"carts":{"ECO":0,"SATF":0},"emp":"Ecofutur"},
-        {"num":9,"v":257,"vIni":0,"actiu":true,"carts":{"ECO":0,"PE":0},"emp":"Ecofutur"},
-        {"num":10,"v":54,"vIni":0,"actiu":true,"carts":{"SATF":54},"emp":"SAT Figuera"}
+        {
+          "num":4,
+          "v":0,
+          "vIni":205,
+          "actiu":false,
+          "carts":{
+            "ECO":0
+          },
+          "emp":"Ecofutur"
+        },
+        {
+          "num":5,
+          "v":0,
+          "vIni":200,
+          "actiu":false,
+          "carts":{
+            "ECO":0,
+            "PE":0
+          },
+          "emp":"Ecofutur"
+        },
+        {
+          "num":6,
+          "v":0,
+          "vIni":0,
+          "actiu":false,
+          "carts":{"ECO":0,"SATF":0},
+          "emp":"Ecofutur"
+        },
+        {
+          "num":7,
+          "v":0,
+          "vIni":0,
+          "actiu":false,
+          "carts":{"MIX":0},
+          "emp":"Ecofutur"
+        },
+        {
+          "num":8,
+          "v":0,
+          "vIni":0,
+          "actiu":false,
+          "carts":{"ECO":0,"SATF":0},
+          "emp":"Ecofutur"
+        },
+        {
+          "num":9,
+          "v":257,
+          "vIni":0,
+          "actiu":true,
+          "carts":{"ECO":0,"PE":0},
+          "emp":"Ecofutur"
+        },
+        {
+          "num":10,
+          "v":54,
+          "vIni":0,
+          "actiu":true,
+          "carts":{
+            "SATF":54
+          },
+          "emp":"SAT Figuera"
+        }
       ],
       "movs":{
-        "7-2024":[{"dia":8,"tipus":"sortida","qty":1,"lot":4,"cart":"ECO"},{"dia":20,"tipus":"sortida","qty":1,"lot":4,"cart":"ECO"},{"dia":30,"tipus":"sortida","qty":18,"lot":4,"cart":"ECO"}],
-        "8-2024":[{"dia":2,"tipus":"sortida","qty":20,"lot":4,"cart":"ECO"},{"dia":6,"tipus":"sortida","qty":20,"lot":4,"cart":"ECO"},{"dia":9,"tipus":"sortida","qty":23,"lot":4,"cart":"ECO"},{"dia":16,"tipus":"sortida","qty":60,"lot":4,"cart":"ECO"},{"dia":20,"tipus":"sortida","qty":20,"lot":4,"cart":"ECO"},{"dia":26,"tipus":"sortida","qty":10,"lot":4,"cart":"ECO"},{"dia":27,"tipus":"sortida","qty":10,"lot":4,"cart":"ECO"}],
-        "9-2024":[{"dia":3,"tipus":"sortida","qty":4,"lot":4,"cart":"ECO"},{"dia":6,"tipus":"sortida","qty":5,"lot":4,"cart":"ECO"},{"dia":6,"tipus":"sortida","qty":1,"lot":5,"cart":"PE"},{"dia":12,"tipus":"sortida","qty":8,"lot":4,"cart":"ECO"},{"dia":4,"tipus":"entrada","qty":79,"lot":6,"cart":"SATF"},{"dia":23,"tipus":"entrada","qty":95,"lot":6,"cart":"ECO"},{"dia":23,"tipus":"entrada","qty":26,"lot":6,"cart":"SATF"},{"dia":27,"tipus":"entrada","qty":6,"lot":6,"cart":"ECO"}],
-        "10-2024":[{"dia":15,"tipus":"sortida","qty":1,"lot":4,"cart":"ECO"},{"dia":17,"tipus":"sortida","qty":4,"lot":4,"cart":"ECO"},{"dia":17,"tipus":"sortida","qty":13,"lot":5,"cart":"ECO"},{"dia":18,"tipus":"sortida","qty":23,"lot":5,"cart":"ECO"},{"dia":21,"tipus":"sortida","qty":24,"lot":5,"cart":"ECO"},{"dia":22,"tipus":"sortida","qty":20,"lot":5,"cart":"ECO"},{"dia":24,"tipus":"sortida","qty":20,"lot":5,"cart":"ECO"},{"dia":29,"tipus":"sortida","qty":12,"lot":5,"cart":"ECO"},{"dia":31,"tipus":"sortida","qty":9,"lot":5,"cart":"ECO"}],
-        "11-2024":[{"dia":1,"tipus":"sortida","qty":2,"lot":5,"cart":"ECO"},{"dia":7,"tipus":"sortida","qty":20,"lot":5,"cart":"ECO"},{"dia":8,"tipus":"sortida","qty":13,"lot":5,"cart":"ECO"},{"dia":15,"tipus":"sortida","qty":5,"lot":5,"cart":"ECO"},{"dia":16,"tipus":"sortida","qty":16,"lot":5,"cart":"ECO"},{"dia":18,"tipus":"sortida","qty":1,"lot":5,"cart":"ECO"},{"dia":21,"tipus":"sortida","qty":13,"lot":5,"cart":"ECO"},{"dia":22,"tipus":"entrada","qty":54,"lot":7,"cart":"MIX"},{"dia":27,"tipus":"entrada","qty":71,"lot":7,"cart":"MIX"},{"dia":27,"tipus":"entrada","qty":30,"lot":7,"cart":"MIX"},{"dia":29,"tipus":"entrada","qty":22,"lot":7,"cart":"MIX"},{"dia":29,"tipus":"sortida","qty":4,"lot":5,"cart":"ECO"},{"dia":30,"tipus":"sortida","qty":4,"lot":5,"cart":"ECO"},{"dia":30,"tipus":"sortida","qty":199,"lot":5,"cart":"PE"}],
-        "12-2024":[{"dia":18,"tipus":"entrada","qty":32,"lot":7,"cart":"MIX"},{"dia":9,"tipus":"sortida","qty":1,"lot":7,"cart":"MIX"},{"dia":10,"tipus":"sortida","qty":1,"lot":7,"cart":"MIX"},{"dia":14,"tipus":"sortida","qty":30,"lot":7,"cart":"MIX"}],
-        "3-2025":[{"dia":20,"tipus":"sortida","qty":1,"lot":7,"cart":"MIX"}],
-        "4-2025":[{"dia":4,"tipus":"sortida","qty":12,"lot":6,"cart":"SATF"},{"dia":8,"tipus":"sortida","qty":23,"lot":6,"cart":"SATF"},{"dia":11,"tipus":"sortida","qty":12,"lot":6,"cart":"SATF"},{"dia":15,"tipus":"sortida","qty":11,"lot":6,"cart":"SATF"},{"dia":17,"tipus":"sortida","qty":12,"lot":6,"cart":"SATF"},{"dia":25,"tipus":"sortida","qty":10,"lot":6,"cart":"SATF"},{"dia":28,"tipus":"sortida","qty":13,"lot":6,"cart":"SATF"},{"dia":30,"tipus":"sortida","qty":112,"lot":6,"cart":"SATF"},{"dia":30,"tipus":"sortida","qty":1,"lot":6,"cart":"SATF","baixa":true}],
-        "5-2025":[{"dia":8,"tipus":"entrada","qty":25,"lot":8,"cart":"ECO"},{"dia":14,"tipus":"entrada","qty":62,"lot":8,"cart":"SATF"},{"dia":21,"tipus":"entrada","qty":20,"lot":8,"cart":"ECO"},{"dia":21,"tipus":"entrada","qty":42,"lot":8,"cart":"SATF"},{"dia":28,"tipus":"entrada","qty":59,"lot":8,"cart":"ECO"},{"dia":31,"tipus":"sortida","qty":176,"lot":7,"cart":"MIX"}],
-        "6-2025":[{"dia":15,"tipus":"sortida","qty":1,"lot":8,"cart":"ECO"}],
-        "7-2025":[{"dia":18,"tipus":"sortida","qty":1,"lot":8,"cart":"ECO"},{"dia":29,"tipus":"sortida","qty":1,"lot":8,"cart":"ECO"}],
-        "8-2025":[{"dia":20,"tipus":"entrada","qty":54,"lot":9,"cart":"PE"},{"dia":20,"tipus":"entrada","qty":66,"lot":9,"cart":"ECO"},{"dia":26,"tipus":"entrada","qty":123,"lot":9,"cart":"ECO"},{"dia":28,"tipus":"entrada","qty":19,"lot":9,"cart":"ECO"}],
-        "9-2025":[{"dia":2,"tipus":"sortida","qty":1,"lot":9,"cart":"ECO"},{"dia":4,"tipus":"sortida","qty":1,"lot":8,"cart":"ECO"},{"dia":27,"tipus":"sortida","qty":1,"lot":9,"cart":"ECO"}],
-        "10-2025":[{"dia":10,"tipus":"sortida","qty":1,"lot":9,"cart":"ECO"},{"dia":27,"tipus":"sortida","qty":1,"lot":9,"cart":"ECO"}],
-        "12-2025":[{"dia":24,"tipus":"sortida","qty":72,"lot":8,"cart":"SATF"}],
-        "1-2026":[{"dia":2,"tipus":"sortida","qty":10,"lot":8,"cart":"SATF"},{"dia":5,"tipus":"sortida","qty":16,"lot":8,"cart":"SATF"},{"dia":13,"tipus":"sortida","qty":6,"lot":8,"cart":"SATF"},{"dia":13,"tipus":"sortida","qty":27,"lot":8,"cart":"ECO"},{"dia":13,"tipus":"sortida","qty":1,"lot":9,"cart":"ECO"},{"dia":19,"tipus":"sortida","qty":10,"lot":8,"cart":"ECO"},{"dia":23,"tipus":"sortida","qty":15,"lot":8,"cart":"ECO"},{"dia":27,"tipus":"sortida","qty":15,"lot":8,"cart":"ECO"},{"dia":30,"tipus":"sortida","qty":5,"lot":8,"cart":"ECO"}],
-        "2-2026":[{"dia":2,"tipus":"sortida","qty":6,"lot":8,"cart":"ECO"},{"dia":22,"tipus":"sortida","qty":12,"lot":8,"cart":"ECO"},{"dia":26,"tipus":"entrada","qty":54,"lot":10,"cart":"SATF"}],
-        "3-2026":[{"dia":2,"tipus":"sortida","qty":10,"lot":8,"cart":"ECO"}]
+        "7-2024":[
+          {
+            "dia":8,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":4,
+            "cart":"ECO"
+          },
+          {
+            "dia":20,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":4,
+            "cart":"ECO"
+          },
+          {
+            "dia":30,
+            "tipus":"sortida",
+            "qty":18,
+            "lot":4,
+            "cart":"ECO"
+          }
+        ],
+        "8-2024":[
+          {
+            "dia":2,
+            "tipus":"sortida",
+            "qty":20,
+            "lot":4,
+            "cart":"ECO"
+          },
+          {
+            "dia":6,
+            "tipus":"sortida",
+            "qty":20,
+            "lot":4,
+            "cart":"ECO"
+          },
+          {
+            "dia":9,
+            "tipus":"sortida",
+            "qty":23,
+            "lot":4,
+            "cart":"ECO"
+          },
+          {
+            "dia":16,
+            "tipus":"sortida",
+            "qty":60,
+            "lot":4,
+            "cart":"ECO"
+          },
+          {
+            "dia":20,
+            "tipus":"sortida",
+            "qty":20,
+            "lot":4,
+            "cart":"ECO"
+          },
+          {
+            "dia":26,
+            "tipus":"sortida",
+            "qty":10,
+            "lot":4,
+            "cart":"ECO"
+          },
+          {
+            "dia":27,
+            "tipus":"sortida",
+            "qty":10,
+            "lot":4,
+            "cart":"ECO"
+          }
+        ],
+        "9-2024":[
+          {
+            "dia":3,
+            "tipus":"sortida",
+            "qty":4,
+            "lot":4,
+            "cart":"ECO"
+          },
+          {
+            "dia":6,
+            "tipus":"sortida",
+            "qty":5,
+            "lot":4,
+            "cart":"ECO"
+          },
+          {
+            "dia":6,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":5,
+            "cart":"PE"
+          },
+          {
+            "dia":12,
+            "tipus":"sortida",
+            "qty":8,
+            "lot":4,
+            "cart":"ECO"
+          },
+          {
+            "dia":4,
+            "tipus":"entrada",
+            "qty":79,
+            "lot":6,
+            "cart":"SATF"
+          },
+          {
+            "dia":23,
+            "tipus":"entrada",
+            "qty":95,
+            "lot":6,
+            "cart":"ECO"
+          },
+          {
+            "dia":23,
+            "tipus":"entrada",
+            "qty":26,
+            "lot":6,
+            "cart":"SATF"
+          },
+          {
+            "dia":27,
+            "tipus":"entrada",
+            "qty":6,
+            "lot":6,
+            "cart":"ECO"
+          }
+        ],
+        "10-2024":[
+          {
+            "dia":15,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":4,
+            "cart":"ECO"
+          },
+          {
+            "dia":17,
+            "tipus":"sortida",
+            "qty":4,
+            "lot":4,
+            "cart":"ECO"
+          },
+          {
+            "dia":17,
+            "tipus":"sortida",
+            "qty":13,
+            "lot":5,
+            "cart":"ECO"
+          },
+          {
+            "dia":18,
+            "tipus":"sortida",
+            "qty":23,
+            "lot":5,
+            "cart":"ECO"
+          },
+          {
+            "dia":21,
+            "tipus":"sortida",
+            "qty":24,
+            "lot":5,
+            "cart":"ECO"
+          },
+          {
+            "dia":22,
+            "tipus":"sortida",
+            "qty":20,
+            "lot":5,
+            "cart":"ECO"
+          },
+          {
+            "dia":24,
+            "tipus":"sortida",
+            "qty":20,
+            "lot":5,
+            "cart":"ECO"
+          },
+          {
+            "dia":29,
+            "tipus":"sortida",
+            "qty":12,
+            "lot":5,
+            "cart":"ECO"
+          },
+          {
+            "dia":31,
+            "tipus":"sortida",
+            "qty":9,
+            "lot":5,
+            "cart":"ECO"
+          }
+        ],
+        "11-2024":[
+          {
+            "dia":1,
+            "tipus":"sortida",
+            "qty":2,
+            "lot":5,
+            "cart":"ECO"
+          },
+          {
+            "dia":7,
+            "tipus":"sortida",
+            "qty":20,
+            "lot":5,
+            "cart":"ECO"
+          },
+          {
+            "dia":8,
+            "tipus":"sortida",
+            "qty":13,
+            "lot":5,
+            "cart":"ECO"
+          },
+          {
+            "dia":15,
+            "tipus":"sortida",
+            "qty":5,
+            "lot":5,
+            "cart":"ECO"
+          },
+          {
+            "dia":16,
+            "tipus":"sortida",
+            "qty":16,
+            "lot":5,
+            "cart":"ECO"
+          },
+          {
+            "dia":18,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":5,
+            "cart":"ECO"
+          },
+          {
+            "dia":21,
+            "tipus":"sortida",
+            "qty":13,
+            "lot":5,
+            "cart":"ECO"
+          },
+          {
+            "dia":22,
+            "tipus":"entrada",
+            "qty":54,
+            "lot":7,
+            "cart":"MIX"
+          },
+          {
+            "dia":27,
+            "tipus":"entrada",
+            "qty":71,
+            "lot":7,
+            "cart":"MIX"
+          },
+          {
+            "dia":27,
+            "tipus":"entrada",
+            "qty":30,
+            "lot":7,
+            "cart":"MIX"
+          },
+          {
+            "dia":29,
+            "tipus":"entrada",
+            "qty":22,
+            "lot":7,
+            "cart":"MIX"
+          },
+          {
+            "dia":29,
+            "tipus":"sortida",
+            "qty":4,
+            "lot":5,
+            "cart":"ECO"
+          },
+          {
+            "dia":30,
+            "tipus":"sortida",
+            "qty":4,
+            "lot":5,
+            "cart":"ECO"
+          },
+          {
+            "dia":30,
+            "tipus":"sortida",
+            "qty":199,
+            "lot":5,
+            "cart":"PE"
+          }
+        ],
+        "4-2025":[
+          {
+            "dia":4,
+            "tipus":"sortida",
+            "qty":12,
+            "lot":6,
+            "cart":"SATF"
+          },
+          {
+            "dia":8,
+            "tipus":"sortida",
+            "qty":23,
+            "lot":6,
+            "cart":"SATF"
+          },
+          {
+            "dia":11,
+            "tipus":"sortida",
+            "qty":12,
+            "lot":6,
+            "cart":"SATF"
+          },
+          {
+            "dia":15,
+            "tipus":"sortida",
+            "qty":11,
+            "lot":6,
+            "cart":"SATF"
+          },
+          {
+            "dia":17,
+            "tipus":"sortida",
+            "qty":12,
+            "lot":6,
+            "cart":"SATF"
+          },
+          {
+            "dia":25,
+            "tipus":"sortida",
+            "qty":10,
+            "lot":6,
+            "cart":"SATF"
+          },
+          {
+            "dia":28,
+            "tipus":"sortida",
+            "qty":13,
+            "lot":6,
+            "cart":"SATF"
+          },
+          {
+            "dia":30,
+            "tipus":"sortida",
+            "qty":112,
+            "lot":6,
+            "cart":"SATF"
+          },
+          {
+            "dia":30,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":6,
+            "cart":"SATF",
+            "baixa":true
+          }
+        ],
+        "5-2025":[
+          {
+            "dia":8,
+            "tipus":"entrada",
+            "qty":25,
+            "lot":8,
+            "cart":"ECO"
+          },
+          {
+            "dia":14,
+            "tipus":"entrada",
+            "qty":62,
+            "lot":8,
+            "cart":"SATF"
+          },
+          {
+            "dia":21,
+            "tipus":"entrada",
+            "qty":20,
+            "lot":8,
+            "cart":"ECO"
+          },
+          {
+            "dia":21,
+            "tipus":"entrada",
+            "qty":42,
+            "lot":8,
+            "cart":"SATF"
+          },
+          {
+            "dia":28,
+            "tipus":"entrada",
+            "qty":59,
+            "lot":8,
+            "cart":"ECO"
+          },
+          {
+            "dia":31,
+            "tipus":"sortida",
+            "qty":176,
+            "lot":7,
+            "cart":"MIX"
+          }
+        ],
+        "6-2025":[
+          {
+            "dia":15,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":8,
+            "cart":"ECO"
+          }
+        ],
+        "7-2025":[
+          {
+            "dia":18,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":8,
+            "cart":"ECO"
+          },
+          {
+            "dia":29,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":8,
+            "cart":"ECO"
+          }
+        ],
+        "12-2024":[
+          {
+            "dia":18,
+            "tipus":"entrada",
+            "qty":32,
+            "lot":7,
+            "cart":"MIX"
+          },
+          {
+            "dia":9,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":7,
+            "cart":"MIX"
+          },
+          {
+            "dia":10,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":7,
+            "cart":"MIX"
+          },
+          {
+            "dia":14,
+            "tipus":"sortida",
+            "qty":30,
+            "lot":7,
+            "cart":"MIX"
+          }
+        ],
+        "3-2025":[
+          {
+            "dia":20,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":7,
+            "cart":"MIX"
+          }
+        ],
+        "8-2025":[
+          {
+            "dia":20,
+            "tipus":"entrada",
+            "qty":54,
+            "lot":9,
+            "cart":"PE"
+          },
+          {
+            "dia":20,
+            "tipus":"entrada",
+            "qty":66,
+            "lot":9,
+            "cart":"ECO"
+          },
+          {
+            "dia":26,
+            "tipus":"entrada",
+            "qty":123,
+            "lot":9,
+            "cart":"ECO"
+          },
+          {
+            "dia":28,
+            "tipus":"entrada",
+            "qty":19,
+            "lot":9,
+            "cart":"ECO"
+          }
+        ],
+        "9-2025":[
+          {
+            "dia":2,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":9,
+            "cart":"ECO"
+          },
+          {
+            "dia":4,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":8,
+            "cart":"ECO"
+          },
+          {
+            "dia":27,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":9,
+            "cart":"ECO"
+          }
+        ],
+        "12-2025":[
+          {
+            "dia":24,
+            "tipus":"sortida",
+            "qty":72,
+            "lot":8,
+            "cart":"SATF"
+          }
+        ],
+        "1-2026":[
+          {
+            "dia":2,
+            "tipus":"sortida",
+            "qty":10,
+            "lot":8,
+            "cart":"SATF"
+          },
+          {
+            "dia":5,
+            "tipus":"sortida",
+            "qty":16,
+            "lot":8,
+            "cart":"SATF"
+          },
+          {
+            "dia":13,
+            "tipus":"sortida",
+            "qty":6,
+            "lot":8,
+            "cart":"SATF"
+          },
+          {
+            "dia":13,
+            "tipus":"sortida",
+            "qty":27,
+            "lot":8,
+            "cart":"ECO"
+          },
+          {
+            "dia":13,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":9,
+            "cart":"ECO"
+          },
+          {
+            "dia":19,
+            "tipus":"sortida",
+            "qty":10,
+            "lot":8,
+            "cart":"ECO"
+          },
+          {
+            "dia":23,
+            "tipus":"sortida",
+            "qty":15,
+            "lot":8,
+            "cart":"ECO"
+          },
+          {
+            "dia":27,
+            "tipus":"sortida",
+            "qty":15,
+            "lot":8,
+            "cart":"ECO"
+          },
+          {
+            "dia":30,
+            "tipus":"sortida",
+            "qty":5,
+            "lot":8,
+            "cart":"ECO"
+          }
+        ],
+        "2-2026":[
+          {
+            "dia":2,
+            "tipus":"sortida",
+            "qty":6,
+            "lot":8,
+            "cart":"ECO"
+          },
+          {
+            "dia":22,
+            "tipus":"sortida",
+            "qty":12,
+            "lot":8,
+            "cart":"ECO"
+          },
+          {
+            "dia":26,
+            "tipus":"entrada",
+            "qty":54,
+            "lot":10,
+            "cart":"SATF"
+          }
+        ],
+        "3-2026":[
+          {
+            "dia":2,
+            "tipus":"sortida",
+            "qty":10,
+            "lot":8,
+            "cart":"ECO"
+          }
+        ],
+        "10-2025":[
+          {
+            "dia":10,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":9,
+            "cart":"ECO"
+          },
+          {
+            "dia":27,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":9,
+            "cart":"ECO"
+          }
+        ]
       },
-      "assig":{}
+      "assig":{
+      }
     },
-    costa:{"preu":0.4,"lots":[{"num":18,"v":0,"vIni":4,"actiu":false,"carts":{"RAM":4},"emp":"Ramaders"},{"num":20,"v":0,"vIni":40,"actiu":false,"carts":{"RAM":0},"emp":"Ramaders"},{"num":21,"v":0,"vIni":141,"actiu":false,"carts":{"RAM":141},"emp":"Ramaders"},{"num":23,"v":0,"vIni":144,"actiu":false,"carts":{"RAM":144},"emp":"Ramaders"},{"num":24,"v":0,"vIni":40,"actiu":false,"carts":{"RAM":0},"emp":"Ramaders"},{"num":25,"v":3,"vIni":0,"actiu":true,"carts":{"RAM":3},"emp":"Ramaders"},{"num":26,"v":159,"vIni":0,"actiu":true,"carts":{"RAM":159},"emp":"Ramaders"},{"num":27,"v":163,"vIni":0,"actiu":true,"carts":{"RAM":163},"emp":"Ramaders"},{"num":28,"v":149,"vIni":0,"actiu":true,"carts":{"RAM":149},"emp":"Ramaders"}],"movs":{"2-2025":[{"dia":11,"tipus":"sortida","qty":1,"lot":18,"cart":"RAM"},{"dia":11,"tipus":"sortida","qty":19,"lot":20,"cart":"RAM"},{"dia":14,"tipus":"sortida","qty":20,"lot":20,"cart":"RAM"},{"dia":17,"tipus":"sortida","qty":22,"lot":20,"cart":"RAM"},{"dia":18,"tipus":"sortida","qty":20,"lot":20,"cart":"RAM"},{"dia":21,"tipus":"sortida","qty":9,"lot":20,"cart":"RAM"},{"dia":24,"tipus":"sortida","qty":10,"lot":20,"cart":"RAM"},{"dia":25,"tipus":"sortida","qty":14,"lot":20,"cart":"RAM"},{"dia":20,"tipus":"sortida","qty":39,"lot":24,"cart":"RAM"},{"dia":19,"tipus":"entrada","qty":48,"lot":25,"cart":"RAM"},{"dia":23,"tipus":"entrada","qty":51,"lot":25,"cart":"RAM"}],"3-2025":[{"dia":31,"tipus":"sortida","qty":3,"lot":18,"cart":"RAM"},{"dia":3,"tipus":"sortida","qty":8,"lot":20,"cart":"RAM"},{"dia":6,"tipus":"sortida","qty":6,"lot":20,"cart":"RAM"},{"dia":13,"tipus":"sortida","qty":2,"lot":20,"cart":"RAM"},{"dia":14,"tipus":"sortida","qty":3,"lot":20,"cart":"RAM"},{"dia":31,"tipus":"sortida","qty":5,"lot":20,"cart":"RAM"},{"dia":1,"tipus":"entrada","qty":45,"lot":25,"cart":"RAM"},{"dia":2,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"},{"dia":20,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"},{"dia":31,"tipus":"sortida","qty":40,"lot":24,"cart":"RAM"}],"1-2025":[{"dia":16,"tipus":"entrada","qty":40,"lot":20,"cart":"RAM"},{"dia":17,"tipus":"sortida","qty":1,"lot":20,"cart":"RAM"},{"dia":31,"tipus":"sortida","qty":1,"lot":23,"cart":"RAM"},{"dia":16,"tipus":"entrada","qty":40,"lot":24,"cart":"RAM"},{"dia":17,"tipus":"sortida","qty":1,"lot":24,"cart":"RAM"}],"5-2025":[{"dia":26,"tipus":"sortida","qty":15,"lot":21,"cart":"RAM"},{"dia":28,"tipus":"sortida","qty":16,"lot":21,"cart":"RAM"},{"dia":29,"tipus":"sortida","qty":13,"lot":21,"cart":"RAM"}],"6-2025":[{"dia":2,"tipus":"sortida","qty":10,"lot":21,"cart":"RAM"},{"dia":3,"tipus":"sortida","qty":25,"lot":21,"cart":"RAM"},{"dia":5,"tipus":"sortida","qty":19,"lot":21,"cart":"RAM"},{"dia":9,"tipus":"sortida","qty":15,"lot":21,"cart":"RAM"},{"dia":16,"tipus":"sortida","qty":14,"lot":21,"cart":"RAM"},{"dia":1,"tipus":"entrada","qty":1,"lot":25,"cart":"RAM"},{"dia":1,"tipus":"entrada","qty":162,"lot":26,"cart":"RAM"},{"dia":3,"tipus":"entrada","qty":1,"lot":26,"cart":"RAM"},{"dia":4,"tipus":"entrada","qty":1,"lot":26,"cart":"RAM"},{"dia":5,"tipus":"entrada","qty":1,"lot":26,"cart":"RAM"},{"dia":18,"tipus":"sortida","qty":3,"lot":26,"cart":"RAM"}],"7-2025":[{"dia":3,"tipus":"sortida","qty":4,"lot":21,"cart":"RAM"},{"dia":31,"tipus":"sortida","qty":10,"lot":21,"cart":"RAM"},{"dia":1,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"},{"dia":3,"tipus":"sortida","qty":1,"lot":26,"cart":"RAM"},{"dia":21,"tipus":"sortida","qty":1,"lot":26,"cart":"RAM"}],"4-2025":[{"dia":30,"tipus":"sortida","qty":1,"lot":23,"cart":"RAM"},{"dia":1,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"}],"8-2025":[{"dia":29,"tipus":"sortida","qty":25,"lot":23,"cart":"RAM"},{"dia":1,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"},{"dia":23,"tipus":"entrada","qty":99,"lot":27,"cart":"RAM"},{"dia":30,"tipus":"entrada","qty":67,"lot":27,"cart":"RAM"}],"9-2025":[{"dia":2,"tipus":"sortida","qty":34,"lot":23,"cart":"RAM"},{"dia":4,"tipus":"sortida","qty":18,"lot":23,"cart":"RAM"},{"dia":5,"tipus":"sortida","qty":25,"lot":23,"cart":"RAM"},{"dia":12,"tipus":"sortida","qty":6,"lot":23,"cart":"RAM"},{"dia":22,"tipus":"sortida","qty":12,"lot":23,"cart":"RAM"},{"dia":23,"tipus":"sortida","qty":14,"lot":23,"cart":"RAM"},{"dia":13,"tipus":"sortida","qty":1,"lot":27,"cart":"RAM"}],"10-2025":[{"dia":2,"tipus":"sortida","qty":2,"lot":23,"cart":"RAM"},{"dia":7,"tipus":"sortida","qty":5,"lot":23,"cart":"RAM"},{"dia":14,"tipus":"sortida","qty":1,"lot":23,"cart":"RAM"},{"dia":20,"tipus":"sortida","qty":1,"lot":27,"cart":"RAM"}],"12-2025":[{"dia":9,"tipus":"sortida","qty":45,"lot":25,"cart":"RAM"},{"dia":12,"tipus":"sortida","qty":29,"lot":25,"cart":"RAM"},{"dia":15,"tipus":"sortida","qty":28,"lot":25,"cart":"RAM"},{"dia":16,"tipus":"sortida","qty":26,"lot":25,"cart":"RAM"},{"dia":18,"tipus":"sortida","qty":7,"lot":25,"cart":"RAM"},{"dia":22,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"},{"dia":30,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"},{"dia":30,"tipus":"sortida","qty":1,"lot":27,"cart":"RAM"}],"11-2025":[{"dia":5,"tipus":"sortida","qty":1,"lot":26,"cart":"RAM"},{"dia":1,"tipus":"entrada","qty":1,"lot":27,"cart":"RAM"},{"dia":18,"tipus":"sortida","qty":1,"lot":27,"cart":"RAM"},{"dia":22,"tipus":"entrada","qty":112,"lot":28,"cart":"RAM"},{"dia":29,"tipus":"entrada","qty":38,"lot":28,"cart":"RAM"}],"1-2026":[{"dia":2,"tipus":"sortida","qty":1,"lot":28,"cart":"RAM"}]},"assig":{}}
+    costa:{"preu":0.4,"lots":[{"num":18,"v":0,"vIni":4,"actiu":false,"carts":{"RAM":4},"emp":"Ramaders"},{"num":20,"v":0,"vIni":40,"actiu":false,"carts":{"RAM":0},"emp":"Ramaders"},{"num":21,"v":0,"vIni":141,"actiu":false,"carts":{"RAM":141},"emp":"Ramaders"},{"num":23,"v":0,"vIni":144,"actiu":false,"carts":{"RAM":144},"emp":"Ramaders"},{"num":24,"v":0,"vIni":40,"actiu":false,"carts":{"RAM":0},"emp":"Ramaders"},{"num":25,"v":3,"vIni":0,"actiu":true,"carts":{"RAM":3},"emp":"Ramaders"},{"num":26,"v":159,"vIni":0,"actiu":true,"carts":{"RAM":159},"emp":"Ramaders"},{"num":27,"v":163,"vIni":0,"actiu":true,"carts":{"RAM":163},"emp":"Ramaders"},{"num":28,"v":149,"vIni":0,"actiu":true,"carts":{"RAM":149},"emp":"Ramaders"}],"movs":{"2-2025":[{"dia":11,"tipus":"sortida","qty":1,"lot":18,"cart":"RAM"},{"dia":11,"tipus":"sortida","qty":19,"lot":20,"cart":"RAM"},{"dia":14,"tipus":"sortida","qty":20,"lot":20,"cart":"RAM"},{"dia":17,"tipus":"sortida","qty":22,"lot":20,"cart":"RAM"},{"dia":18,"tipus":"sortida","qty":20,"lot":20,"cart":"RAM"},{"dia":21,"tipus":"sortida","qty":9,"lot":20,"cart":"RAM"},{"dia":24,"tipus":"sortida","qty":10,"lot":20,"cart":"RAM"},{"dia":25,"tipus":"sortida","qty":14,"lot":20,"cart":"RAM"},{"dia":20,"tipus":"sortida","qty":39,"lot":24,"cart":"RAM"},{"dia":19,"tipus":"entrada","qty":48,"lot":25,"cart":"RAM"},{"dia":23,"tipus":"entrada","qty":51,"lot":25,"cart":"RAM"}],"3-2025":[{"dia":31,"tipus":"sortida","qty":3,"lot":18,"cart":"RAM"},{"dia":3,"tipus":"sortida","qty":8,"lot":20,"cart":"RAM"},{"dia":6,"tipus":"sortida","qty":6,"lot":20,"cart":"RAM"},{"dia":13,"tipus":"sortida","qty":2,"lot":20,"cart":"RAM"},{"dia":14,"tipus":"sortida","qty":3,"lot":20,"cart":"RAM"},{"dia":31,"tipus":"sortida","qty":5,"lot":20,"cart":"RAM"},{"dia":1,"tipus":"entrada","qty":45,"lot":25,"cart":"RAM"},{"dia":2,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"},{"dia":20,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"},
+          {
+            "dia":31,
+            "tipus":"sortida",
+            "qty":40,
+            "lot":24,
+            "cart":"RAM"
+          }],"1-2025":[{"dia":16,"tipus":"entrada","qty":40,"lot":20,"cart":"RAM"},{"dia":17,"tipus":"sortida","qty":1,"lot":20,"cart":"RAM"},{"dia":31,"tipus":"sortida","qty":1,"lot":23,"cart":"RAM"},{"dia":16,"tipus":"entrada","qty":40,"lot":24,"cart":"RAM"},{"dia":17,"tipus":"sortida","qty":1,"lot":24,"cart":"RAM"}],"5-2025":[{"dia":26,"tipus":"sortida","qty":15,"lot":21,"cart":"RAM"},{"dia":28,"tipus":"sortida","qty":16,"lot":21,"cart":"RAM"},{"dia":29,"tipus":"sortida","qty":13,"lot":21,"cart":"RAM"}],"6-2025":[{"dia":2,"tipus":"sortida","qty":10,"lot":21,"cart":"RAM"},{"dia":3,"tipus":"sortida","qty":25,"lot":21,"cart":"RAM"},{"dia":5,"tipus":"sortida","qty":19,"lot":21,"cart":"RAM"},{"dia":9,"tipus":"sortida","qty":15,"lot":21,"cart":"RAM"},{"dia":16,"tipus":"sortida","qty":14,"lot":21,"cart":"RAM"},{"dia":1,"tipus":"entrada","qty":1,"lot":25,"cart":"RAM"},{"dia":1,"tipus":"entrada","qty":162,"lot":26,"cart":"RAM"},{"dia":3,"tipus":"entrada","qty":1,"lot":26,"cart":"RAM"},{"dia":4,"tipus":"entrada","qty":1,"lot":26,"cart":"RAM"},{"dia":5,"tipus":"entrada","qty":1,"lot":26,"cart":"RAM"},{"dia":18,"tipus":"sortida","qty":3,"lot":26,"cart":"RAM"}],"7-2025":[{"dia":3,"tipus":"sortida","qty":4,"lot":21,"cart":"RAM"},{"dia":31,"tipus":"sortida","qty":10,"lot":21,"cart":"RAM"},{"dia":1,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"},{"dia":3,"tipus":"sortida","qty":1,"lot":26,"cart":"RAM"},{"dia":21,"tipus":"sortida","qty":1,"lot":26,"cart":"RAM"}],"4-2025":[{"dia":30,"tipus":"sortida","qty":1,"lot":23,"cart":"RAM"},{"dia":1,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"}],"8-2025":[{"dia":29,"tipus":"sortida","qty":25,"lot":23,"cart":"RAM"},{"dia":1,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"},{"dia":23,"tipus":"entrada","qty":99,"lot":27,"cart":"RAM"},{"dia":30,"tipus":"entrada","qty":67,"lot":27,"cart":"RAM"}],"9-2025":[{"dia":2,"tipus":"sortida","qty":34,"lot":23,"cart":"RAM"},{"dia":4,"tipus":"sortida","qty":18,"lot":23,"cart":"RAM"},{"dia":5,"tipus":"sortida","qty":25,"lot":23,"cart":"RAM"},{"dia":12,"tipus":"sortida","qty":6,"lot":23,"cart":"RAM"},{"dia":22,"tipus":"sortida","qty":12,"lot":23,"cart":"RAM"},{"dia":23,"tipus":"sortida","qty":14,"lot":23,"cart":"RAM"},{"dia":13,"tipus":"sortida","qty":1,"lot":27,"cart":"RAM"}],"10-2025":[{"dia":2,"tipus":"sortida","qty":2,"lot":23,"cart":"RAM"},{"dia":7,"tipus":"sortida","qty":5,"lot":23,"cart":"RAM"},{"dia":14,"tipus":"sortida","qty":1,"lot":23,"cart":"RAM"},{"dia":20,"tipus":"sortida","qty":1,"lot":27,"cart":"RAM"}],"12-2025":[{"dia":9,"tipus":"sortida","qty":45,"lot":25,"cart":"RAM"},{"dia":12,"tipus":"sortida","qty":29,"lot":25,"cart":"RAM"},{"dia":15,"tipus":"sortida","qty":28,"lot":25,"cart":"RAM"},{"dia":16,"tipus":"sortida","qty":26,"lot":25,"cart":"RAM"},{"dia":18,"tipus":"sortida","qty":7,"lot":25,"cart":"RAM"},{"dia":22,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"},{"dia":30,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"},{"dia":30,"tipus":"sortida","qty":1,"lot":27,"cart":"RAM"}],"11-2025":[{"dia":5,"tipus":"sortida","qty":1,"lot":26,"cart":"RAM"},{"dia":1,"tipus":"entrada","qty":1,"lot":27,"cart":"RAM"},{"dia":18,"tipus":"sortida","qty":1,"lot":27,"cart":"RAM"},{"dia":22,"tipus":"entrada","qty":112,"lot":28,"cart":"RAM"},{"dia":29,"tipus":"entrada","qty":38,"lot":28,"cart":"RAM"}],"1-2026":[{"dia":2,"tipus":"sortida","qty":1,"lot":28,"cart":"RAM"}]},"assig":{}}
     };
 }
 
@@ -500,9 +1191,13 @@ function renderG(g){
 }
 
 function cartsActuals(g, lotNum){
+  // Partim de les cartilles base del lot i apliquem TOTS els moviments de tots els mesos
   const lot = S[g].lots.find(l=>l.num===lotNum);
   if(!lot) return {};
+  // Copiem cartilles inicials (les que van entrar originalment)
+  // Les cartilles actuals les calculem restant els moviments que tinguin cartilla assignada
   const base = {...(lot.carts||{})};
+  // Recollim tots els moviments de tots els mesos per aquest lot
   Object.values(S[g].movs||{}).forEach(ms=>{
     ms.filter(m=>m.lot===lotNum).forEach(m=>{
       const c = m.cart && m.cart!=='-' ? m.cart : null;
@@ -516,16 +1211,19 @@ function cartsActuals(g, lotNum){
 }
 
 function totalEntrats(g, lotNum){
+  // Suma totes les entrades de tots els mesos per aquest lot
   let total = 0;
   Object.values(S[g].movs||{}).forEach(ms=>{
     ms.filter(m=>m.lot===lotNum && m.tipus==='entrada').forEach(m=>{ total+=m.qty; });
   });
+  // Afegim el valor inicial del lot (les que ja hi eren en crear-lo)
   const lot=S[g].lots.find(l=>l.num===lotNum);
-  if(lot) total+=(lot.vIni!==undefined?lot.vIni:lot.v);
+  if(lot) total+=(lot.vIni!==undefined?lot.vIni:lot.v); // vIni pot ser 0
   return total;
 }
 
 function primeraEntrada(g, lotNum){
+  // Troba el mes/any més antic amb moviment d'entrada per aquest lot
   let primer=null;
   Object.entries(S[g].movs||{}).forEach(([k,ms])=>{
     const entrades=ms.filter(m=>m.lot===lotNum && m.tipus==='entrada');
@@ -539,6 +1237,7 @@ function primeraEntrada(g, lotNum){
   return primer.toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
 }
 
+// Vedells d'un lot al final d'un mes/any (acumulant tots els moviments fins aquell mes)
 function vLotAlMes(g, lotNum, mes, any){
   const lot=S[g].lots.find(l=>l.num===lotNum);
   if(!lot) return 0;
@@ -555,16 +1254,19 @@ function vLotAlMes(g, lotNum, mes, any){
   return Math.max(0,v);
 }
 
+// Vedells a inici del mes (= fi del mes anterior)
 function vLotIniMes(g,lotNum,mes,any){
   let pm=mes-1, py=any;
   if(pm===0){pm=12; py--;}
   return vLotAlMes(g,lotNum,pm,py);
 }
 
+// Vedells d'una cartilla concreta al final del mes
 function vCartAlMes(g,lotNum,cart,mes,any){
   const lot=S[g].lots.find(l=>l.num===lotNum);
   if(!lot) return 0;
   const ym=any*100+mes;
+  // Determina quina cartilla porta el vIni (la que NO té entrades registrades)
   const carts=Object.keys(lot.carts||{});
   const allMovsLot=Object.values(S[g].movs||{}).flat().filter(mv=>mv.lot===lotNum);
   const cartsNoEntrada=carts.filter(ct=>!allMovsLot.some(mv=>mv.cart===ct&&mv.tipus==='entrada'));
@@ -610,6 +1312,7 @@ function rLots(g){
     const vFi=esMesActual?l.v:vLotAlMes(g,l.num,mes,any);
     const tancaAquestMes=(vIniReal>0&&vFi===0);
 
+    // Moviments del mes per aquest lot
     const movsLot=(S[g].movs[mes+'-'+any]||[]).filter(mv=>mv.lot===l.num).sort((a,b)=>a.dia-b.dia);
     const movsHTML=movsLot.length?`<div class="lc-movs">${movsLot.map(mv=>{
       const isIn=mv.tipus==='entrada';
@@ -621,9 +1324,11 @@ function rLots(g){
         <span class="cc cc-${ccls(mv.cart||'-')}" style="font-size:.6rem;padding:1px 4px">${mv.cart||'-'}</span>
         ${isBaixa?'<span style="font-size:.58rem;color:#a00;margin-left:2px">baixa</span>':''}
       </div>`;
-    }).join('')}</div>`:''
+    }).join('')}</div>`:'';;
 
+    // Cartilles: inici de mes → fi de mes per cada cartilla
     const carts=Object.keys(l.carts||{});
+    // Determina quina cartilla porta el vIni
     const allMovsLot=Object.values(S[g].movs||{}).flat().filter(mv=>mv.lot===l.num);
     const cartsNoEntrada=carts.filter(ct=>!allMovsLot.some(mv=>mv.cart===ct&&mv.tipus==='entrada'));
     const cartVIni=cartsNoEntrada.length>=1?cartsNoEntrada[0]:null;
@@ -631,9 +1336,17 @@ function rLots(g){
     const cartsHTML=carts.map(ct=>{
       const cinici=vCartIniMes(g,l.num,ct,mes,any);
       const cfi=vCartAlMes(g,l.num,ct,mes,any);
+      // Sap si la cartilla té activitat fins a aquest mes
+      const ym=any*100+mes;
+      const teActivitat=allMovsLot.some(mv=>{
+        const pts=mv._ym||0; return mv.cart===ct;
+      });
+      // Cartilla coneguda si té moviments o és la vIni cart
       const coneguda=(ct===cartVIni)||(allMovsLot.some(mv=>mv.cart===ct));
       const cls=coneguda?`cc-${ccls(ct)}`:'cc-unknown';
+      // Mostra la fila si tenia animals en algun moment fins a aquest mes
       if(cinici===0&&cfi===0){
+        // Potser ja va tancar en mesos anteriors, comprova si va tenir animals algun cop
         const hasTingut=allMovsLot.some(mv=>mv.cart===ct)||(ct===cartVIni&&(l.vIni||0)>0);
         if(!hasTingut) return '';
       }
@@ -651,6 +1364,7 @@ function rLots(g){
     const xbtn=l.actiu&&esMesActual?`<button class="xbtn" onclick="tancaLot('${g}',${l.num})">✕</button>`:'';
     const tancat=tancaAquestMes?`<div class="lot-tancat">✓ Tanca aquest mes</div>`:'';
 
+    // Border class: si hi ha >1 cartilla activa, usa gradient
     const cartsActives=carts.filter(ct=>{
       const ci=vCartIniMes(g,l.num,ct,mes,any);
       const cf=vCartAlMes(g,l.num,ct,mes,any);
@@ -714,6 +1428,7 @@ function rMovList(g){
 }
 
 // ---- TRAMS ----
+// Preu correcte per un mes/any
 function preuPerMes(any,mes){
   if(any<2025||(any===2025&&mes===1)) return 0.30;
   if(any===2025) return 0.35;
@@ -727,14 +1442,17 @@ function calcTrams(g,lotNum,mes,any){
   const dies=dm(mes,any);
   const preu=preuPerMes(any,mes);
   let ini=vLotIniMes(g,lotNum,mes,any);
+  // Si ini=0 i la primera entrada és al dia X, comencem a comptar des del dia X
   let dIni=ini>0?1:(ms.length&&ms[0].tipus==='entrada'?ms[0].dia:1);
   let trams=[],actual=ini;
   ms.forEach(ev=>{
     if(ev.dia>dIni&&actual>0){
+      // El dia de la sortida/entrada inclou el dia anterior (la sortida es cobra el dia que surten)
       const d=ev.tipus==='sortida'?ev.dia-dIni+1:ev.dia-dIni;
       trams.push({v:actual,d,imp:Math.round(actual*d*preu*100)/100,lot:lotNum,preu});
       dIni=ev.tipus==='sortida'?ev.dia+1:ev.dia;
     } else if(ev.dia===dIni&&actual>0&&ev.tipus==='sortida'){
+      // Sortida el mateix dia que dIni: 1 dia
       trams.push({v:actual,d:1,imp:Math.round(actual*1*preu*100)/100,lot:lotNum,preu});
       dIni=ev.dia+1;
     }
@@ -750,20 +1468,24 @@ function calcTrams(g,lotNum,mes,any){
 
 // ---- FACTURES ----
 function calcTramsByCart(g,lotNum,cart,mes,any){
+  // Com calcTrams però per a una cartilla específica
   const lot=S[g].lots.find(l=>l.num===lotNum);
   if(!lot) return [];
   const ms=gmovs(g,mes,any).filter(m=>m.lot===lotNum&&m.cart===cart).sort((a,b)=>a.dia-b.dia);
   const dies_mes=dm(mes,any);
   const preu=preuPerMes(any,mes);
   let ini=vCartIniMes(g,lotNum,cart,mes,any);
+  // Si ini=0 i la primera entrada és al dia X, comencem a comptar des del dia X
   let dIni=ini>0?1:(ms.length&&ms[0].tipus==='entrada'?ms[0].dia:1);
   let trams=[],actual=ini;
   ms.forEach(ev=>{
     if(ev.dia>dIni&&actual>0){
+      // El dia de sortida es cobra (inclusiu)
       const d=ev.tipus==='sortida'?ev.dia-dIni+1:ev.dia-dIni;
       trams.push({v:actual,d,imp:Math.round(actual*d*preu*100)/100,lot:lotNum,cart,preu});
       dIni=ev.tipus==='sortida'?ev.dia+1:ev.dia;
     } else if(ev.dia===dIni&&actual>0&&ev.tipus==='sortida'){
+      // Sortida el mateix dia que dIni: 1 dia
       trams.push({v:actual,d:1,imp:Math.round(actual*1*preu*100)/100,lot:lotNum,cart,preu});
       dIni=ev.dia+1;
     }
@@ -785,6 +1507,7 @@ function rFras(g){
   const esMesActual=(mes===mesAra&&any===anyAra);
   const cont=document.getElementById(g+'-fras');
 
+  // Lots actius aquest mes
   const lotsDelMes=S[g].lots.filter(l=>{
     const vIni=vLotIniMes(g,l.num,mes,any);
     const teEntrades=(S[g].movs[mes+'-'+any]||[]).some(mv=>mv.lot===l.num&&mv.tipus==='entrada');
@@ -844,7 +1567,7 @@ function rFras(g){
     return;
   }
 
-  // === FIGUERA <2026 i COSTA: factures per empresa ===
+  // === FIGUERA <2026 i COSTA: factures per empresa (comportament original) ===
   const perEmp={};
   lotsDelMes.forEach(lot=>{
     const emp=gassig(g,lot.num,mes,any);
@@ -921,12 +1644,15 @@ function afMov(g){
     lotNum=nN;
   } else lotNum=parseInt(lotSel);
 
+  // Validació sortida: no pot superar els vedells actuals del lot (per cartilla si aplica)
   if(tipus==='sortida'){
     const lot=S[g].lots.find(l=>l.num===lotNum);
     if(lot){
+      // Calcula vedells actuals considerant tots els moviments fins avui
       let vActual;
       if(g==='fig' && cart && cart!=='-'){
         vActual=vCartAlMes(g,lotNum,cart,mes,any);
+        // Resta moviments del mes actual ja registrats per aquesta cartilla i dies anteriors
         const movsAvui=(S[g].movs[mk(mes,any)]||[])
           .filter(m=>m.lot===lotNum&&m.cart===cart&&m.dia<dia);
         movsAvui.forEach(m=>{if(m.tipus==='entrada')vActual+=m.qty;else vActual-=m.qty;});
@@ -1031,6 +1757,7 @@ const MESOS_CA=['','Gener','Febrer','Març','Abril','Maig','Juny','Juliol','Agos
 function rHistSel(g){
   const sel=document.getElementById(g+'-hist-lot');
   const prev=sel.value;
+  // Tots els lots (actius i tancats) que tinguin algun moviment o vedells inicials
   const tots=S[g].lots.slice().sort((a,b)=>a.num-b.num);
   sel.innerHTML='<option value="">— Selecciona lot —</option>';
   tots.forEach(l=>{
@@ -1050,6 +1777,7 @@ function rHist(g){
   const lot=S[g].lots.find(l=>l.num===lotNum);
   if(!lot){cont.innerHTML='';return;}
 
+  // Recollir TOTS els moviments d'aquest lot, ordenats per mes/any/dia
   const allMovs=[];
   Object.entries(S[g].movs||{}).forEach(([k,ms])=>{
     const [m,y]=k.split('-').map(Number);
@@ -1063,6 +1791,7 @@ function rHist(g){
     return a.dia-b.dia;
   });
 
+  // Calcular totals
   const totEnt=allMovs.filter(m=>m.tipus==='entrada').reduce((s,m)=>s+m.qty,0);
   const totSort=allMovs.filter(m=>m.tipus!=='entrada').reduce((s,m)=>s+m.qty,0);
   const vIni=lot.vIni||0;
@@ -1070,8 +1799,10 @@ function rHist(g){
   const queden=lot.v;
   const dies_total=calcDiesTotals(g,lotNum,allMovs,lot);
 
+  // Cartilles actuals
   const cAct=cartsActuals(g,lotNum);
 
+  // Resum superior
   const ec=ecls(lot.emp);
   const colorVar=ec==='eco'?'eco':ec==='pe'?'pe':ec==='sat'?'sat':'costa';
 
@@ -1095,6 +1826,7 @@ function rHist(g){
       </div>
     </div>`;
 
+  // Si hi ha moviments amb cartilla, mostrar resum per cartilla
   const cartMovs={};
   allMovs.forEach(m=>{
     if(!m.cart||m.cart==='-') return;
@@ -1103,9 +1835,12 @@ function rHist(g){
     else cartMovs[m.cart].sort+=m.qty;
   });
   if(Object.keys(cartMovs).length>0){
+    // Si hi ha vIni i alguna cartilla no té entrada → és la cartilla dels vedells inicials
     if(vIni>0){
+      const cartsAmbEntrada=Object.entries(cartMovs).filter(([c,v])=>v.ent>0).map(([c])=>c);
       const cartsSenseEntrada=Object.entries(cartMovs).filter(([c,v])=>v.ent===0&&v.sort>0);
       if(cartsSenseEntrada.length===1){
+        // Afegim vIni com entrades d'aquesta cartilla
         cartMovs[cartsSenseEntrada[0][0]].ent+=vIni;
       }
     }
@@ -1116,6 +1851,7 @@ function rHist(g){
     html+=`</div>`;
   }
 
+  // Taula de moviments per mes
   html+=`<table class="hist-table"><thead><tr>
     <th>Data</th><th>Tipus</th><th>Vedells</th><th>Cartilla</th><th class="r">Acumulat</th>
   </tr></thead><tbody>`;
@@ -1159,9 +1895,11 @@ function rHist(g){
 
 function calcDiesTotals(g,lotNum,allMovs,lot){
   if(!allMovs.length) return 0;
+  // Primer dia = primera entrada (o primer moviment si vIni>0)
   const entrades=allMovs.filter(m=>m.tipus==='entrada');
   const primer=entrades.length?entrades[0]:allMovs[0];
   const primerData=new Date(primer.any,primer.mes-1,primer.dia);
+  // Últim dia = última sortida si lot tancat, sinó avui
   let darrData;
   if(!lot.actiu){
     const sortides=allMovs.filter(m=>m.tipus==='sortida');
@@ -1170,13 +1908,16 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
   } else {
     darrData=new Date();
   }
+  // Dies inclusius (primer dia compta, últim dia compta)
   return Math.floor((darrData-primerData)/(1000*60*60*24))+1;
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
 renderG('fig');renderG('costa');
 loadNotes();
+// Init historial
 _hist=[JSON.stringify(S)]; _histIdx=0; updUndoBtn();
+// Keyboard shortcuts Cmd+Z / Cmd+Shift+Z
 document.addEventListener('keydown',function(e){
   if((e.metaKey||e.ctrlKey)&&e.key==='z'&&!e.shiftKey){
     const g=document.querySelector('.page.active').id.replace('page-','');
