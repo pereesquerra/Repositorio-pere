@@ -3,3 +3,1190 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Factures Vedells</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f1ec;--card:#fff;--ink:#1c1b18;--muted:#8a8478;--border:#e2ddd5;
+  --fig:#4a7c59;--fig-lt:#eaf3ed;
+  --costa:#3d6b8c;--costa-lt:#e4eff7;
+  --eco:#4a7c59;--eco-lt:#eaf3ed;
+  --pe:#e06a00;--pe-lt:#fff0e0;
+  --sat:#7b5ea7;--sat-lt:#f0ebf8;
+  --ram:#3d6b8c;--ram-lt:#e4eff7;
+  --shadow:0 2px 14px rgba(0,0,0,.07);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--ink);min-height:100vh}
+
+header{background:var(--ink);color:#fff;padding:13px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+header h1{font-family:'Playfair Display',serif;font-size:1.1rem}
+header .sub{font-family:'DM Mono',monospace;font-size:.7rem;color:#999}
+
+.tabs{display:flex;background:var(--ink);padding:0 20px;gap:3px}
+.tab{padding:9px 18px;font-size:.83rem;font-weight:500;cursor:pointer;border-radius:8px 8px 0 0;border:none;background:none;color:#888;font-family:'DM Sans',sans-serif;transition:all .2s}
+.tab.active{background:var(--bg);color:var(--ink)}
+
+.page{display:none;padding:16px 20px}
+.page.active{display:block}
+
+.g-header{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.g-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.g-header h2{font-family:'Playfair Display',serif;font-size:1.25rem}
+.g-header .gsub{font-size:.73rem;color:var(--muted);font-family:'DM Mono',monospace}
+
+.mes-bar{display:flex;align-items:center;gap:8px;background:var(--card);border-radius:10px;padding:10px 14px;box-shadow:var(--shadow);margin-bottom:16px;flex-wrap:wrap}
+.mes-bar label{font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.mes-bar select{padding:6px 9px;border-radius:6px;border:1.5px solid var(--border);font-size:.84rem;background:#fff;font-family:'DM Sans',sans-serif;color:var(--ink)}
+.preu-pill{margin-left:auto;background:var(--ink);color:#fff;padding:4px 12px;border-radius:20px;font-family:'DM Mono',monospace;font-size:.73rem;cursor:pointer;border:none}
+.preu-pill:hover{background:#333}
+
+.stitle{font-size:.67rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:18px 0 9px}
+
+/* LOTS */
+.lots-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:8px}
+.lot-card{background:var(--card);border-radius:12px;padding:14px 14px 12px;box-shadow:var(--shadow);border-left:5px solid var(--border);position:relative;overflow:hidden}
+.lc-num{font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:700;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.lc-count{font-family:'Playfair Display',serif;font-size:2.2rem;line-height:1;margin:4px 0 0}
+.lc-label{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.lc-main{display:flex;align-items:baseline;gap:8px;margin:0 0 4px}
+.lc-main-n{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:700;line-height:1}
+.lc-main-arrow{font-size:1.1rem;color:var(--muted);line-height:1;padding:0 1px}
+.lc-total-badge{font-size:.63rem;color:var(--muted);margin-bottom:10px;letter-spacing:.03em}
+.lc-total-badge b{color:var(--ink);font-weight:700}
+.lc-stats{display:none}
+.lc-stat{display:flex;flex-direction:column;align-items:center;gap:2px}
+.lc-stat-n{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;line-height:1}
+.lc-stat-l{font-size:.5rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.lc-arrow{font-size:1rem;color:var(--muted);text-align:center}
+.lc-carts{display:flex;flex-direction:column;gap:7px;border-top:1px solid var(--border);padding-top:10px;margin-top:6px}
+.cart-row{display:grid;grid-template-columns:auto 1fr auto 18px auto;align-items:center;gap:6px;padding:2px 0}
+.cart-ini{font-family:'DM Mono',monospace;font-size:.78rem;color:var(--muted);text-align:right;min-width:24px}
+.cart-arr{font-size:.75rem;text-align:center}
+.cart-fi{font-family:'DM Mono',monospace;font-size:1rem;font-weight:700;text-align:left;min-width:28px}
+.lc-movs{margin-top:8px;border-top:1px solid var(--border);padding-top:7px;display:flex;flex-direction:column;gap:4px}
+.lc-mov{display:flex;align-items:center;gap:5px;font-size:.74rem;padding:3px 4px;border-radius:6px;background:var(--bg)}
+.lc-mov-dia{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--muted);min-width:40px}
+.lc-mov-badge{padding:2px 6px;border-radius:8px;font-size:.63rem;font-weight:700;min-width:18px;text-align:center}
+.lc-mov-in{background:#d4edda;color:#155724}
+.lc-mov-out{background:#f8d7da;color:#721c24}
+.lc-mov-baixa{background:#fee;color:#a00;border:1px solid #fcc}
+.notes-section{margin:0 0 18px 0;border-radius:10px;overflow:hidden;box-shadow:var(--shadow)}
+.notes-toggle{list-style:none;cursor:pointer;padding:10px 16px;font-size:.85rem;font-weight:700;background:var(--card);color:var(--muted);display:flex;align-items:center;gap:8px;user-select:none}
+.notes-toggle::-webkit-details-marker{display:none}
+.notes-section[open] .notes-toggle{border-bottom:1px solid var(--border)}
+.notes-body{background:var(--card);padding:10px}
+.notes-ta{width:100%;min-height:90px;border:1px solid var(--border);border-radius:8px;padding:10px;font-size:.82rem;font-family:inherit;resize:vertical;background:var(--bg);color:var(--text);box-sizing:border-box}
+.notes-ta:focus{outline:none;border-color:var(--eco)}
+.lc-mov-q{font-family:'DM Mono',monospace;font-weight:700;min-width:28px;text-align:right}
+.cart-row-label{font-size:.62rem;color:var(--muted);flex:1;text-align:right}
+.cart-n{font-family:'DM Mono',monospace;font-size:.85rem;font-weight:700;color:var(--ink);min-width:28px;text-align:right}
+.cc{padding:2px 6px;border-radius:8px;font-size:.65rem;font-weight:700}
+.cc-eco{background:var(--eco-lt);color:var(--eco)}
+.cc-pe{background:var(--pe-lt);color:var(--pe)}
+.cc-sat{background:var(--sat-lt);color:var(--sat)}
+.cc-ram{background:var(--ram-lt);color:var(--ram)}
+.cc-unknown{background:#f0f0f0;color:#bbb}
+.lot-card .xbtn{position:absolute;top:8px;right:8px;width:20px;height:20px;background:none;border:1px solid var(--border);border-radius:50%;cursor:pointer;font-size:.6rem;color:var(--muted);display:flex;align-items:center;justify-content:center}
+.lot-card .xbtn:hover{background:#fee;color:#c44;border-color:#f99}
+.bl-eco{border-left-color:var(--eco)}
+.bl-pe{border-left-color:var(--pe)}
+.bl-sat{border-left-color:var(--sat)}
+.bl-ram{border-left-color:var(--ram)}
+.bl-eco-sat{border-left:5px solid transparent;border-image:linear-gradient(to bottom,var(--eco) 50%,var(--sat) 50%) 1}
+.bl-eco-pe{border-left:5px solid transparent;border-image:linear-gradient(to bottom,var(--eco) 50%,var(--pe) 50%) 1}
+.bl-sat-pe{border-left:5px solid transparent;border-image:linear-gradient(to bottom,var(--sat) 50%,var(--pe) 50%) 1}
+.bl-eco-mix{border-left:5px solid transparent;border-image:linear-gradient(to bottom,var(--eco) 33%,var(--sat) 33%,var(--sat) 66%,var(--pe) 66%) 1}
+.lot-tancat{font-size:.65rem;font-weight:800;color:#1a6b3a;background:#d0f2e0;border-radius:20px;padding:3px 10px;margin-top:7px;display:inline-flex;align-items:center;gap:4px;letter-spacing:.03em;white-space:nowrap}
+.lot-card-closed{border:2px dashed #2a7a4b!important;border-left:5px solid #2a7a4b!important}
+.lot-tancat{font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:4px}
+.cc-unk{background:#fff;color:#aaa;border:1.5px solid #ddd}
+
+.hist-table tfoot td{font-weight:700;border-top:2px solid var(--border);padding:9px 12px;background:#faf9f6}
+.hist-table tfoot td.r{font-family:'DM Mono',monospace}
+.hist-print{margin-top:10px}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:8px;font-size:.82rem;font-weight:500;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .15s}
+.b-ink{background:var(--ink);color:#fff}.b-ink:hover{background:#333}
+.b-fig{background:var(--fig);color:#fff}.b-fig:hover{background:#3a6347}
+.b-costa{background:var(--costa);color:#fff}.b-costa:hover{background:#2f5470}
+.b-out{background:#fff;color:var(--ink);border:1.5px solid var(--border)}.b-out:hover{border-color:var(--ink)}
+.b-sm{padding:5px 10px;font-size:.76rem}
+.btn-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:7px}
+
+/* FORM MOVIMENTS */
+.mov-box{background:var(--card);border-radius:12px;box-shadow:var(--shadow);padding:15px;margin-top:6px}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:9px;margin-bottom:10px}
+.fg{display:flex;flex-direction:column;gap:3px}
+.fg label{font-size:.67rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.fg input,.fg select{padding:7px 9px;border-radius:7px;border:1.5px solid var(--border);font-size:.84rem;background:#fff;font-family:'DM Sans',sans-serif;color:var(--ink)}
+.fg input:focus,.fg select:focus{outline:none;border-color:var(--ink)}
+
+/* MOV LIST */
+.mov-list{display:flex;flex-direction:column;gap:4px;margin-top:10px}
+.mov-item{display:flex;align-items:center;gap:7px;padding:6px 10px;border-radius:8px;background:var(--bg);font-size:.82rem;border:1px solid var(--border)}
+.md{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--muted);min-width:38px;font-weight:500}
+.mb{padding:2px 7px;border-radius:12px;font-size:.67rem;font-weight:700;white-space:nowrap}
+.mb-in{background:#d4f0dc;color:#145a2e}
+.mb-out{background:#fde8d8;color:#7a2d0a}
+.mq{font-weight:700}
+.ml{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--muted)}
+.mc{margin-left:auto}
+.mdel{background:none;border:none;cursor:pointer;color:#ccc;font-size:.73rem;padding:2px 5px;border-radius:4px;margin-left:2px}
+.mdel:hover{color:#c44;background:#fee}
+.empty{text-align:center;padding:22px;color:var(--muted);font-size:.82rem}
+
+/* FACTURA */
+.fra-card{background:var(--card);border-radius:12px;box-shadow:var(--shadow);padding:17px;margin-bottom:11px;border-top:4px solid var(--border)}
+.fra-eco{border-top-color:var(--eco)}
+.fra-pe{border-top-color:var(--pe)}
+.fra-sat{border-top-color:var(--sat)}
+.fra-ram{border-top-color:var(--ram)}
+.fra-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:13px;flex-wrap:wrap;gap:6px}
+.fra-head h3{font-family:'Playfair Display',serif;font-size:.98rem}
+.fra-meta{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--muted)}
+.ftable{width:100%;border-collapse:collapse;font-size:.82rem}
+.ftable th{text-align:left;padding:5px 7px;font-size:.63rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);border-bottom:1px solid var(--border)}
+.ftable td{padding:6px 7px;border-bottom:1px solid #f5f2ed}
+.ftable th.r,.ftable td.r{text-align:right}
+.ftable .fbase td,.ftable .fiva td{color:var(--muted);font-size:.77rem;border-bottom:none;padding-top:8px}
+.ftable .ftot td{font-weight:700;font-size:.93rem;border-top:2px solid var(--border);padding-top:9px;border-bottom:none}
+.lchip{display:inline-block;padding:1px 6px;border-radius:8px;font-size:.67rem;font-weight:700}
+
+/* MODAL */
+.mbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:300;align-items:center;justify-content:center;padding:20px}
+.mbg.open{display:flex}
+.mbox{background:#fff;border-radius:14px;padding:20px;width:100%;max-width:380px;box-shadow:0 20px 50px rgba(0,0,0,.22)}
+.mbox h3{font-family:'Playfair Display',serif;font-size:1rem;margin-bottom:14px}
+.mact{display:flex;gap:7px;justify-content:flex-end;margin-top:15px}
+
+/* HISTORIAL LOTS */
+.hist-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.hist-bar label{font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.hist-bar select{padding:6px 10px;border-radius:7px;border:1.5px solid var(--border);font-size:.84rem;background:#fff;font-family:'DM Sans',sans-serif;color:var(--ink)}
+.hist-card{background:var(--card);border-radius:12px;box-shadow:var(--shadow);overflow:hidden}
+.hist-summary{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:1px;background:var(--border);border-bottom:1px solid var(--border)}
+.hist-stat{background:var(--card);padding:12px 14px}
+.hist-stat .hs-val{font-family:'Playfair Display',serif;font-size:1.5rem;line-height:1}
+.hist-stat .hs-lbl{font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:2px}
+.hist-table{width:100%;border-collapse:collapse;font-size:.82rem}
+.hist-table th{text-align:left;padding:8px 12px;font-size:.63rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);border-bottom:2px solid var(--border);background:#faf9f6}
+.hist-table th.r{text-align:right}
+.hist-table td{padding:7px 12px;border-bottom:1px solid #f5f2ed}
+.hist-table td.r{text-align:right;font-family:'DM Mono',monospace;font-size:.78rem}
+.hist-table tr.in-row{background:#f8fdf9}
+.hist-table tr.out-row{background:#fff}
+
+@media print{
+  header,.tabs,.mes-bar,.stitle,.lots-grid,.btn-row,.mov-box,#fig-fras,#costa-fras,.hist-bar,.hist-print,
+  button,.mbg{display:none!important}
+  .page{display:block!important;padding:0}
+  .hist-card{box-shadow:none;border:1px solid #ccc}
+  body{background:white}
+}
+
+@media(max-width:560px){
+  .lots-grid{grid-template-columns:repeat(2,1fr)}
+  .fgrid{grid-template-columns:repeat(2,1fr)}
+  .page{padding:12px 13px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div><h1>🐄 Factures Vedells</h1></div>
+  <div class="sub" id="avui"></div>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="showPage('fig',this)">🌿 Figuera</button>
+  <button class="tab" onclick="showPage('costa',this)">🏔 La Costa</button>
+</div>
+
+<!-- FIGUERA -->
+<div class="page active" id="page-fig">
+  <div class="g-header">
+    <div class="g-dot" style="background:var(--fig)"></div>
+    <div><h2>Granja Figuera</h2><div class="gsub">Sant Mateu de Bages</div></div>
+  </div>
+  <div class="mes-bar">
+    <label>Mes</label>
+    <select id="fig-mes" onchange="renderG('fig')">
+      <option value="1">Gen</option><option value="2">Feb</option><option value="3" selected>Mar</option>
+      <option value="4">Abr</option><option value="5">Mai</option><option value="6">Jun</option>
+      <option value="7">Jul</option><option value="8">Ago</option><option value="9">Set</option>
+      <option value="10">Oct</option><option value="11">Nov</option><option value="12">Des</option>
+    </select>
+    <select id="fig-any" onchange="renderG('fig')">
+      <option value="2025">2025</option><option value="2026" selected>2026</option>
+    </select>
+    <button class="preu-pill" onclick="editPreu('fig')" id="fig-preu-btn">0,40 €/dia</button>
+  </div>
+
+  <div class="stitle">Lots actius</div>
+  <div class="lots-grid" id="fig-lots"></div>
+  <div class="btn-row"><button class="btn b-fig b-sm" onclick="openMLot('fig')">+ Nou lot</button><button class="btn b-out b-sm" id="fig-undo" onclick="undo('fig')" disabled title="Desfer (Cmd+Z)">↩ Desfer</button><button class="btn b-out b-sm" id="fig-redo" onclick="redo('fig')" disabled title="Refer (Cmd+Shift+Z)">↪ Refer</button></div>
+
+  <div class="stitle">Moviments del mes</div>
+  <div class="mov-box">
+    <div class="fgrid">
+      <div class="fg"><label>Dia</label><input type="number" id="fig-dia" min="1" max="31" placeholder="1–31"></div>
+      <div class="fg"><label>Tipus</label>
+        <select id="fig-tipus"><option value="sortida">Sortida/Baixa</option><option value="entrada">Entrada</option></select>
+      </div>
+      <div class="fg"><label>Vedells</label><input type="number" id="fig-qty" min="1" placeholder="Nº"></div>
+      <div class="fg"><label>Lot</label><select id="fig-lot" onchange="onLotC('fig')"></select></div>
+      <div class="fg">
+        <label>Cartilla</label>
+        <select id="fig-cart">
+          <option value="ECO">ECO</option>
+          <option value="SATF">SATF</option>
+          <option value="PE">PE</option>
+          <option value="-">—</option>
+        </select>
+      </div>
+      <div class="fg" id="fig-nlg" style="display:none"><label>Nº lot nou</label><input type="number" id="fig-nl" placeholder="ex:11"></div>
+    </div>
+    <div class="btn-row"><button class="btn b-fig b-sm" onclick="afMov('fig')">+ Afegir</button></div>
+    <div class="mov-list" id="fig-movlist"></div>
+  </div>
+
+  
+  <details class="notes-section">
+    <summary class="notes-toggle">📝 Notes</summary>
+    <div class="notes-body">
+      <textarea class="notes-ta" id="fig-notes" oninput="saveNotes('fig')" placeholder="Escriu les teves anotacions aquí..."></textarea>
+    </div>
+  </details>
+
+  <div class="stitle">Factures del mes</div>
+  <div id="fig-fras"></div>
+
+  <div class="stitle" style="margin-top:28px">📋 Historial de lots</div>
+  <div class="hist-bar">
+    <label>Lot</label>
+    <select id="fig-hist-lot" onchange="rHist('fig')">
+      <option value="">— Selecciona lot —</option>
+    </select>
+    <button class="btn b-out b-sm hist-print" onclick="window.print()">🖨 Imprimir</button>
+  </div>
+  <div id="fig-hist-cont"></div>
+
+</div>
+
+<!-- LA COSTA -->
+<div class="page" id="page-costa">
+  <div class="g-header">
+    <div class="g-dot" style="background:var(--costa)"></div>
+    <div><h2>Granja La Costa</h2><div class="gsub">Santpedor · Ramaders Comarcals</div></div>
+  </div>
+  <div class="mes-bar">
+    <label>Mes</label>
+    <select id="costa-mes" onchange="renderG('costa')">
+      <option value="1">Gen</option><option value="2">Feb</option><option value="3" selected>Mar</option>
+      <option value="4">Abr</option><option value="5">Mai</option><option value="6">Jun</option>
+      <option value="7">Jul</option><option value="8">Ago</option><option value="9">Set</option>
+      <option value="10">Oct</option><option value="11">Nov</option><option value="12">Des</option>
+    </select>
+    <select id="costa-any" onchange="renderG('costa')">
+      <option value="2025">2025</option><option value="2026" selected>2026</option>
+    </select>
+    <button class="preu-pill" onclick="editPreu('costa')" id="costa-preu-btn">0,40 €/dia</button>
+  </div>
+
+  <div class="stitle">Lots actius</div>
+  <div class="lots-grid" id="costa-lots"></div>
+  <div class="btn-row"><button class="btn b-costa b-sm" onclick="openMLot('costa')">+ Nou lot</button><button class="btn b-out b-sm" id="costa-undo" onclick="undo('costa')" disabled title="Desfer (Cmd+Z)">↩ Desfer</button><button class="btn b-out b-sm" id="costa-redo" onclick="redo('costa')" disabled title="Refer (Cmd+Shift+Z)">↪ Refer</button></div>
+
+  <div class="stitle">Moviments del mes</div>
+  <div class="mov-box">
+    <div class="fgrid">
+      <div class="fg"><label>Dia</label><input type="number" id="costa-dia" min="1" max="31" placeholder="1–31"></div>
+      <div class="fg"><label>Tipus</label>
+        <select id="costa-tipus"><option value="sortida">Sortida/Baixa</option><option value="entrada">Entrada</option></select>
+      </div>
+      <div class="fg"><label>Vedells</label><input type="number" id="costa-qty" min="1" placeholder="Nº"></div>
+      <div class="fg"><label>Lot</label><select id="costa-lot" onchange="onLotC('costa')"></select></div>
+      <div class="fg" id="costa-nlg" style="display:none"><label>Nº lot nou</label><input type="number" id="costa-nl" placeholder="ex:29"></div>
+    </div>
+    <div class="btn-row"><button class="btn b-costa b-sm" onclick="afMov('costa')">+ Afegir</button></div>
+    <div class="mov-list" id="costa-movlist"></div>
+  </div>
+
+  
+  <details class="notes-section">
+    <summary class="notes-toggle">📝 Notes</summary>
+    <div class="notes-body">
+      <textarea class="notes-ta" id="costa-notes" oninput="saveNotes('costa')" placeholder="Escriu les teves anotacions aquí..."></textarea>
+    </div>
+  </details>
+
+  <div class="stitle">Factura del mes</div>
+  <div id="costa-fras"></div>
+
+  <div class="stitle" style="margin-top:28px">📋 Historial de lots</div>
+  <div class="hist-bar">
+    <label>Lot</label>
+    <select id="costa-hist-lot" onchange="rHist('costa')">
+      <option value="">— Selecciona lot —</option>
+    </select>
+    <button class="btn b-out b-sm hist-print" onclick="window.print()">🖨 Imprimir</button>
+  </div>
+  <div id="costa-hist-cont"></div>
+
+</div>
+
+<!-- MODAL NOU LOT -->
+<div class="mbg" id="m-lot">
+  <div class="mbox">
+    <h3 id="m-lot-title">Nou lot</h3>
+    <div class="fgrid" style="grid-template-columns:1fr 1fr">
+      <div class="fg" style="grid-column:1/-1"><label>Número de lot</label><input type="number" id="ml-num" placeholder="ex: 11"></div>
+      <div class="fg"><label>Vedells inicials</label><input type="number" id="ml-ved" placeholder="0"></div>
+      <div class="fg" id="ml-eg"><label>Empresa</label>
+        <select id="ml-emp">
+          <option value="Ecofutur">Ecofutur</option>
+          <option value="Pere Esquerrà">Pere Esquerrà</option>
+          <option value="SAT Figuera">SAT Figuera</option>
+        </select>
+      </div>
+    </div>
+    <div class="mact">
+      <button class="btn b-out" onclick="closeML()">Cancel·lar</button>
+      <button class="btn b-ink" onclick="confirML()">Crear</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ASSIGNAR EMPRESA -->
+<div class="mbg" id="m-fra">
+  <div class="mbox">
+    <h3 id="m-fra-title">Assignar empresa</h3>
+    <p style="font-size:.8rem;color:var(--muted);margin-bottom:12px">A quina empresa factures aquest lot aquest mes?</p>
+    <div id="m-fra-carts" style="margin-bottom:12px;display:flex;gap:5px;flex-wrap:wrap"></div>
+    <div class="fg"><label>Empresa facturació</label>
+      <select id="m-fra-emp">
+        <option value="Ecofutur">Ecofutur</option>
+        <option value="Pere Esquerrà">Pere Esquerrà</option>
+        <option value="SAT Figuera">SAT Figuera</option>
+      </select>
+    </div>
+    <div class="mact">
+      <button class="btn b-out" onclick="closeMF()">Cancel·lar</button>
+      <button class="btn b-ink" onclick="confirMF()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const DM=[0,31,28,31,30,31,30,31,31,30,31,30,31];
+function dm(m,y){if(m===2&&((y%4===0&&y%100!==0)||(y%400===0)))return 29;return DM[m];}
+
+function defState(){
+  return {
+    fig:{
+      "preu":0.4,
+      "lots":[
+        {"num":4,"v":0,"vIni":205,"actiu":false,"carts":{"ECO":0},"emp":"Ecofutur"},
+        {"num":5,"v":0,"vIni":200,"actiu":false,"carts":{"ECO":0,"PE":0},"emp":"Ecofutur"},
+        {"num":6,"v":0,"vIni":0,"actiu":false,"carts":{"ECO":0,"SATF":0},"emp":"Ecofutur"},
+        {"num":7,"v":0,"vIni":0,"actiu":false,"carts":{"MIX":0},"emp":"Ecofutur"},
+        {"num":8,"v":0,"vIni":0,"actiu":false,"carts":{"ECO":0,"SATF":0},"emp":"Ecofutur"},
+        {"num":9,"v":257,"vIni":0,"actiu":true,"carts":{"ECO":0,"PE":0},"emp":"Ecofutur"},
+        {"num":10,"v":54,"vIni":0,"actiu":true,"carts":{"SATF":54},"emp":"SAT Figuera"}
+      ],
+      "movs":{
+        "7-2024":[{"dia":8,"tipus":"sortida","qty":1,"lot":4,"cart":"ECO"},{"dia":20,"tipus":"sortida","qty":1,"lot":4,"cart":"ECO"},{"dia":30,"tipus":"sortida","qty":18,"lot":4,"cart":"ECO"}],
+        "8-2024":[{"dia":2,"tipus":"sortida","qty":20,"lot":4,"cart":"ECO"},{"dia":6,"tipus":"sortida","qty":20,"lot":4,"cart":"ECO"},{"dia":9,"tipus":"sortida","qty":23,"lot":4,"cart":"ECO"},{"dia":16,"tipus":"sortida","qty":60,"lot":4,"cart":"ECO"},{"dia":20,"tipus":"sortida","qty":20,"lot":4,"cart":"ECO"},{"dia":26,"tipus":"sortida","qty":10,"lot":4,"cart":"ECO"},{"dia":27,"tipus":"sortida","qty":10,"lot":4,"cart":"ECO"}],
+        "9-2024":[{"dia":3,"tipus":"sortida","qty":4,"lot":4,"cart":"ECO"},{"dia":6,"tipus":"sortida","qty":5,"lot":4,"cart":"ECO"},{"dia":6,"tipus":"sortida","qty":1,"lot":5,"cart":"PE"},{"dia":12,"tipus":"sortida","qty":8,"lot":4,"cart":"ECO"},{"dia":4,"tipus":"entrada","qty":79,"lot":6,"cart":"SATF"},{"dia":23,"tipus":"entrada","qty":95,"lot":6,"cart":"ECO"},{"dia":23,"tipus":"entrada","qty":26,"lot":6,"cart":"SATF"},{"dia":27,"tipus":"entrada","qty":6,"lot":6,"cart":"ECO"}],
+        "10-2024":[{"dia":15,"tipus":"sortida","qty":1,"lot":4,"cart":"ECO"},{"dia":17,"tipus":"sortida","qty":4,"lot":4,"cart":"ECO"},{"dia":17,"tipus":"sortida","qty":13,"lot":5,"cart":"ECO"},{"dia":18,"tipus":"sortida","qty":23,"lot":5,"cart":"ECO"},{"dia":21,"tipus":"sortida","qty":24,"lot":5,"cart":"ECO"},{"dia":22,"tipus":"sortida","qty":20,"lot":5,"cart":"ECO"},{"dia":24,"tipus":"sortida","qty":20,"lot":5,"cart":"ECO"},{"dia":29,"tipus":"sortida","qty":12,"lot":5,"cart":"ECO"},{"dia":31,"tipus":"sortida","qty":9,"lot":5,"cart":"ECO"}],
+        "11-2024":[{"dia":1,"tipus":"sortida","qty":2,"lot":5,"cart":"ECO"},{"dia":7,"tipus":"sortida","qty":20,"lot":5,"cart":"ECO"},{"dia":8,"tipus":"sortida","qty":13,"lot":5,"cart":"ECO"},{"dia":15,"tipus":"sortida","qty":5,"lot":5,"cart":"ECO"},{"dia":16,"tipus":"sortida","qty":16,"lot":5,"cart":"ECO"},{"dia":18,"tipus":"sortida","qty":1,"lot":5,"cart":"ECO"},{"dia":21,"tipus":"sortida","qty":13,"lot":5,"cart":"ECO"},{"dia":22,"tipus":"entrada","qty":54,"lot":7,"cart":"MIX"},{"dia":27,"tipus":"entrada","qty":71,"lot":7,"cart":"MIX"},{"dia":27,"tipus":"entrada","qty":30,"lot":7,"cart":"MIX"},{"dia":29,"tipus":"entrada","qty":22,"lot":7,"cart":"MIX"},{"dia":29,"tipus":"sortida","qty":4,"lot":5,"cart":"ECO"},{"dia":30,"tipus":"sortida","qty":4,"lot":5,"cart":"ECO"},{"dia":30,"tipus":"sortida","qty":199,"lot":5,"cart":"PE"}],
+        "12-2024":[{"dia":18,"tipus":"entrada","qty":32,"lot":7,"cart":"MIX"},{"dia":9,"tipus":"sortida","qty":1,"lot":7,"cart":"MIX"},{"dia":10,"tipus":"sortida","qty":1,"lot":7,"cart":"MIX"},{"dia":14,"tipus":"sortida","qty":30,"lot":7,"cart":"MIX"}],
+        "3-2025":[{"dia":20,"tipus":"sortida","qty":1,"lot":7,"cart":"MIX"}],
+        "4-2025":[{"dia":4,"tipus":"sortida","qty":12,"lot":6,"cart":"SATF"},{"dia":8,"tipus":"sortida","qty":23,"lot":6,"cart":"SATF"},{"dia":11,"tipus":"sortida","qty":12,"lot":6,"cart":"SATF"},{"dia":15,"tipus":"sortida","qty":11,"lot":6,"cart":"SATF"},{"dia":17,"tipus":"sortida","qty":12,"lot":6,"cart":"SATF"},{"dia":25,"tipus":"sortida","qty":10,"lot":6,"cart":"SATF"},{"dia":28,"tipus":"sortida","qty":13,"lot":6,"cart":"SATF"},{"dia":30,"tipus":"sortida","qty":112,"lot":6,"cart":"SATF"},{"dia":30,"tipus":"sortida","qty":1,"lot":6,"cart":"SATF","baixa":true}],
+        "5-2025":[{"dia":8,"tipus":"entrada","qty":25,"lot":8,"cart":"ECO"},{"dia":14,"tipus":"entrada","qty":62,"lot":8,"cart":"SATF"},{"dia":21,"tipus":"entrada","qty":20,"lot":8,"cart":"ECO"},{"dia":21,"tipus":"entrada","qty":42,"lot":8,"cart":"SATF"},{"dia":28,"tipus":"entrada","qty":59,"lot":8,"cart":"ECO"},{"dia":31,"tipus":"sortida","qty":176,"lot":7,"cart":"MIX"}],
+        "6-2025":[{"dia":15,"tipus":"sortida","qty":1,"lot":8,"cart":"ECO"}],
+        "7-2025":[{"dia":18,"tipus":"sortida","qty":1,"lot":8,"cart":"ECO"},{"dia":29,"tipus":"sortida","qty":1,"lot":8,"cart":"ECO"}],
+        "8-2025":[{"dia":20,"tipus":"entrada","qty":54,"lot":9,"cart":"PE"},{"dia":20,"tipus":"entrada","qty":66,"lot":9,"cart":"ECO"},{"dia":26,"tipus":"entrada","qty":123,"lot":9,"cart":"ECO"},{"dia":28,"tipus":"entrada","qty":19,"lot":9,"cart":"ECO"}],
+        "9-2025":[{"dia":2,"tipus":"sortida","qty":1,"lot":9,"cart":"ECO"},{"dia":4,"tipus":"sortida","qty":1,"lot":8,"cart":"ECO"},{"dia":27,"tipus":"sortida","qty":1,"lot":9,"cart":"ECO"}],
+        "10-2025":[{"dia":10,"tipus":"sortida","qty":1,"lot":9,"cart":"ECO"},{"dia":27,"tipus":"sortida","qty":1,"lot":9,"cart":"ECO"}],
+        "12-2025":[{"dia":24,"tipus":"sortida","qty":72,"lot":8,"cart":"SATF"}],
+        "1-2026":[{"dia":2,"tipus":"sortida","qty":10,"lot":8,"cart":"SATF"},{"dia":5,"tipus":"sortida","qty":16,"lot":8,"cart":"SATF"},{"dia":13,"tipus":"sortida","qty":6,"lot":8,"cart":"SATF"},{"dia":13,"tipus":"sortida","qty":27,"lot":8,"cart":"ECO"},{"dia":13,"tipus":"sortida","qty":1,"lot":9,"cart":"ECO"},{"dia":19,"tipus":"sortida","qty":10,"lot":8,"cart":"ECO"},{"dia":23,"tipus":"sortida","qty":15,"lot":8,"cart":"ECO"},{"dia":27,"tipus":"sortida","qty":15,"lot":8,"cart":"ECO"},{"dia":30,"tipus":"sortida","qty":5,"lot":8,"cart":"ECO"}],
+        "2-2026":[{"dia":2,"tipus":"sortida","qty":6,"lot":8,"cart":"ECO"},{"dia":22,"tipus":"sortida","qty":12,"lot":8,"cart":"ECO"},{"dia":26,"tipus":"entrada","qty":54,"lot":10,"cart":"SATF"}],
+        "3-2026":[{"dia":2,"tipus":"sortida","qty":10,"lot":8,"cart":"ECO"}]
+      },
+      "assig":{}
+    },
+    costa:{"preu":0.4,"lots":[{"num":18,"v":0,"vIni":4,"actiu":false,"carts":{"RAM":4},"emp":"Ramaders"},{"num":20,"v":0,"vIni":40,"actiu":false,"carts":{"RAM":0},"emp":"Ramaders"},{"num":21,"v":0,"vIni":141,"actiu":false,"carts":{"RAM":141},"emp":"Ramaders"},{"num":23,"v":0,"vIni":144,"actiu":false,"carts":{"RAM":144},"emp":"Ramaders"},{"num":24,"v":0,"vIni":40,"actiu":false,"carts":{"RAM":0},"emp":"Ramaders"},{"num":25,"v":3,"vIni":0,"actiu":true,"carts":{"RAM":3},"emp":"Ramaders"},{"num":26,"v":159,"vIni":0,"actiu":true,"carts":{"RAM":159},"emp":"Ramaders"},{"num":27,"v":163,"vIni":0,"actiu":true,"carts":{"RAM":163},"emp":"Ramaders"},{"num":28,"v":149,"vIni":0,"actiu":true,"carts":{"RAM":149},"emp":"Ramaders"}],"movs":{"2-2025":[{"dia":11,"tipus":"sortida","qty":1,"lot":18,"cart":"RAM"},{"dia":11,"tipus":"sortida","qty":19,"lot":20,"cart":"RAM"},{"dia":14,"tipus":"sortida","qty":20,"lot":20,"cart":"RAM"},{"dia":17,"tipus":"sortida","qty":22,"lot":20,"cart":"RAM"},{"dia":18,"tipus":"sortida","qty":20,"lot":20,"cart":"RAM"},{"dia":21,"tipus":"sortida","qty":9,"lot":20,"cart":"RAM"},{"dia":24,"tipus":"sortida","qty":10,"lot":20,"cart":"RAM"},{"dia":25,"tipus":"sortida","qty":14,"lot":20,"cart":"RAM"},{"dia":20,"tipus":"sortida","qty":39,"lot":24,"cart":"RAM"},{"dia":19,"tipus":"entrada","qty":48,"lot":25,"cart":"RAM"},{"dia":23,"tipus":"entrada","qty":51,"lot":25,"cart":"RAM"}],"3-2025":[{"dia":31,"tipus":"sortida","qty":3,"lot":18,"cart":"RAM"},{"dia":3,"tipus":"sortida","qty":8,"lot":20,"cart":"RAM"},{"dia":6,"tipus":"sortida","qty":6,"lot":20,"cart":"RAM"},{"dia":13,"tipus":"sortida","qty":2,"lot":20,"cart":"RAM"},{"dia":14,"tipus":"sortida","qty":3,"lot":20,"cart":"RAM"},{"dia":31,"tipus":"sortida","qty":5,"lot":20,"cart":"RAM"},{"dia":1,"tipus":"entrada","qty":45,"lot":25,"cart":"RAM"},{"dia":2,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"},{"dia":20,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"},{"dia":31,"tipus":"sortida","qty":40,"lot":24,"cart":"RAM"}],"1-2025":[{"dia":16,"tipus":"entrada","qty":40,"lot":20,"cart":"RAM"},{"dia":17,"tipus":"sortida","qty":1,"lot":20,"cart":"RAM"},{"dia":31,"tipus":"sortida","qty":1,"lot":23,"cart":"RAM"},{"dia":16,"tipus":"entrada","qty":40,"lot":24,"cart":"RAM"},{"dia":17,"tipus":"sortida","qty":1,"lot":24,"cart":"RAM"}],"5-2025":[{"dia":26,"tipus":"sortida","qty":15,"lot":21,"cart":"RAM"},{"dia":28,"tipus":"sortida","qty":16,"lot":21,"cart":"RAM"},{"dia":29,"tipus":"sortida","qty":13,"lot":21,"cart":"RAM"}],"6-2025":[{"dia":2,"tipus":"sortida","qty":10,"lot":21,"cart":"RAM"},{"dia":3,"tipus":"sortida","qty":25,"lot":21,"cart":"RAM"},{"dia":5,"tipus":"sortida","qty":19,"lot":21,"cart":"RAM"},{"dia":9,"tipus":"sortida","qty":15,"lot":21,"cart":"RAM"},{"dia":16,"tipus":"sortida","qty":14,"lot":21,"cart":"RAM"},{"dia":1,"tipus":"entrada","qty":1,"lot":25,"cart":"RAM"},{"dia":1,"tipus":"entrada","qty":162,"lot":26,"cart":"RAM"},{"dia":3,"tipus":"entrada","qty":1,"lot":26,"cart":"RAM"},{"dia":4,"tipus":"entrada","qty":1,"lot":26,"cart":"RAM"},{"dia":5,"tipus":"entrada","qty":1,"lot":26,"cart":"RAM"},{"dia":18,"tipus":"sortida","qty":3,"lot":26,"cart":"RAM"}],"7-2025":[{"dia":3,"tipus":"sortida","qty":4,"lot":21,"cart":"RAM"},{"dia":31,"tipus":"sortida","qty":10,"lot":21,"cart":"RAM"},{"dia":1,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"},{"dia":3,"tipus":"sortida","qty":1,"lot":26,"cart":"RAM"},{"dia":21,"tipus":"sortida","qty":1,"lot":26,"cart":"RAM"}],"4-2025":[{"dia":30,"tipus":"sortida","qty":1,"lot":23,"cart":"RAM"},{"dia":1,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"}],"8-2025":[{"dia":29,"tipus":"sortida","qty":25,"lot":23,"cart":"RAM"},{"dia":1,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"},{"dia":23,"tipus":"entrada","qty":99,"lot":27,"cart":"RAM"},{"dia":30,"tipus":"entrada","qty":67,"lot":27,"cart":"RAM"}],"9-2025":[{"dia":2,"tipus":"sortida","qty":34,"lot":23,"cart":"RAM"},{"dia":4,"tipus":"sortida","qty":18,"lot":23,"cart":"RAM"},{"dia":5,"tipus":"sortida","qty":25,"lot":23,"cart":"RAM"},{"dia":12,"tipus":"sortida","qty":6,"lot":23,"cart":"RAM"},{"dia":22,"tipus":"sortida","qty":12,"lot":23,"cart":"RAM"},{"dia":23,"tipus":"sortida","qty":14,"lot":23,"cart":"RAM"},{"dia":13,"tipus":"sortida","qty":1,"lot":27,"cart":"RAM"}],"10-2025":[{"dia":2,"tipus":"sortida","qty":2,"lot":23,"cart":"RAM"},{"dia":7,"tipus":"sortida","qty":5,"lot":23,"cart":"RAM"},{"dia":14,"tipus":"sortida","qty":1,"lot":23,"cart":"RAM"},{"dia":20,"tipus":"sortida","qty":1,"lot":27,"cart":"RAM"}],"12-2025":[{"dia":9,"tipus":"sortida","qty":45,"lot":25,"cart":"RAM"},{"dia":12,"tipus":"sortida","qty":29,"lot":25,"cart":"RAM"},{"dia":15,"tipus":"sortida","qty":28,"lot":25,"cart":"RAM"},{"dia":16,"tipus":"sortida","qty":26,"lot":25,"cart":"RAM"},{"dia":18,"tipus":"sortida","qty":7,"lot":25,"cart":"RAM"},{"dia":22,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"},{"dia":30,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"},{"dia":30,"tipus":"sortida","qty":1,"lot":27,"cart":"RAM"}],"11-2025":[{"dia":5,"tipus":"sortida","qty":1,"lot":26,"cart":"RAM"},{"dia":1,"tipus":"entrada","qty":1,"lot":27,"cart":"RAM"},{"dia":18,"tipus":"sortida","qty":1,"lot":27,"cart":"RAM"},{"dia":22,"tipus":"entrada","qty":112,"lot":28,"cart":"RAM"},{"dia":29,"tipus":"entrada","qty":38,"lot":28,"cart":"RAM"}],"1-2026":[{"dia":2,"tipus":"sortida","qty":1,"lot":28,"cart":"RAM"}]},"assig":{}}
+    };
+}
+
+// v4: historial complet Ramaders + correccions lot26/27
+const VER='vd29';
+let S=JSON.parse(localStorage.getItem(VER)||'null')||defState();
+let _mg=null,_mfl=null,_mfg=null;
+let _hist=[], _histIdx=-1;
+function saveNotes(g){
+  try{localStorage.setItem('notes-'+g,document.getElementById(g+'-notes').value);}catch(e){}
+}
+function loadNotes(){
+  ['fig','costa'].forEach(g=>{
+    const ta=document.getElementById(g+'-notes');
+    if(ta) try{ta.value=localStorage.getItem('notes-'+g)||'';}catch(e){}
+  });
+}
+function sv(){
+  localStorage.setItem(VER,JSON.stringify(S));
+  _hist=_hist.slice(0,_histIdx+1);
+  _hist.push(JSON.stringify(S));
+  if(_hist.length>30) _hist.shift();
+  _histIdx=_hist.length-1;
+  updUndoBtn();
+}
+function updUndoBtn(){
+  ['fig','costa'].forEach(g=>{
+    const u=document.getElementById(g+'-undo');
+    const r=document.getElementById(g+'-redo');
+    if(u) u.disabled=_histIdx<=0;
+    if(r) r.disabled=_histIdx>=_hist.length-1;
+  });
+}
+function undo(g){
+  if(_histIdx<=0) return;
+  _histIdx--;
+  S=JSON.parse(_hist[_histIdx]);
+  localStorage.setItem(VER,JSON.stringify(S));
+  updUndoBtn(); renderG(g);
+}
+function redo(g){
+  if(_histIdx>=_hist.length-1) return;
+  _histIdx++;
+  S=JSON.parse(_hist[_histIdx]);
+  localStorage.setItem(VER,JSON.stringify(S));
+  updUndoBtn(); renderG(g);
+}
+
+function showPage(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  btn.classList.add('active');
+  renderG(id);
+}
+
+function ma(g){return{mes:parseInt(document.getElementById(g+'-mes').value),any:parseInt(document.getElementById(g+'-any').value)};}
+function mk(m,y){return m+'-'+y;}
+function gmovs(g,m,y){return S[g].movs[mk(m,y)]||[];}
+function ak(l,m,y){return l+'-'+m+'-'+y;}
+function gassig(g,l,m,y){return S[g].assig[ak(l,m,y)]||(S[g].lots.find(x=>x.num===l)||{}).emp||'Ecofutur';}
+
+function ccls(c){
+  if(c==='ECO') return 'eco';
+  if(c==='PE') return 'pe';
+  if(c==='SATF') return 'sat';
+  return 'ram';
+}
+function ecls(e){
+  if(e==='Ecofutur') return 'eco';
+  if(e==='Pere Esquerrà') return 'pe';
+  if(e==='SAT Figuera') return 'sat';
+  return 'ram';
+}
+
+// ---- RENDER ----
+function renderG(g){
+  rLots(g); rLotSel(g); rMovList(g); rFras(g); rHistSel(g); rHist(g);
+  document.getElementById(g+'-preu-btn').textContent=S[g].preu.toFixed(2).replace('.',',')+' €/dia';
+}
+
+function cartsActuals(g, lotNum){
+  const lot = S[g].lots.find(l=>l.num===lotNum);
+  if(!lot) return {};
+  const base = {...(lot.carts||{})};
+  Object.values(S[g].movs||{}).forEach(ms=>{
+    ms.filter(m=>m.lot===lotNum).forEach(m=>{
+      const c = m.cart && m.cart!=='-' ? m.cart : null;
+      if(!c) return;
+      if(!base[c]) base[c]=0;
+      if(m.tipus==='entrada') base[c]+=m.qty;
+      else { base[c]-=m.qty; if(base[c]<0) base[c]=0; }
+    });
+  });
+  return base;
+}
+
+function totalEntrats(g, lotNum){
+  let total = 0;
+  Object.values(S[g].movs||{}).forEach(ms=>{
+    ms.filter(m=>m.lot===lotNum && m.tipus==='entrada').forEach(m=>{ total+=m.qty; });
+  });
+  const lot=S[g].lots.find(l=>l.num===lotNum);
+  if(lot) total+=(lot.vIni!==undefined?lot.vIni:lot.v);
+  return total;
+}
+
+function primeraEntrada(g, lotNum){
+  let primer=null;
+  Object.entries(S[g].movs||{}).forEach(([k,ms])=>{
+    const entrades=ms.filter(m=>m.lot===lotNum && m.tipus==='entrada');
+    if(!entrades.length) return;
+    const [m,y]=k.split('-').map(Number);
+    const minDia=Math.min(...entrades.map(e=>e.dia));
+    const d=new Date(y,m-1,minDia);
+    if(!primer||d<primer) primer=d;
+  });
+  if(!primer) return null;
+  return primer.toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
+}
+
+function vLotAlMes(g, lotNum, mes, any){
+  const lot=S[g].lots.find(l=>l.num===lotNum);
+  if(!lot) return 0;
+  const ym=any*100+mes;
+  let v=lot.vIni||0;
+  Object.entries(S[g].movs||{}).forEach(([k,llista])=>{
+    const parts=k.split('-');
+    const km=parseInt(parts[0]), ky=parseInt(parts[1]);
+    if(ky*100+km>ym) return;
+    llista.filter(mv=>mv.lot===lotNum).forEach(mv=>{
+      if(mv.tipus==='entrada') v+=mv.qty; else v-=mv.qty;
+    });
+  });
+  return Math.max(0,v);
+}
+
+function vLotIniMes(g,lotNum,mes,any){
+  let pm=mes-1, py=any;
+  if(pm===0){pm=12; py--;}
+  return vLotAlMes(g,lotNum,pm,py);
+}
+
+function vCartAlMes(g,lotNum,cart,mes,any){
+  const lot=S[g].lots.find(l=>l.num===lotNum);
+  if(!lot) return 0;
+  const ym=any*100+mes;
+  const carts=Object.keys(lot.carts||{});
+  const allMovsLot=Object.values(S[g].movs||{}).flat().filter(mv=>mv.lot===lotNum);
+  const cartsNoEntrada=carts.filter(ct=>!allMovsLot.some(mv=>mv.cart===ct&&mv.tipus==='entrada'));
+  const cartVIni=cartsNoEntrada.length>=1?cartsNoEntrada[0]:null;
+  let v=(cartVIni===cart)?(lot.vIni||0):0;
+  Object.entries(S[g].movs||{}).forEach(([k,llista])=>{
+    const pts=k.split('-');
+    const km=parseInt(pts[0]),ky=parseInt(pts[1]);
+    if(ky*100+km>ym) return;
+    llista.filter(mv=>mv.lot===lotNum&&mv.cart===cart).forEach(mv=>{
+      if(mv.tipus==='entrada') v+=mv.qty; else v-=mv.qty;
+    });
+  });
+  return Math.max(0,v);
+}
+
+function vCartIniMes(g,lotNum,cart,mes,any){
+  let pm=mes-1, py=any;
+  if(pm===0){pm=12; py--;}
+  return vCartAlMes(g,lotNum,cart,pm,py);
+}
+
+function rLots(g){
+  const el=document.getElementById(g+'-lots');
+  const {mes,any}=ma(g);
+  const ara=new Date();
+  const esMesActual=(mes===ara.getMonth()+1 && any===ara.getFullYear());
+
+  const lotsDelMes=S[g].lots.filter(l=>{
+    const vIni=vLotIniMes(g,l.num,mes,any);
+    const teEntrades=(S[g].movs[mes+'-'+any]||[]).some(mv=>mv.lot===l.num&&mv.tipus==='entrada');
+    if(l.actiu&&esMesActual) return true;
+    return vIni>0||teEntrades;
+  });
+
+  if(!lotsDelMes.length){el.innerHTML='<div class="empty">Cap lot actiu aquest mes</div>';return;}
+
+  el.innerHTML=lotsDelMes.map(l=>{
+    const ec=ecls(l.emp);
+    const colorVar=ec==='eco'?'eco':ec==='pe'?'pe':ec==='sat'?'sat':'costa';
+    const total=totalEntrats(g,l.num);
+    const vIniReal=vLotIniMes(g,l.num,mes,any);
+    const vFi=esMesActual?l.v:vLotAlMes(g,l.num,mes,any);
+    const tancaAquestMes=(vIniReal>0&&vFi===0);
+
+    const movsLot=(S[g].movs[mes+'-'+any]||[]).filter(mv=>mv.lot===l.num).sort((a,b)=>a.dia-b.dia);
+    const movsHTML=movsLot.length?`<div class="lc-movs">${movsLot.map(mv=>{
+      const isIn=mv.tipus==='entrada';
+      const isBaixa=mv.baixa===true;
+      return `<div class="lc-mov" style="${isBaixa?'opacity:.7':''}">
+        <span class="lc-mov-dia">dia ${String(mv.dia).padStart(2,'0')}</span>
+        <span class="lc-mov-badge ${isIn?'lc-mov-in':isBaixa?'lc-mov-baixa':'lc-mov-out'}">${isIn?'↑':isBaixa?'✕':'↓'}</span>
+        <span class="lc-mov-q" style="${isBaixa?'color:#a00':''}">${mv.qty}</span>
+        <span class="cc cc-${ccls(mv.cart||'-')}" style="font-size:.6rem;padding:1px 4px">${mv.cart||'-'}</span>
+        ${isBaixa?'<span style="font-size:.58rem;color:#a00;margin-left:2px">baixa</span>':''}
+      </div>`;
+    }).join('')}</div>`:''
+
+    const carts=Object.keys(l.carts||{});
+    const allMovsLot=Object.values(S[g].movs||{}).flat().filter(mv=>mv.lot===l.num);
+    const cartsNoEntrada=carts.filter(ct=>!allMovsLot.some(mv=>mv.cart===ct&&mv.tipus==='entrada'));
+    const cartVIni=cartsNoEntrada.length>=1?cartsNoEntrada[0]:null;
+
+    const cartsHTML=carts.map(ct=>{
+      const cinici=vCartIniMes(g,l.num,ct,mes,any);
+      const cfi=vCartAlMes(g,l.num,ct,mes,any);
+      const coneguda=(ct===cartVIni)||(allMovsLot.some(mv=>mv.cart===ct));
+      const cls=coneguda?`cc-${ccls(ct)}`:'cc-unknown';
+      if(cinici===0&&cfi===0){
+        const hasTingut=allMovsLot.some(mv=>mv.cart===ct)||(ct===cartVIni&&(l.vIni||0)>0);
+        if(!hasTingut) return '';
+      }
+      const flechaColor=cfi<cinici?'var(--pe)':cfi>cinici?'var(--eco)':'var(--muted)';
+      const ctColor='var(--'+ccls(ct)+')';
+      const ctMuted='var(--muted)';
+      return `<div class="cart-row">
+        <span class="cc ${cls}">${ct}</span>
+        <span class="cart-ini" style="color:${cinici===0?ctMuted:ctColor}">${cinici}</span>
+        <span class="cart-arr" style="color:${flechaColor}">→</span>
+        <span class="cart-fi" style="color:${cfi===0?ctMuted:ctColor}">${cfi}</span>
+      </div>`;
+    }).filter(Boolean).join('');
+
+    const xbtn=l.actiu&&esMesActual?`<button class="xbtn" onclick="tancaLot('${g}',${l.num})">✕</button>`:'';
+    const tancat=tancaAquestMes?`<div class="lot-tancat">✓ Tanca aquest mes</div>`:'';
+
+    const cartsActives=carts.filter(ct=>{
+      const ci=vCartIniMes(g,l.num,ct,mes,any);
+      const cf=vCartAlMes(g,l.num,ct,mes,any);
+      const hasMov=allMovsLot.some(mv=>mv.cart===ct);
+      return ci>0||cf>0||hasMov;
+    });
+    let blClass;
+    if(cartsActives.length>=3) blClass='bl-eco-mix';
+    else if(cartsActives.length===2){
+      const [c1,c2]=cartsActives.map(x=>ccls(x));
+      blClass='bl-'+[c1,c2].sort().join('-');
+    } else blClass='bl-'+ec;
+
+    return `<div class="lot-card ${blClass}${tancaAquestMes?' lot-card-closed':''}">
+      ${xbtn}
+      <div class="lc-num">Lot ${l.num}</div>
+      <div class="lc-main">
+        <span class="lc-main-n">${vIniReal}</span>
+        <span class="lc-main-arrow">→</span>
+        <span class="lc-main-n" style="color:var(--${colorVar})">${vFi}</span>
+      </div>
+      <div class="lc-total-badge">total <b>${total}</b></div>
+      <div class="lc-carts">${cartsHTML}</div>
+      ${movsHTML}
+      ${tancat}
+    </div>`;
+  }).join('');
+}
+function rLotSel(g){
+  const sel=document.getElementById(g+'-lot');
+  const prev=sel.value;
+  sel.innerHTML=S[g].lots.filter(l=>l.actiu).map(l=>`<option value="${l.num}">Lot ${l.num} (${l.v})</option>`).join('');
+  sel.innerHTML+=`<option value="__nou__">+ Lot nou</option>`;
+  if(prev) sel.value=prev;
+}
+
+function onLotC(g){
+  const v=document.getElementById(g+'-lot').value;
+  document.getElementById(g+'-nlg').style.display=v==='__nou__'?'block':'none';
+  if(v==='__nou__') document.getElementById(g+'-tipus').value='entrada';
+}
+
+function rMovList(g){
+  const {mes,any}=ma(g);
+  const ms=gmovs(g,mes,any).slice().sort((a,b)=>a.dia-b.dia);
+  const el=document.getElementById(g+'-movlist');
+  if(!ms.length){el.innerHTML='<div class="empty">Cap moviment registrat</div>';return;}
+  el.innerHTML=ms.map((m,i)=>{
+    const bc=m.tipus==='entrada'?'mb-in':'mb-out';
+    const bt=m.tipus==='entrada'?'↑ Entrada':'↓ Sortida';
+    const cartBadge=m.cart&&m.cart!=='-'?`<span class="cc cc-${ccls(m.cart)} mc">${m.cart}</span>`:'<span class="mc"></span>';
+    return `<div class="mov-item">
+      <span class="md">${String(m.dia).padStart(2,'0')}/${String(mes).padStart(2,'0')}</span>
+      <span class="mb ${bc}">${bt}</span>
+      <span class="mq">${m.qty}</span>
+      <span class="ml">lot ${m.lot}</span>
+      ${cartBadge}
+      <button class="mdel" onclick="delMov('${g}',${i})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// ---- TRAMS ----
+function preuPerMes(any,mes){
+  if(any<2025||(any===2025&&mes===1)) return 0.30;
+  if(any===2025) return 0.35;
+  return 0.40;
+}
+
+function calcTrams(g,lotNum,mes,any){
+  const lot=S[g].lots.find(l=>l.num===lotNum);
+  if(!lot) return [];
+  const ms=gmovs(g,mes,any).filter(m=>m.lot===lotNum).sort((a,b)=>a.dia-b.dia);
+  const dies=dm(mes,any);
+  const preu=preuPerMes(any,mes);
+  let ini=vLotIniMes(g,lotNum,mes,any);
+  let dIni=ini>0?1:(ms.length&&ms[0].tipus==='entrada'?ms[0].dia:1);
+  let trams=[],actual=ini;
+  ms.forEach(ev=>{
+    if(ev.dia>dIni&&actual>0){
+      const d=ev.tipus==='sortida'?ev.dia-dIni+1:ev.dia-dIni;
+      trams.push({v:actual,d,imp:Math.round(actual*d*preu*100)/100,lot:lotNum,preu});
+      dIni=ev.tipus==='sortida'?ev.dia+1:ev.dia;
+    } else if(ev.dia===dIni&&actual>0&&ev.tipus==='sortida'){
+      trams.push({v:actual,d:1,imp:Math.round(actual*1*preu*100)/100,lot:lotNum,preu});
+      dIni=ev.dia+1;
+    }
+    if(ev.tipus==='entrada') actual+=ev.qty; else actual-=ev.qty;
+    if(actual<0) actual=0;
+  });
+  if(dIni<=dies&&actual>0){
+    const d=dies-dIni+1;
+    trams.push({v:actual,d,imp:Math.round(actual*d*preu*100)/100,lot:lotNum,preu});
+  }
+  return trams;
+}
+
+// ---- FACTURES ----
+function calcTramsByCart(g,lotNum,cart,mes,any){
+  const lot=S[g].lots.find(l=>l.num===lotNum);
+  if(!lot) return [];
+  const ms=gmovs(g,mes,any).filter(m=>m.lot===lotNum&&m.cart===cart).sort((a,b)=>a.dia-b.dia);
+  const dies_mes=dm(mes,any);
+  const preu=preuPerMes(any,mes);
+  let ini=vCartIniMes(g,lotNum,cart,mes,any);
+  let dIni=ini>0?1:(ms.length&&ms[0].tipus==='entrada'?ms[0].dia:1);
+  let trams=[],actual=ini;
+  ms.forEach(ev=>{
+    if(ev.dia>dIni&&actual>0){
+      const d=ev.tipus==='sortida'?ev.dia-dIni+1:ev.dia-dIni;
+      trams.push({v:actual,d,imp:Math.round(actual*d*preu*100)/100,lot:lotNum,cart,preu});
+      dIni=ev.tipus==='sortida'?ev.dia+1:ev.dia;
+    } else if(ev.dia===dIni&&actual>0&&ev.tipus==='sortida'){
+      trams.push({v:actual,d:1,imp:Math.round(actual*1*preu*100)/100,lot:lotNum,cart,preu});
+      dIni=ev.dia+1;
+    }
+    if(ev.tipus==='entrada') actual+=ev.qty; else actual-=ev.qty;
+    if(actual<0) actual=0;
+  });
+  if(dIni<=dies_mes&&actual>0){
+    const d=dies_mes-dIni+1;
+    trams.push({v:actual,d,imp:Math.round(actual*d*preu*100)/100,lot:lotNum,cart,preu});
+  }
+  return trams;
+}
+
+function rFras(g){
+  const {mes,any}=ma(g);
+  const preu=preuPerMes(any,mes);
+  const dies=dm(mes,any);
+  const ara=new Date(); const mesAra=ara.getMonth()+1; const anyAra=ara.getFullYear();
+  const esMesActual=(mes===mesAra&&any===anyAra);
+  const cont=document.getElementById(g+'-fras');
+
+  const lotsDelMes=S[g].lots.filter(l=>{
+    const vIni=vLotIniMes(g,l.num,mes,any);
+    const teEntrades=(S[g].movs[mes+'-'+any]||[]).some(mv=>mv.lot===l.num&&mv.tipus==='entrada');
+    if(l.actiu&&esMesActual) return true;
+    return vIni>0||teEntrades;
+  });
+
+  // === FIGUERA >= 2026: factures per cartilla ===
+  if(g==='fig' && any>=2026){
+    const cartilles=[
+      {cart:'ECO', emp:'Ecofutur', nFra:`IC${mes}/${String(any).slice(2)}`},
+      {cart:'SATF', emp:'SAT Figuera', nFra:`SAT${mes}/${String(any).slice(2)}`},
+      {cart:'PE', emp:'Pere Esquerrà', nFra:`PE${mes}/${String(any).slice(2)}`},
+    ];
+    let html='';
+    cartilles.forEach(({cart,emp,nFra})=>{
+      const trams=[];
+      lotsDelMes.forEach(lot=>{
+        const cartIni=vCartIniMes(g,lot.num,cart,mes,any);
+        const cartFi=vCartAlMes(g,lot.num,cart,mes,any);
+        const teActivitat=(S[g].movs[mes+'-'+any]||[]).some(mv=>mv.lot===lot.num&&mv.cart===cart);
+        if(cartIni>0||cartFi>0||teActivitat){
+          const t=calcTramsByCart(g,lot.num,cart,mes,any);
+          trams.push(...t);
+        }
+      });
+      if(!trams.length) return;
+      const base=Math.round(trams.reduce((s,t)=>s+t.imp,0)*100)/100;
+      if(base<=0) return;
+      const iva=Math.round(base*.10*100)/100;
+      const total=Math.round((base+iva)*100)/100;
+      const ec=cart==='ECO'?'eco':cart==='SATF'?'sat':'pe';
+      html+=`<div class="fra-card fra-${ec}">
+        <div class="fra-head">
+          <div>
+            <h3>${emp}</h3>
+            <div class="fra-meta">${nFra} · ${dies}/${mes}/${any}</div>
+          </div>
+        </div>
+        <table class="ftable">
+          <thead><tr><th>Lot</th><th>Vedells</th><th>Dies</th><th>Preu</th><th class="r">Import</th></tr></thead>
+          <tbody>${trams.map(t=>`<tr>
+            <td><span class="lchip cc-${ec}">lot ${t.lot}</span></td>
+            <td>${t.v}</td><td>${t.d}</td>
+            <td>${(t.preu||preu).toFixed(2)} €</td>
+            <td class="r">${t.imp.toFixed(2)} €</td>
+          </tr>`).join('')}</tbody>
+          <tfoot>
+            <tr class="fbase"><td colspan="4">Base Imponible</td><td class="r">${base.toFixed(2)} €</td></tr>
+            <tr class="fiva"><td colspan="4">IVA 10%</td><td class="r">${iva.toFixed(2)} €</td></tr>
+            <tr class="ftot"><td colspan="4">Total</td><td class="r">${total.toFixed(2)} €</td></tr>
+          </tfoot>
+        </table>
+      </div>`;
+    });
+    cont.innerHTML=html||'<div class="empty">Cap lot actiu aquest mes</div>';
+    return;
+  }
+
+  // === FIGUERA <2026 i COSTA: factures per empresa ===
+  const perEmp={};
+  lotsDelMes.forEach(lot=>{
+    const emp=gassig(g,lot.num,mes,any);
+    if(!perEmp[emp]) perEmp[emp]=[];
+    let trams=calcTrams(g,lot.num,mes,any);
+    if(!trams.length){
+      const vIni=vLotIniMes(g,lot.num,mes,any);
+      if(vIni>0) trams=[{v:vIni,d:dies,imp:Math.round(vIni*dies*preu*100)/100,lot:lot.num,preu}];
+    }
+    perEmp[emp].push(...trams);
+  });
+
+  if(!Object.keys(perEmp).length){cont.innerHTML='<div class="empty">Cap lot actiu aquest mes</div>';return;}
+
+  let html='';
+  Object.entries(perEmp).forEach(([emp,trams])=>{
+    if(!trams.length) return;
+    const ec=ecls(emp);
+    const base=Math.round(trams.reduce((s,t)=>s+t.imp,0)*100)/100;
+    const iva=Math.round(base*.10*100)/100;
+    const total=Math.round((base+iva)*100)/100;
+    let nFra='';
+    if(g==='fig'){
+      if(emp==='Ecofutur') nFra=`IC${mes}/${String(any).slice(2)}`;
+      else if(emp==='Pere Esquerrà') nFra=`C${mes}/${any}`;
+      else nFra=`SAT${mes}/${any}`;
+    } else nFra=`${mes}/${any}`;
+
+    const lotNums=[...new Set(trams.map(t=>t.lot))];
+    const canviarBtn=g==='fig'&&esMesActual?`<button class="btn b-out b-sm" onclick="openMF('${g}',${lotNums[0]})">Canviar empresa</button>`:'';
+    const preuFra=trams[0]?.preu||preu;
+
+    html+=`<div class="fra-card fra-${ec}">
+      <div class="fra-head">
+        <div>
+          <h3>${emp}</h3>
+          <div class="fra-meta">${nFra} · ${dies}/${mes}/${any}</div>
+        </div>
+        ${canviarBtn}
+      </div>
+      <table class="ftable">
+        <thead><tr><th>Lot</th><th>Vedells</th><th>Dies</th><th>Preu</th><th class="r">Import</th></tr></thead>
+        <tbody>${trams.map(t=>`<tr>
+          <td><span class="lchip cc-${ec}">lot ${t.lot}</span></td>
+          <td>${t.v}</td><td>${t.d}</td>
+          <td>${(t.preu||preuFra).toFixed(2)} €</td>
+          <td class="r">${t.imp.toFixed(2)} €</td>
+        </tr>`).join('')}</tbody>
+        <tfoot>
+          <tr class="fbase"><td colspan="4">Base Imponible</td><td class="r">${base.toFixed(2)} €</td></tr>
+          <tr class="fiva"><td colspan="4">IVA 10%</td><td class="r">${iva.toFixed(2)} €</td></tr>
+          <tr class="ftot"><td colspan="4">Total</td><td class="r">${total.toFixed(2)} €</td></tr>
+        </tfoot>
+      </table>
+    </div>`;
+  });
+  cont.innerHTML=html||'<div class="empty">Cap lot actiu aquest mes</div>';
+}
+
+// ---- MOVIMENTS ----
+function afMov(g){
+  const dia=parseInt(document.getElementById(g+'-dia').value);
+  const tipus=document.getElementById(g+'-tipus').value;
+  const qty=parseInt(document.getElementById(g+'-qty').value);
+  const lotSel=document.getElementById(g+'-lot').value;
+  const cart=g==='fig'?document.getElementById('fig-cart').value:'-';
+  const {mes,any}=ma(g);
+  if(!dia||!qty){alert('Introdueix dia i quantitat');return;}
+  let lotNum;
+  if(lotSel==='__nou__'){
+    const nN=parseInt(document.getElementById(g+'-nl').value);
+    if(!nN){alert('Introdueix el número del nou lot');return;}
+    S[g].lots.push({num:nN,v:0,vIni:0,actiu:true,carts:{},emp:g==='costa'?'Ramaders':'Ecofutur'});
+    lotNum=nN;
+  } else lotNum=parseInt(lotSel);
+
+  if(tipus==='sortida'){
+    const lot=S[g].lots.find(l=>l.num===lotNum);
+    if(lot){
+      let vActual;
+      if(g==='fig' && cart && cart!=='-'){
+        vActual=vCartAlMes(g,lotNum,cart,mes,any);
+        const movsAvui=(S[g].movs[mk(mes,any)]||[])
+          .filter(m=>m.lot===lotNum&&m.cart===cart&&m.dia<dia);
+        movsAvui.forEach(m=>{if(m.tipus==='entrada')vActual+=m.qty;else vActual-=m.qty;});
+        vActual=Math.max(0,vActual);
+        if(qty>vActual){
+          alert(`⚠️ No és possible: intentes treure ${qty} vedells de cartilla ${cart} del lot ${lotNum}, però només n'hi ha ${vActual} disponibles en aquest moment.`);
+          return;
+        }
+      } else {
+        vActual=vLotIniMes(g,lotNum,mes,any);
+        const movsAvui=(S[g].movs[mk(mes,any)]||[])
+          .filter(m=>m.lot===lotNum&&m.dia<dia);
+        movsAvui.forEach(m=>{if(m.tipus==='entrada')vActual+=m.qty;else vActual-=m.qty;});
+        vActual=Math.max(0,vActual);
+        if(qty>vActual){
+          alert(`⚠️ No és possible: intentes treure ${qty} vedells del lot ${lotNum}, però només n'hi ha ${vActual} disponibles en aquest moment.`);
+          return;
+        }
+      }
+    }
+  }
+
+  const k=mk(mes,any);
+  if(!S[g].movs[k]) S[g].movs[k]=[];
+  S[g].movs[k].push({dia,tipus,qty,lot:lotNum,cart});
+  const lot=S[g].lots.find(l=>l.num===lotNum);
+  if(lot){if(tipus==='entrada') lot.v+=qty; else{lot.v-=qty;if(lot.v<0)lot.v=0;}}
+  sv(); renderG(g);
+  document.getElementById(g+'-dia').value='';
+  document.getElementById(g+'-qty').value='';
+}
+
+function delMov(g,idx){
+  const {mes,any}=ma(g);
+  const k=mk(mes,any);
+  const ms=S[g].movs[k]||[];
+  const sorted=ms.slice().sort((a,b)=>a.dia-b.dia);
+  const m=sorted[idx];
+  const lot=S[g].lots.find(l=>l.num===m.lot);
+  if(lot){if(m.tipus==='entrada') lot.v-=m.qty; else lot.v+=m.qty;}
+  const oi=S[g].movs[k].findIndex(x=>x.dia===m.dia&&x.qty===m.qty&&x.lot===m.lot&&x.tipus===m.tipus);
+  if(oi>=0) S[g].movs[k].splice(oi,1);
+  sv(); renderG(g);
+}
+
+// ---- LOTS ----
+function tancaLot(g,num){
+  if(!confirm(`Tancar lot ${num}?`)) return;
+  const l=S[g].lots.find(x=>x.num===num);
+  if(l){l.actiu=false;l.v=0;}
+  sv(); renderG(g);
+}
+
+function openMLot(g){
+  _mg=g;
+  document.getElementById('m-lot-title').textContent='Nou lot — '+(g==='fig'?'Figuera':'La Costa');
+  document.getElementById('ml-eg').style.display=g==='costa'?'none':'block';
+  document.getElementById('ml-num').value='';
+  document.getElementById('ml-ved').value='';
+  document.getElementById('m-lot').classList.add('open');
+}
+function closeML(){document.getElementById('m-lot').classList.remove('open');}
+function confirML(){
+  const num=parseInt(document.getElementById('ml-num').value);
+  const v=parseInt(document.getElementById('ml-ved').value)||0;
+  const emp=_mg==='costa'?'Ramaders':document.getElementById('ml-emp').value;
+  if(!num){alert('Introdueix el número');return;}
+  if(S[_mg].lots.find(l=>l.num===num&&l.actiu)){alert('Lot ja existent');return;}
+  S[_mg].lots.push({num,v,vIni:v,actiu:true,carts:{},emp});
+  sv(); renderG(_mg); closeML();
+}
+
+// ---- ASSIGNAR EMPRESA ----
+function openMF(g,lotNum){
+  _mfg=g; _mfl=lotNum;
+  const {mes,any}=ma(g);
+  const lot=S[g].lots.find(l=>l.num===lotNum);
+  document.getElementById('m-fra-title').textContent=`Lot ${lotNum} — empresa facturació`;
+  const cartsEl=document.getElementById('m-fra-carts');
+  cartsEl.innerHTML=Object.entries(lot.carts||{}).map(([c,n])=>
+    `<span class="cc cc-${ccls(c)}">${c} ${n}</span>`
+  ).join('');
+  document.getElementById('m-fra-emp').value=gassig(g,lotNum,mes,any);
+  document.getElementById('m-fra').classList.add('open');
+}
+function closeMF(){document.getElementById('m-fra').classList.remove('open');}
+function confirMF(){
+  const {mes,any}=ma(_mfg);
+  S[_mfg].assig[ak(_mfl,mes,any)]=document.getElementById('m-fra-emp').value;
+  sv(); renderG(_mfg); closeMF();
+}
+
+function editPreu(g){
+  const n=parseFloat(prompt('Nou preu €/dia:',S[g].preu));
+  if(!isNaN(n)&&n>0){S[g].preu=n;sv();renderG(g);}
+}
+
+
+// ---- HISTORIAL ----
+const MESOS_CA=['','Gener','Febrer','Març','Abril','Maig','Juny','Juliol','Agost','Setembre','Octubre','Novembre','Desembre'];
+
+function rHistSel(g){
+  const sel=document.getElementById(g+'-hist-lot');
+  const prev=sel.value;
+  const tots=S[g].lots.slice().sort((a,b)=>a.num-b.num);
+  sel.innerHTML='<option value="">— Selecciona lot —</option>';
+  tots.forEach(l=>{
+    const opt=document.createElement('option');
+    opt.value=l.num;
+    opt.textContent='Lot '+l.num+(l.actiu?'' :' (tancat)');
+    sel.appendChild(opt);
+  });
+  if(prev) sel.value=prev;
+}
+
+function rHist(g){
+  const lotNum=parseInt(document.getElementById(g+'-hist-lot').value);
+  const cont=document.getElementById(g+'-hist-cont');
+  if(!lotNum){cont.innerHTML='';return;}
+
+  const lot=S[g].lots.find(l=>l.num===lotNum);
+  if(!lot){cont.innerHTML='';return;}
+
+  const allMovs=[];
+  Object.entries(S[g].movs||{}).forEach(([k,ms])=>{
+    const [m,y]=k.split('-').map(Number);
+    ms.filter(mv=>mv.lot===lotNum).forEach(mv=>{
+      allMovs.push({...mv,mes:m,any:y});
+    });
+  });
+  allMovs.sort((a,b)=>{
+    if(a.any!==b.any) return a.any-b.any;
+    if(a.mes!==b.mes) return a.mes-b.mes;
+    return a.dia-b.dia;
+  });
+
+  const totEnt=allMovs.filter(m=>m.tipus==='entrada').reduce((s,m)=>s+m.qty,0);
+  const totSort=allMovs.filter(m=>m.tipus!=='entrada').reduce((s,m)=>s+m.qty,0);
+  const vIni=lot.vIni||0;
+  const totalEntratAmbIni=vIni+totEnt;
+  const queden=lot.v;
+  const dies_total=calcDiesTotals(g,lotNum,allMovs,lot);
+
+  const cAct=cartsActuals(g,lotNum);
+
+  const ec=ecls(lot.emp);
+  const colorVar=ec==='eco'?'eco':ec==='pe'?'pe':ec==='sat'?'sat':'costa';
+
+  let html=`<div class="hist-card">
+    <div class="hist-summary">
+      <div class="hist-stat">
+        <div class="hs-val" style="color:var(--${colorVar})">${totalEntratAmbIni}</div>
+        <div class="hs-lbl">Total entrats</div>
+      </div>
+      <div class="hist-stat">
+        <div class="hs-val" style="color:var(--pe)">${totSort}</div>
+        <div class="hs-lbl">Total sortides</div>
+      </div>
+      <div class="hist-stat">
+        <div class="hs-val">${queden}</div>
+        <div class="hs-lbl">Queden ara</div>
+      </div>
+      <div class="hist-stat">
+        <div class="hs-val">${dies_total}</div>
+        <div class="hs-lbl">Dies actiu</div>
+      </div>
+    </div>`;
+
+  const cartMovs={};
+  allMovs.forEach(m=>{
+    if(!m.cart||m.cart==='-') return;
+    if(!cartMovs[m.cart]) cartMovs[m.cart]={ent:0,sort:0};
+    if(m.tipus==='entrada') cartMovs[m.cart].ent+=m.qty;
+    else cartMovs[m.cart].sort+=m.qty;
+  });
+  if(Object.keys(cartMovs).length>0){
+    if(vIni>0){
+      const cartsSenseEntrada=Object.entries(cartMovs).filter(([c,v])=>v.ent===0&&v.sort>0);
+      if(cartsSenseEntrada.length===1){
+        cartMovs[cartsSenseEntrada[0][0]].ent+=vIni;
+      }
+    }
+    html+=`<div style="padding:10px 14px;border-bottom:1px solid var(--border);display:flex;gap:16px;flex-wrap:wrap">`;
+    Object.entries(cartMovs).forEach(([c,v])=>{
+      html+=`<div style="font-size:.78rem"><span class="cc cc-${ccls(c)}">${c}</span> <span style="color:var(--muted);margin-left:4px">↑${v.ent} ↓${v.sort}</span></div>`;
+    });
+    html+=`</div>`;
+  }
+
+  html+=`<table class="hist-table"><thead><tr>
+    <th>Data</th><th>Tipus</th><th>Vedells</th><th>Cartilla</th><th class="r">Acumulat</th>
+  </tr></thead><tbody>`;
+
+  let acum=vIni;
+  if(vIni>0){
+    html+=`<tr class="in-row"><td colspan="5" style="font-size:.75rem;color:var(--muted);padding:6px 12px">Vedells inicials registrats: ${vIni}</td></tr>`;
+  }
+
+  let lastMesAny='';
+  allMovs.forEach(mv=>{
+    const mesAny=`${mv.mes}-${mv.any}`;
+    if(mesAny!==lastMesAny){
+      html+=`<tr class="month-sep"><td colspan="5">${MESOS_CA[mv.mes]} ${mv.any}</td></tr>`;
+      lastMesAny=mesAny;
+    }
+    const isEnt=mv.tipus==='entrada';
+    if(isEnt) acum+=mv.qty; else acum-=mv.qty;
+    if(acum<0) acum=0;
+    const rowCls=isEnt?'in-row':'out-row';
+    const badge=isEnt?'<span class="mb mb-in">↑ Entrada</span>':'<span class="mb mb-out">↓ Sortida</span>';
+    const cartBadge=mv.cart&&mv.cart!=='-'?`<span class="cc cc-${ccls(mv.cart)}">${mv.cart}</span>`:'<span style="color:var(--muted)">—</span>';
+    html+=`<tr class="${rowCls}">
+      <td class="md">${String(mv.dia).padStart(2,'0')}/${String(mv.mes).padStart(2,'0')}/${mv.any}</td>
+      <td>${badge}</td>
+      <td><strong>${mv.qty}</strong></td>
+      <td>${cartBadge}</td>
+      <td class="r">${acum}</td>
+    </tr>`;
+  });
+
+  html+=`</tbody><tfoot><tr>
+    <td colspan="2"><strong>Totals</strong></td>
+    <td><strong>↑${totalEntratAmbIni} ↓${totSort}</strong></td>
+    <td></td>
+    <td class="r"><strong>${queden} queden</strong></td>
+  </tr></tfoot></table></div>`;
+
+  cont.innerHTML=html;
+}
+
+function calcDiesTotals(g,lotNum,allMovs,lot){
+  if(!allMovs.length) return 0;
+  const entrades=allMovs.filter(m=>m.tipus==='entrada');
+  const primer=entrades.length?entrades[0]:allMovs[0];
+  const primerData=new Date(primer.any,primer.mes-1,primer.dia);
+  let darrData;
+  if(!lot.actiu){
+    const sortides=allMovs.filter(m=>m.tipus==='sortida');
+    const darr=sortides.length?sortides[sortides.length-1]:allMovs[allMovs.length-1];
+    darrData=new Date(darr.any,darr.mes-1,darr.dia);
+  } else {
+    darrData=new Date();
+  }
+  return Math.floor((darrData-primerData)/(1000*60*60*24))+1;
+}
+
+document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
+renderG('fig');renderG('costa');
+loadNotes();
+_hist=[JSON.stringify(S)]; _histIdx=0; updUndoBtn();
+document.addEventListener('keydown',function(e){
+  if((e.metaKey||e.ctrlKey)&&e.key==='z'&&!e.shiftKey){
+    const g=document.querySelector('.page.active').id.replace('page-','');
+    undo(g); e.preventDefault();
+  }
+  if((e.metaKey||e.ctrlKey)&&(e.key==='y'||(e.key==='z'&&e.shiftKey))){
+    const g=document.querySelector('.page.active').id.replace('page-','');
+    redo(g); e.preventDefault();
+  }
+});
+</script>
+</body>
+</html>
