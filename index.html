@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apps Pere Esquerrà</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4f1ec;--ink:#1c1b18;--card:#fff;--border:#e2ddd5;--green:#4a7c59;--muted:#8a8478}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--ink);min-height:100vh;padding:40px 20px}
+header{text-align:center;margin-bottom:48px}
+header h1{font-size:1.6rem;font-weight:600;letter-spacing:-0.02em}
+header p{color:var(--muted);font-size:.9rem;margin-top:6px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;max-width:900px;margin:0 auto}
+.app-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;text-decoration:none;color:var(--ink);display:flex;flex-direction:column;gap:8px;transition:box-shadow .15s,transform .15s}
+.app-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.08);transform:translateY(-2px)}
+.app-icon{font-size:2rem;margin-bottom:4px}
+.app-name{font-size:1.1rem;font-weight:600}
+.app-desc{font-size:.85rem;color:var(--muted);line-height:1.4}
+.app-tag{display:inline-block;background:#eef4f0;color:var(--green);font-size:.75rem;padding:3px 10px;border-radius:20px;margin-top:4px;font-weight:500}
+footer{text-align:center;margin-top:60px;color:var(--muted);font-size:.8rem}
+</style>
+</head>
+<body>
+<header>
+  <h1>Les meves apps</h1>
+  <p>Pere Esquerrà · Abatt Associats SL</p>
+</header>
+<div class="grid">
+  <a class="app-card" href="apps/factures_vedells/programa_factures_vedells_v29.html">
+    <div class="app-icon">🐄</div>
+    <div class="app-name">Factures Vedells</div>
+    <div class="app-desc">Gestió de lots, moviments i facturació de les granges Figuera i La Costa.</div>
+    <span class="app-tag">v29</span>
+  </a>
+</div>
+<footer>pereesquerra.github.io · Abatt Associats SL</footer>
+</body>
+</html>
