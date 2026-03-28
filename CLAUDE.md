@@ -1,179 +1,129 @@
-# CLAUDE.md
+# GESCLIC — App Gestió Vedells
+## Context del Projecte
 
-This file provides guidance for AI assistants (Claude and others) working in this repository.
-
-## Repository Status
-
-This repository is currently **empty** — no source code, tests, or configuration files have been committed yet. This CLAUDE.md serves as the initial scaffolding document to establish conventions and workflows before development begins.
-
-When the project is initialized, update the sections below with accurate, project-specific details.
-
----
-
-## Repository Overview
-
-| Field        | Value                                             |
-|--------------|---------------------------------------------------|
-| Repository   | pereesquerra/Repositorio-pere                     |
-| Remote URL   | http://local_proxy@127.0.0.1:44222/git/pereesquerra/Repositorio-pere |
-| Current Phase | Initial setup                                    |
-| Language     | TBD                                               |
-| Framework    | TBD                                               |
+**Propietari:** Pere Esquerrà — Abatt Associats SL  
+**Domini:** gesclic.com + gesclic.es (comprats a Dinahosting, març 2026)  
+**Repositori GitHub:** pereesquerra/Repositorio-pere  
+**Branca activa:** claude/add-claude-documentation-KINri  
+**App actual:** apps/factures_vedells/programa_factures_vedells_v17.html  
+**URL pública:** https://pereesquerra.github.io/Repositorio-pere/apps/factures_vedells/programa_factures_vedells_v17.html  
+**Pàgina principal apps:** https://pereesquerra.github.io/Repositorio-pere/  
 
 ---
 
-## Git Workflow
+## ESTAT ACTUAL (març 2026)
 
-### Branch Naming
+### App existent (v17)
+- Fitxer HTML+JS pur, 75KB, 1933 línies
+- localStorage key: 'vd29'
+- Gestiona animals per VOLUM (no per individu)
+- Dues granges: Figuera + La Costa
+- Facturació automàtica per cartilla/empresa
+- Càlcul: dies × animals × preu (0.40€/dia per defecte)
 
-- Feature branches: `feature/<short-description>`
-- Bug fix branches: `fix/<short-description>`
-- AI-generated branches: `claude/<description>-<session-id>`
-- Documentation branches: `docs/<short-description>`
+### Les dues granges
 
-### Commit Messages
+**Granja Figuera (Sant Mateu de Bages)**
+- Cartilles: ECO (Ecofutur, verd #4a7c59), SATF (SAT Figuera, lila #7b5ea7), PE (Pere Esquerrà, taronja #e06a00)
+- Lots actius: Lot 9 (257 vedells: 203 ECO + 54 PE), Lot 10 (54 SATF)
+- Des de 2026: Factura separada per cartilla (IC{m}/{y}, SAT{m}/{y}, PE{m}/{y})
 
-Follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
+**Granja La Costa (Santpedor)**
+- Cartilla: RAM (Ramaders Comarcals, blau #3d6b8c)
+- Lots actius: 25-28
+- Una sola factura mensual
 
-```
-<type>(<scope>): <short summary>
-
-<optional body>
-
-<optional footer>
-```
-
-**Types:** `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `ci`
-
-**Examples:**
-```
-feat(auth): add JWT token refresh logic
-fix(api): handle null response from upstream service
-docs: update CLAUDE.md with project structure
-chore: add .gitignore for Node.js project
-```
-
-### Push Protocol
-
-- Always push with tracking: `git push -u origin <branch-name>`
-- AI branches must follow: `claude/<description>-<session-id>` (pushes to other branch patterns may fail)
-- On network failure, retry up to 4 times with exponential backoff: 2s, 4s, 8s, 16s
+### Regles de facturació CRÍTIQUES
+- Dia entrada: ES COBRA
+- Dia sortida: ES COBRA
+- Fórmula: Animals × Dies × Preu
+- Cross-billing: si cartilla s'esgota, excedents van a altra cartilla
+- Un lot apareix si tenia animals o entrades aquell mes
 
 ---
 
-## Development Workflow
+## MIGRACIÓ PLANIFICADA: Volum → Individu
 
-### Before Starting Work
-
-1. Pull the latest changes from the target branch
-2. Create a new branch following the naming convention above
-3. Understand the existing structure before making changes
-
-### Making Changes
-
-1. Read files before editing them — do not guess at file contents
-2. Prefer editing existing files over creating new ones
-3. Keep changes focused and minimal (avoid over-engineering)
-4. Do not add comments, docstrings, or type annotations to code you didn't modify
-
-### Completing Work
-
-1. Run all tests before committing (commands TBD once project is initialized)
-2. Run the linter/formatter before committing
-3. Write clear commit messages
-4. Push to the feature branch and open a pull request
-
----
-
-## Project Structure (TBD)
-
-This section should be updated once the project is initialized. A typical structure might look like:
-
+### Estructura actual del moviment
+```javascript
+{dia, tipus, qty, lot, cart}
 ```
-Repositorio-pere/
-├── CLAUDE.md           # This file
-├── README.md           # Human-facing documentation
-├── .gitignore          # Git ignore rules
-├── src/                # Source code
-├── tests/              # Test files
-├── docs/               # Documentation
-└── <config files>      # Language/framework-specific config
+
+### Nova estructura del moviment (v18+)
+```javascript
+{
+  dia: 15,
+  tipus: 'entrada',  // entrada | sortida | baixa
+  lot: 9,
+  cart: 'ECO',
+  dibs: ['ES123456789', 'ES987654321'],  // nums individuals (crotals)
+  guia: '92507011000293790',  // número de guia sanitària OBLIGATORI
+  qty: 2  // calculat automàticament = dibs.length
+}
 ```
 
 ---
 
-## Key Commands (TBD)
+## LLISTA DE FUNCIONALITATS A IMPLEMENTAR
 
-Update this section with the actual commands once the project is set up.
+### Fase 1 — Millores sobre v17 (HTML pur)
+1. Preu editable per factura (treure preu fix 0.40€)
+2. Buscador per últimes 4 xifres del crotal (DIB)
+3. Entrada massiva DIBs — separats per comes O números llargs (discriminació automàtica)
+4. Número de guia sanitària — camp a entrades i sortides, mostrat al llistat
+5. Apartat cuidador — vista sense preus
+6. Apartat propietari — vista completa amb facturació
 
+### Fase 2 — Arquitectura nova (gesclic.com)
+1. Login usuaris — Supabase Auth (email/password)
+2. Multi-granja per usuari
+3. Rols: Propietari (tot) vs Cuidador (granja assignada, sense preus)
+4. PWA instal·lable a iPhone/Android sense App Store
+5. Stack: Cloudflare DNS → Hostinger (hosting) + Supabase (dades+auth)
+
+### Fase 3 — Funcionalitats avançades
+1. OCR de guies sanitàries (PDFs digitals i escaneig paper)
+2. Historial complet per animal individual (crotal)
+3. App mòbil simplificada per treballadors
+
+---
+
+## INFRAESTRUCTURA
+
+- **Mac de treball:** iMac 24" — usuari: pereesquerra24
+- **Fitxer local app:** /Users/pereesquerra24/Downloads/factures_vedells_17.html
+- **Hosting:** Hostinger (ja pagat)
+- **DNS:** Cloudflare (gratuït)
+- **BD + Auth:** Supabase (pla gratuït)
+- **Domini:** gesclic.com + gesclic.es (Dinahosting)
+
+---
+
+## MODEL DE NEGOCI (futur)
+
+- Producte: App gestió ramadera vendible a tercers
+- Preu: 9.90€ cop únic (sense quotes mensuals)
+- Dades: Al Google Drive/Supabase de l'usuari
+- Canal: TikTok/Instagram Reels + descàrrega directa
+
+---
+
+## COM TREBALLAR AMB CLAUDE CODE
+
+Cada sessió:
 ```bash
-# Install dependencies
-<command>
-
-# Run the development server
-<command>
-
-# Build for production
-<command>
-
-# Run tests
-<command>
-
-# Run linter
-<command>
-
-# Run formatter
-<command>
+cd /Users/pereesquerra24/Downloads
+claude
 ```
+Primera ordre: "Llegeix CLAUDE.md del repositori i factures_vedells_17.html i continuem el projecte GESCLIC"
+
+Al final de cada sessió important: "Actualitza el CLAUDE.md amb el que hem fet avui i puja'l a GitHub"
 
 ---
 
-## Coding Conventions (TBD)
+## NOTES TÈCNIQUES
 
-Once the project language and framework are chosen, document conventions here:
-
-- **Language version:** TBD
-- **Formatting tool:** TBD
-- **Linting tool:** TBD
-- **Test framework:** TBD
-- **Code style:** TBD
-
----
-
-## Environment Variables
-
-Document required environment variables here once the project is initialized.
-
-```
-# Example:
-# DATABASE_URL=<connection string>
-# API_KEY=<secret key>
-```
-
-Never commit secrets or `.env` files containing real credentials.
-
----
-
-## Testing Guidelines (TBD)
-
-- Test files should live alongside source files OR in a dedicated `tests/` directory
-- All new features should include tests
-- All bug fixes should include a regression test
-- Aim for meaningful coverage, not just high numbers
-
----
-
-## CI/CD (TBD)
-
-Document any CI/CD pipelines configured for this repository (GitHub Actions, GitLab CI, etc.) once set up.
-
----
-
-## Notes for AI Assistants
-
-- This repository is empty — do not assume any file exists without checking first
-- When the project is initialized, update all "TBD" sections with accurate information
-- Always read files before modifying them
-- Confirm before taking destructive or irreversible actions (force push, dropping tables, deleting branches)
-- Keep changes focused on what was requested — avoid unsolicited refactoring or "improvements"
-- Do not push to branches other than the one designated in your task
+- Colors: ECO=#4a7c59, PE=#e06a00, SATF=#7b5ea7, RAM=#3d6b8c
+- Fonts: DM Sans + Playfair Display + DM Mono
+- IMPORTANT: Evitar backticks niuats en template literals JavaScript
+- Els guies sanitàries al camp 'guia' son strings (ex: '92507011000293790')
