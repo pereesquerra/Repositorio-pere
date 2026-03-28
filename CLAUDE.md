@@ -1,12 +1,12 @@
-# GESCLIC — App Gestió Vedells
+# Programa Vedells — App Gestió Animals Boví
 ## Context del Projecte
 
 **Propietari:** Pere Esquerrà — Abatt Associats SL  
 **Domini:** gesclic.com + gesclic.es (comprats a Dinahosting, març 2026)  
 **Repositori GitHub:** pereesquerra/Repositorio-pere  
 **Branca activa:** claude/add-claude-documentation-KINri  
-**App actual:** apps/factures_vedells/programa_factures_vedells_v17.html  
-**URL pública:** https://pereesquerra.github.io/Repositorio-pere/apps/factures_vedells/programa_factures_vedells_v17.html  
+**App actual:** apps/factures_vedells/programa_factures_vedells_v18.html  
+**URL pública:** https://pereesquerra.github.io/Repositorio-pere/apps/factures_vedells/programa_factures_vedells_v18.html  
 **Pàgina principal apps:** https://pereesquerra.github.io/Repositorio-pere/  
 
 ---
@@ -115,7 +115,7 @@ Cada sessió:
 cd /Users/pereesquerra24/Downloads
 claude
 ```
-Primera ordre: "Llegeix CLAUDE.md del repositori i factures_vedells_17.html i continuem el projecte GESCLIC"
+Primera ordre: "Llegeix CLAUDE.md del repositori i factures_vedells_17.html i continuem el projecte Programa Vedells"
 
 Al final de cada sessió important: "Actualitza el CLAUDE.md amb el que hem fet avui i puja'l a GitHub"
 
