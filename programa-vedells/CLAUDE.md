@@ -5,20 +5,21 @@
 **Domini:** gesclic.com + gesclic.es (comprats a Dinahosting, març 2026)  
 **Repositori GitHub:** pereesquerra/Repositorio-pere  
 **Branca activa:** claude/add-claude-documentation-KINri  
-**App actual:** apps/factures_vedells/programa_factures_vedells_v18.html  
-**URL pública:** https://pereesquerra.github.io/Repositorio-pere/apps/factures_vedells/programa_factures_vedells_v18.html  
-**Pàgina principal apps:** https://pereesquerra.github.io/Repositorio-pere/  
+**App actual:** programa-vedells/programa_factures_vedells_v18.html  
+**URL pública:** https://pereesquerra.github.io/Repositorio-pere/programa-vedells/programa_factures_vedells_v18.html  
+**Pàgina principal:** https://pereesquerra.github.io/Repositorio-pere/  
 
 ---
 
 ## ESTAT ACTUAL (març 2026)
 
-### App existent (v17)
-- Fitxer HTML+JS pur, 75KB, 1933 línies
+### App existent (v18)
+- Fitxer HTML+JS pur, 76KB
 - localStorage key: 'vd29'
 - Gestiona animals per VOLUM (no per individu)
 - Dues granges: Figuera + La Costa
 - Facturació automàtica per cartilla/empresa
+- Preu editable per empresa/cartilla (pastilla clicable)
 - Càlcul: dies × animals × preu (0.40€/dia per defecte)
 
 ### Les dues granges
@@ -49,7 +50,7 @@
 {dia, tipus, qty, lot, cart}
 ```
 
-### Nova estructura del moviment (v18+)
+### Nova estructura del moviment (v19+)
 ```javascript
 {
   dia: 15,
@@ -66,8 +67,8 @@
 
 ## LLISTA DE FUNCIONALITATS A IMPLEMENTAR
 
-### Fase 1 — Millores sobre v17 (HTML pur)
-1. Preu editable per factura (treure preu fix 0.40€)
+### Fase 1 — Millores sobre v18 (HTML pur)
+1. ~~Preu editable per factura~~ ✅ FET (v18)
 2. Buscador per últimes 4 xifres del crotal (DIB)
 3. Entrada massiva DIBs — separats per comes O números llargs (discriminació automàtica)
 4. Número de guia sanitària — camp a entrades i sortides, mostrat al llistat
@@ -91,7 +92,9 @@
 ## INFRAESTRUCTURA
 
 - **Mac de treball:** iMac 24" — usuari: pereesquerra24
-- **Fitxer local app:** /Users/pereesquerra24/Downloads/factures_vedells_17.html
+- **Carpeta local:** /Users/pereesquerra24/Desktop/claude/Webs/programa vedells/
+- **Fitxer local app:** /Users/pereesquerra24/Desktop/claude/Webs/programa vedells/factures_vedells_18.html
+- **Referència tècnica:** /Users/pereesquerra24/Desktop/claude/Webs/programa vedells/CONTEXT_VEDELLS.md
 - **Hosting:** Hostinger (ja pagat)
 - **DNS:** Cloudflare (gratuït)
 - **BD + Auth:** Supabase (pla gratuït)
@@ -112,10 +115,10 @@
 
 Cada sessió:
 ```bash
-cd /Users/pereesquerra24/Downloads
+cd "/Users/pereesquerra24/Desktop/claude/Webs/programa vedells"
 claude
 ```
-Primera ordre: "Llegeix CLAUDE.md del repositori i factures_vedells_17.html i continuem el projecte Programa Vedells"
+Primera ordre: "Llegeix CONTEXT_VEDELLS.md i factures_vedells_18.html i continuem el projecte Programa Vedells"
 
 Al final de cada sessió important: "Actualitza el CLAUDE.md amb el que hem fet avui i puja'l a GitHub"
 
