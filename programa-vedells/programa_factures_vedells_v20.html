@@ -3254,8 +3254,8 @@ function openDetail(g, idx){
 
   // DIBs en format llista vertical
   const dibsEl=document.getElementById('m-detail-dibs');
-  // v20: Migració progressiva - crear aids si no existeixen
-  if(m.dibs&&m.dibs.length&&(!m.aids||!m.aids.length)){
+  // v20: Migració progressiva - NOMES per entrades
+  if(m.tipus==='entrada' && m.dibs&&m.dibs.length&&(!m.aids||!m.aids.length)){
     if(!S[g].animals) S[g].animals={};
     m.aids=[];
     m.dibs.forEach(function(dib,di){
@@ -4045,8 +4045,8 @@ function openHistMov(g,k,mi){
   else guiaEl.innerHTML='<span style="color:var(--muted);font-style:italic">Sense guia registrada</span>';
   document.getElementById('m-detail-total').innerHTML='<span style="color:'+col+'">'+m.qty+' animal'+(m.qty!==1?'s':'')+'</span>';
   const dibsEl=document.getElementById('m-detail-dibs');
-  // v20: Migració progressiva
-  if(m.dibs&&m.dibs.length&&(!m.aids||!m.aids.length)){
+  // v20: Migració progressiva - NOMES per entrades
+  if(m.tipus==='entrada' && m.dibs&&m.dibs.length&&(!m.aids||!m.aids.length)){
     if(!S[g].animals) S[g].animals={};
     m.aids=[];
     var pts2=k.split('-');var mk3=parseInt(pts2[0]),yk3=parseInt(pts2[1]);
@@ -4521,7 +4521,7 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
-document.getElementById('build-ver').textContent='v20 · 29/03 17:43';
+document.getElementById('build-ver').textContent='v20 · 29/03 17:52';
 renderG('fig');renderG('costa');
 loadNotes();
 // Init historial
