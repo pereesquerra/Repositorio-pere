@@ -1405,7 +1405,20 @@ if(!S.costa.animals) S.costa.animals={};
 if(!S.fig._aidCounter) S.fig._aidCounter=0;
 if(!S.costa._aidCounter) S.costa._aidCounter=0;
 function nextAid(g){S[g]._aidCounter++;return 'a'+String(S[g]._aidCounter).padStart(4,'0');}
-// Migrar animals existents al registre (si no migrats)
+// Migració: afegir ????-???? als moviments antics sense crotals
+let _migrated=false;
+['fig','costa'].forEach(g=>{
+  Object.values(S[g].movs||{}).forEach(ms=>{
+    ms.forEach(m=>{
+      if(m.qty>0 && (!m.dibs || m.dibs.length===0)){
+        m.dibs=Array.from({length:m.qty},()=>'????-????');
+        _migrated=true;
+      }
+    });
+  });
+});
+// v20: Migrar animals existents al registre (DESPRES de ????-???? migration)
+try{
 ['fig','costa'].forEach(g=>{
   const reg=S[g].animals;
   Object.entries(S[g].movs||{}).forEach(([k,ms])=>{
@@ -1414,9 +1427,7 @@ function nextAid(g){S[g]._aidCounter++;return 'a'+String(S[g]._aidCounter).padSt
       if(mv.tipus!=='entrada'||!mv.dibs||!mv.dibs.length) return;
       if(!mv.aids) mv.aids=[];
       mv.dibs.forEach((dib,di)=>{
-        // Si ja té aid assignat, saltar
         if(mv.aids[di]) return;
-        // Buscar si aquest dib ja existeix al registre (evitar duplicats)
         let aid=null;
         if(dib!=='????-????'&&!dib.startsWith('BORR-')){
           const found=Object.entries(reg).find(([id,a])=>a.dib===dib);
@@ -1424,20 +1435,13 @@ function nextAid(g){S[g]._aidCounter++;return 'a'+String(S[g]._aidCounter).padSt
         }
         if(!aid){
           aid=nextAid(g);
-          reg[aid]={
-            dib:dib,
-            sex:(mv.sexes&&mv.sexes[di])||(S[g].sexes&&S[g].sexes[dib])||'',
-            lot:mv.lot, cart:mv.cart||'-',
-            guia:mv.guia||'',
-            diaEnt:mv.dia, mesEnt:m, anyEnt:y
-          };
+          reg[aid]={dib,sex:(mv.sexes&&mv.sexes[di])||(S[g].sexes&&S[g].sexes[dib])||'',lot:mv.lot,cart:mv.cart||'-',guia:mv.guia||'',diaEnt:mv.dia,mesEnt:m,anyEnt:y};
         }
         mv.aids[di]=aid;
       });
       _migrated=true;
     });
   });
-  // Propagar aids a sortides (buscar per dib)
   Object.values(S[g].movs||{}).forEach(ms=>{
     ms.forEach(mv=>{
       if(mv.tipus==='entrada'||!mv.dibs||!mv.dibs.length) return;
@@ -1452,18 +1456,7 @@ function nextAid(g){S[g]._aidCounter++;return 'a'+String(S[g]._aidCounter).padSt
     });
   });
 });
-// Migració: afegir ????-???? als moviments antics sense crotals
-let _migrated=false;
-['fig','costa'].forEach(g=>{
-  Object.values(S[g].movs||{}).forEach(ms=>{
-    ms.forEach(m=>{
-      if(m.qty>0 && (!m.dibs || m.dibs.length===0)){
-        m.dibs=Array.from({length:m.qty},()=>'????-????');
-        _migrated=true;
-      }
-    });
-  });
-});
+}catch(e){console.error('v20 migration error:',e);}
 if(_migrated) sv();let _mg=null,_mfl=null,_mfg=null;
 let _pendingSexes={};
 let _editSexes=[];
@@ -4334,7 +4327,7 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
-document.getElementById('build-ver').textContent='v20 · 29/03 14:49';
+document.getElementById('build-ver').textContent='v20 · 29/03 14:56';
 renderG('fig');renderG('costa');
 loadNotes();
 // Init historial
