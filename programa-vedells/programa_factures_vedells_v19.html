@@ -264,8 +264,8 @@ header .sub{font-family:'DM Mono',monospace;font-size:.7rem;color:#999}
 <body>
 
 <header>
-  <div><h1>🐄 Gestió Animals Boví</h1><div style="font-size:.55rem;color:#666;font-family:'DM Mono',monospace" id="build-ver"></div></div>
-  <div class="sub" id="avui"></div>
+  <div><h1>🐄 Gestió Animals Boví</h1></div>
+  <div style="text-align:right"><div class="sub" id="avui"></div><div style="font-size:.7rem;color:#f0c040;font-family:'DM Mono',monospace;font-weight:700" id="build-ver"></div></div>
 </header>
 
 <div class="tabs">
@@ -554,6 +554,21 @@ header .sub{font-family:'DM Mono',monospace;font-size:.7rem;color:#999}
     <div id="m-gestio-body"></div>
     <div class="mact">
       <button class="btn b-out" onclick="document.getElementById('m-gestio').classList.remove('open')">Tancar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR PREU -->
+<div class="mbg" id="m-preu">
+  <div class="mbox" style="max-width:320px">
+    <h3 id="m-preu-title">Editar preu</h3>
+    <div style="margin:12px 0">
+      <label style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Preu €/dia</label>
+      <input type="number" id="m-preu-input" step="0.01" min="0.01" style="width:100%;padding:12px;border:2px solid var(--border);border-radius:8px;font-size:1.3rem;font-family:'DM Mono',monospace;text-align:center;margin-top:6px">
+    </div>
+    <div class="mact">
+      <button class="btn b-out" onclick="document.getElementById('m-preu').classList.remove('open')">Cancel·lar</button>
+      <button class="btn b-ink" onclick="confirmarPreu()">Guardar preu</button>
     </div>
   </div>
 </div>
@@ -1764,10 +1779,22 @@ function setPreuEmp(g,key,mes,any,preu){
   S[g].preuEmp[key+'-'+mes+'-'+any]=preu;
   sv(); renderG(g);
 }
+let _preuEdit={g:null,key:null,mes:null,any:null};
 function editPreuEmp(g,key,mes,any){
+  _preuEdit={g,key,mes,any};
   const actual=getPreuEmp(g,key,mes,any);
-  const n=parseFloat(prompt('Preu €/dia per '+key+':',actual));
-  if(!isNaN(n)&&n>0) setPreuEmp(g,key,mes,any,n);
+  document.getElementById('m-preu-title').textContent='Preu €/dia — '+key;
+  const inp=document.getElementById('m-preu-input');
+  inp.value=actual;
+  document.getElementById('m-preu').classList.add('open');
+  setTimeout(function(){inp.focus();inp.select();},100);
+}
+function confirmarPreu(){
+  const n=parseFloat(document.getElementById('m-preu-input').value);
+  if(!isNaN(n)&&n>0){
+    setPreuEmp(_preuEdit.g,_preuEdit.key,_preuEdit.mes,_preuEdit.any,n);
+  }
+  document.getElementById('m-preu').classList.remove('open');
 }
 
 function calcTrams(g,lotNum,mes,any,preuOverride){
@@ -4024,7 +4051,7 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
-document.getElementById('build-ver').textContent='v19 · build 29mar-B';
+document.getElementById('build-ver').textContent='v19 · 29/03 13:45';
 renderG('fig');renderG('costa');
 loadNotes();
 // Init historial
