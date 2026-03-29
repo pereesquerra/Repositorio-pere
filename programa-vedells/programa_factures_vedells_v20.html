@@ -1718,9 +1718,19 @@ function guardarAnimalFitxa(){
   if(a.dib!=='????-????'){
     if(a.sex==='F'||a.sex==='M')S[g].sexes[a.dib]=a.sex;else delete S[g].sexes[a.dib];
   }
-  Object.values(S[g].movs||{}).forEach(ms=>{ms.forEach(mv=>{if(!mv.aids)return;const idx=mv.aids.indexOf(_fitxaAid);if(idx>=0&&mv.sexes)mv.sexes[idx]=a.sex;});});
+  // Propagar sexe a TOTS els moviments que contenen aquest animal
+  Object.values(S[g].movs||{}).forEach(ms=>{ms.forEach(mv=>{
+    if(!mv.aids) return;
+    const idx=mv.aids.indexOf(_fitxaAid);
+    if(idx>=0){
+      if(!mv.sexes) mv.sexes=mv.dibs.map(()=>'');
+      mv.sexes[idx]=a.sex;
+    }
+  });});
   try{
     sv();renderG(g);
+    // Refrescar cartilla si estava oberta
+    if(document.getElementById(g+'-cart-date')&&document.getElementById(g+'-cart-date').value) rCartLlista(g);
     document.getElementById('m-animal').classList.remove('open');
     // Refrescar el detall "maco" si estava obert
     var detailModal=document.getElementById('m-detail');
@@ -4463,7 +4473,7 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
-document.getElementById('build-ver').textContent='v20 · 29/03 16:43';
+document.getElementById('build-ver').textContent='v20 · 29/03 16:48';
 renderG('fig');renderG('costa');
 loadNotes();
 // Init historial
