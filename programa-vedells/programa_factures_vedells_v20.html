@@ -1595,8 +1595,16 @@ function guardarAnimalFitxa(){
     if(a.sex==='F'||a.sex==='M')S[g].sexes[a.dib]=a.sex;else delete S[g].sexes[a.dib];
   }
   Object.values(S[g].movs||{}).forEach(ms=>{ms.forEach(mv=>{if(!mv.aids)return;const idx=mv.aids.indexOf(_fitxaAid);if(idx>=0&&mv.sexes)mv.sexes[idx]=a.sex;});});
-  sv();renderG(g);
-  document.getElementById('m-animal').classList.remove('open');
+  try{
+    sv();renderG(g);
+    document.getElementById('m-animal').classList.remove('open');
+    // Feedback visible
+    var fb=document.createElement('div');
+    fb.style.cssText='position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#2a7a4b;color:#fff;padding:10px 20px;border-radius:10px;z-index:999;font-weight:700;font-size:.85rem;box-shadow:0 4px 15px rgba(0,0,0,.3)';
+    fb.textContent='\u2713 Animal guardat: '+(a.dib||'????-????');
+    document.body.appendChild(fb);
+    setTimeout(function(){fb.remove();},2000);
+  }catch(e){alert('Error guardant: '+e.message);}
 }
 
 // ---- RENDER ----
@@ -3718,7 +3726,14 @@ function guardarEditMov(){
   }
   _editSexes=[];
   document.getElementById('m-edit-mov').classList.remove('open');
-  sv();renderG(g);
+  try{
+    sv();renderG(g);
+    var fb2=document.createElement('div');
+    fb2.style.cssText='position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#2a7a4b;color:#fff;padding:10px 20px;border-radius:10px;z-index:999;font-weight:700;font-size:.85rem;box-shadow:0 4px 15px rgba(0,0,0,.3)';
+    fb2.textContent='\u2713 Moviment guardat';
+    document.body.appendChild(fb2);
+    setTimeout(function(){fb2.remove();},2000);
+  }catch(e){alert('Error guardant moviment: '+e.message);}
   // Tornar al detall del moviment guardat (amb setTimeout per assegurar renderG complet)
   const finalK=mesInt+'-'+anyInt;
   setTimeout(()=>{
@@ -4289,7 +4304,7 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
-document.getElementById('build-ver').textContent='v20 · 29/03 15:13';
+document.getElementById('build-ver').textContent='v20 · 29/03 15:18';
 renderG('fig');renderG('costa');
 loadNotes();
 // Init historial
