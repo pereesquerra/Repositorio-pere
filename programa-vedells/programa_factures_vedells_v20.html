@@ -1903,72 +1903,48 @@ function rLots(g){
     return;
   }
 
-  // ---- PANELL RESUM GRANJA ----
-  // Calcular totals DIRECTAMENT dels lots actius
-  let totalIni=0, totalFi=0, totalEntrades=0;
-  const cartTotals={};
+  // ---- PANELL RESUM GRANJA (prim, horitzontal) ----
+  let rTotIni=0, rTotFi=0;
+  const rCarts={};
   lotsDelMes.forEach(l=>{
-    const vIni2=vLotIniMes(g,l.num,mes,any);
-    const vFi2=esMesActual?l.v:vLotAlMes(g,l.num,mes,any);
-    totalIni+=vIni2; totalFi+=vFi2;
-  });
-  // Per cartilla: sumar TOTS els moviments de TOTS els lots
-  Object.entries(S[g].movs||{}).forEach(([k,ms])=>{
-    const pts=k.split('-');const km=parseInt(pts[0]),ky=parseInt(pts[1]);
-    ms.forEach(mv=>{
-      const ct=mv.cart||'-';
-      if(ct==='-') return;
-      if(!cartTotals[ct]) cartTotals[ct]={ini:0,fi:0,totEnt:0};
-      // Total entrades historic
-      if(mv.tipus==='entrada') cartTotals[ct].totEnt+=mv.qty;
+    const vi=vLotIniMes(g,l.num,mes,any);
+    const vf=esMesActual?l.v:vLotAlMes(g,l.num,mes,any);
+    rTotIni+=vi; rTotFi+=vf;
+    // Cartilles: sumar exactament com cada lot
+    const aml=Object.values(S[g].movs||{}).flat().filter(mv=>mv.lot===l.num);
+    const cts=[...new Set([...Object.keys(l.carts||{}),...aml.filter(mv=>mv.cart&&mv.cart!=='-').map(mv=>mv.cart)])];
+    cts.forEach(ct=>{
+      if(!rCarts[ct]) rCarts[ct]={ini:0,fi:0,ent:0};
+      rCarts[ct].ini+=vCartIniMes(g,l.num,ct,mes,any);
+      rCarts[ct].fi+=vCartAlMes(g,l.num,ct,mes,any);
     });
   });
-  // Calcular fi de mes per cartilla (sumant tots els lots)
-  const allCarts=[...new Set(Object.values(S[g].movs||{}).flat().filter(mv=>mv.cart&&mv.cart!=='-').map(mv=>mv.cart))];
-  allCarts.forEach(ct=>{
-    if(!cartTotals[ct]) cartTotals[ct]={ini:0,fi:0,totEnt:0};
-    let cIni=0,cFi=0;
-    lotsDelMes.forEach(l=>{
-      cIni+=vCartIniMes(g,l.num,ct,mes,any);
-      cFi+=vCartAlMes(g,l.num,ct,mes,any);
-    });
-    cartTotals[ct].ini=cIni;
-    cartTotals[ct].fi=cFi;
-  });
-  const diff=totalFi-totalIni;
-  const diffColor=diff>0?'var(--eco)':diff<0?'var(--pe)':'var(--muted)';
-  const diffText=diff>0?'+'+diff:diff===0?'=':''+diff;
-  const gNomResum=g==='fig'?'Figuera':'La Costa';
-  const gIcon=g==='fig'?'\ud83c\udfdb':'\ud83c\udfd4';
-  const gBorderColor=g==='fig'?'var(--eco)':'var(--costa)';
-  // Cartilles HTML
-  let cartsResumHTML=Object.entries(cartTotals).filter(([c,v])=>v.ini>0||v.fi>0).sort((a,b)=>b[1].fi-a[1].fi).map(([ct,v])=>{
-    const col=ccls(ct);const d2=v.fi-v.ini;const dc=d2>0?'var(--eco)':d2<0?'var(--pe)':'var(--muted)';
-    return '<div style="display:flex;align-items:center;gap:5px;padding:6px 10px;background:var(--bg);border-radius:8px">'+
-      '<span class="cc cc-'+col+'" style="font-size:.7rem;padding:2px 8px">'+ct+'</span>'+
-      '<span style="font-weight:600;font-size:.82rem">'+v.ini+'</span>'+
-      '<span style="color:var(--muted);font-size:.65rem">\u2192</span>'+
-      '<span style="font-weight:700;font-size:.82rem;color:var(--'+col+')">'+v.fi+'</span>'+
-      '<span style="font-size:.6rem;color:'+dc+';font-weight:600">('+((d2>0)?'+'+d2:d2)+')</span>'+
-      '<span style="font-size:.55rem;color:var(--muted);margin-left:2px">\u2191'+v.totEnt+'</span>'+
-      '</div>';
+  // Total entrades historic per cartilla
+  Object.entries(S[g].movs||{}).forEach(function(e){e[1].forEach(function(mv){
+    if(mv.tipus==='entrada'&&mv.cart&&mv.cart!=='-'){
+      if(!rCarts[mv.cart]) rCarts[mv.cart]={ini:0,fi:0,ent:0};
+      rCarts[mv.cart].ent+=mv.qty;
+    }
+  });});
+  const rDiff=rTotFi-rTotIni;
+  const rDc=rDiff>0?'#2a7a4b':rDiff<0?'#c0392b':'#888';
+  const rDt=rDiff>0?'+'+rDiff:rDiff===0?'=':''+rDiff;
+  const rGn=g==='fig'?'Figuera':'La Costa';
+  const rGc=g==='fig'?'#4a7c59':'#3d6b8c';
+  // Cartilles HTML inline
+  let rCH=Object.entries(rCarts).filter(function(e){return e[1].ini>0||e[1].fi>0;}).sort(function(a,b){return b[1].fi-a[1].fi;}).map(function(e){
+    var ct=e[0],v=e[1],col=ccls(ct),d=v.fi-v.ini,dc=d>0?'#2a7a4b':d<0?'#c0392b':'#888';
+    return '<span style="display:inline-flex;align-items:center;gap:3px;margin-right:12px"><span class="cc cc-'+col+'" style="font-size:.6rem;padding:1px 6px">'+ct+'</span><b>'+v.ini+'</b><span style="opacity:.4">\u2192</span><b style="color:var(--'+col+')">'+v.fi+'</b><span style="font-size:.6rem;color:'+dc+'">('+((d>0)?'+'+d:d)+')</span><span style="font-size:.55rem;color:#888">\u2191'+v.ent+'</span></span>';
   }).join('');
-
-  const resumPanel='<div style="background:var(--card);border-radius:14px;padding:14px 18px;box-shadow:0 2px 12px rgba(0,0,0,.08);margin-bottom:14px;border-top:4px solid '+gBorderColor+'">'+
-    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'+
-    '<div style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">'+gIcon+' Total '+gNomResum+'</div>'+
-    '<div style="font-size:.62rem;color:var(--muted)">'+MESOS_CA[mes]+' '+any+' \u00b7 '+lotsDelMes.length+' lots actius</div>'+
-    '</div>'+
-    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap">'+
-    '<div style="display:flex;align-items:baseline;gap:8px">'+
-    '<span style="font-family:Playfair Display,serif;font-size:2rem;line-height:1">'+totalIni+'</span>'+
-    '<span style="color:var(--muted);font-size:.9rem">\u2192</span>'+
-    '<span style="font-family:Playfair Display,serif;font-size:2rem;line-height:1;color:'+diffColor+'">'+totalFi+'</span>'+
-    '</div>'+
-    '<span style="font-size:.78rem;font-weight:700;color:'+diffColor+';background:'+(diff>0?'#d4edda':diff<0?'#f8d7da':'var(--bg)')+';padding:3px 10px;border-radius:6px">'+diffText+'</span>'+
-    '<span style="font-size:.65rem;color:var(--muted)">animals a granja</span>'+
-    '</div>'+
-    '<div style="display:flex;flex-wrap:wrap;gap:6px">'+cartsResumHTML+'</div>'+
+  const resumPanel='<div style="background:linear-gradient(135deg,'+rGc+'12,'+rGc+'08);border:1.5px solid '+rGc+'30;border-radius:10px;padding:8px 14px;margin-bottom:10px;display:flex;align-items:center;flex-wrap:wrap;gap:6px 14px">'+
+    '<span style="font-size:.65rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:'+rGc+'">'+rGn+'</span>'+
+    '<span style="font-family:Playfair Display,serif;font-size:1.3rem;font-weight:700">'+rTotIni+'</span>'+
+    '<span style="opacity:.4">\u2192</span>'+
+    '<span style="font-family:Playfair Display,serif;font-size:1.3rem;font-weight:700;color:'+rGc+'">'+rTotFi+'</span>'+
+    '<span style="font-size:.7rem;font-weight:700;color:'+rDc+';background:'+rGc+'15;padding:1px 6px;border-radius:4px">'+rDt+'</span>'+
+    '<span style="font-size:.6rem;color:#888">'+lotsDelMes.length+' lots</span>'+
+    '<span style="width:1px;height:18px;background:'+rGc+'30;margin:0 2px"></span>'+
+    rCH+
     '</div>';
 
   el.innerHTML=resumPanel+lotsVisibles.map(l=>{
@@ -4549,7 +4525,7 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
-document.getElementById('build-ver').textContent='v20 · 29/03 17:02';
+document.getElementById('build-ver').textContent='v20 · 29/03 17:07';
 renderG('fig');renderG('costa');
 loadNotes();
 // Init historial
