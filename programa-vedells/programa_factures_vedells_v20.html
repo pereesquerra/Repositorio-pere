@@ -268,6 +268,20 @@ header .sub{font-family:'DM Mono',monospace;font-size:.7rem;color:#999}
   <div style="text-align:right"><div class="sub" id="avui"></div><div style="font-size:.7rem;color:#f0c040;font-family:'DM Mono',monospace;font-weight:700" id="build-ver"></div></div>
 </header>
 
+<!-- BUSCADOR D'ANIMALS -->
+<div id="animal-search-bar" style="max-width:600px;margin:10px auto 0;padding:0 14px">
+  <div style="position:relative">
+    <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:1.1rem;opacity:.5">🔍</span>
+    <input type="text" id="animal-search-input" placeholder="Buscar animal per crotal (últims 4 dígits o número complet)" 
+      oninput="cercarAnimal()" 
+      style="width:100%;padding:10px 12px 10px 38px;border:2px solid var(--border);border-radius:12px;font-family:DM Mono,monospace;font-size:.85rem;background:var(--card);box-shadow:var(--shadow);outline:none;transition:border-color .2s"
+      onfocus="this.style.borderColor='var(--eco)'" onblur="this.style.borderColor='var(--border)'">
+    <button onclick="document.getElementById('animal-search-input').value='';document.getElementById('animal-search-results').innerHTML='';document.getElementById('animal-search-results').style.display='none'" 
+      style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:1.1rem;cursor:pointer;opacity:.4;padding:4px 8px">✕</button>
+  </div>
+  <div id="animal-search-results" style="display:none;margin-top:6px;background:var(--card);border-radius:12px;box-shadow:var(--shadow);max-height:400px;overflow-y:auto;-webkit-overflow-scrolling:touch"></div>
+</div>
+
 <div class="tabs">
   <button class="tab active" onclick="showPage('fig',this)">🌿 Figuera</button>
   <button class="tab" onclick="showPage('costa',this)">🏔 La Costa</button>
@@ -1508,6 +1522,58 @@ function ecls(e){
   if(e==='Pere Esquerrà') return 'pe';
   if(e==='SAT Figuera') return 'sat';
   return 'ram';
+}
+
+// ---- BUSCADOR D'ANIMALS ----
+function cercarAnimal(){
+  var q=(document.getElementById('animal-search-input').value||'').trim().toUpperCase();
+  var cont=document.getElementById('animal-search-results');
+  if(!q||q.length<2){cont.innerHTML='';cont.style.display='none';return;}
+  var results=[];
+  ['fig','costa'].forEach(function(g){
+    var gNom=g==='fig'?'Figuera':'La Costa';
+    Object.entries(S[g].animals||{}).forEach(function(entry){
+      var aid=entry[0],a=entry[1];
+      var dib=a.dib||'';
+      var match=false;
+      if(q.length<=4){
+        // Buscar per últims dígits
+        if(dib.slice(-q.length)===q) match=true;
+      } else {
+        // Buscar per número complet o parcial
+        if(dib.indexOf(q)>=0) match=true;
+      }
+      if(match) results.push({g:g,gNom:gNom,aid:aid,a:a});
+    });
+  });
+  if(!results.length){
+    cont.innerHTML='<div style="padding:14px;text-align:center;color:var(--muted);font-size:.82rem">Cap animal trobat per "'+q+'"</div>';
+    cont.style.display='block';
+    return;
+  }
+  // Limitar a 20 resultats
+  var shown=results.slice(0,20);
+  var html='';
+  if(results.length>20) html+='<div style="padding:6px 14px;font-size:.7rem;color:var(--muted);background:var(--bg);border-radius:12px 12px 0 0">Mostrant 20 de '+results.length+' resultats</div>';
+  shown.forEach(function(r){
+    var a=r.a,col=ccls(a.cart||'-');
+    var isPend=a.dib==='????-????';
+    var dibHtml;
+    if(isPend) dibHtml='<span style="color:#854F0B;font-weight:700">????-????</span>';
+    else{var l4=a.dib.slice(-4);var pf=a.dib.slice(0,-4);dibHtml='<span style="opacity:.4;font-size:.72rem">'+pf+'</span><span style="font-weight:800;color:var(--'+col+')">'+l4+'</span>';}
+    var sexH=a.sex==='F'?'<span style="color:#d4508b;font-weight:700">\u2640</span>':a.sex==='M'?'<span style="color:#3d7bc8;font-weight:700">\u2642</span>':'<span style="opacity:.3">\u2014</span>';
+    var dataE=String(a.diaEnt||0).padStart(2,'0')+'/'+String(a.mesEnt||0).padStart(2,'0')+'/'+(a.anyEnt||'');
+    html+='<div onclick="openAnimalFitxa(\''+r.g+'\',\''+r.aid+'\')" style="display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s" onmouseover="this.style.background=\'var(--bg)\'" onmouseout="this.style.background=\'transparent\'">';
+    html+='<div style="font-family:DM Mono,monospace;min-width:120px">'+dibHtml+'</div>';
+    html+='<span style="font-size:.9rem">'+sexH+'</span>';
+    html+='<span class="cc cc-'+col+'" style="font-size:.65rem;padding:1px 6px">'+(a.cart||'-')+'</span>';
+    html+='<span style="font-size:.72rem;color:var(--muted)">L'+(a.lot||'?')+'</span>';
+    html+='<span style="font-size:.68rem;color:var(--muted);margin-left:auto">'+dataE+'</span>';
+    html+='<span style="font-size:.62rem;color:var(--muted);background:var(--bg);padding:1px 5px;border-radius:4px">'+r.gNom+'</span>';
+    html+='</div>';
+  });
+  cont.innerHTML=html;
+  cont.style.display='block';
 }
 
 // ---- v20: ID INTERN PER ANIMAL ----
@@ -4327,7 +4393,7 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
-document.getElementById('build-ver').textContent='v20 · 29/03 15:56';
+document.getElementById('build-ver').textContent='v20 · 29/03 16:00';
 renderG('fig');renderG('costa');
 loadNotes();
 // Init historial
