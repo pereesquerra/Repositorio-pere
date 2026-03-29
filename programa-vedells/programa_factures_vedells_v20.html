@@ -1914,7 +1914,9 @@ function rLots(g){
     const cts=[...new Set([...Object.keys(l.carts||{}),...aml.filter(mv=>mv.cart&&mv.cart!=='-').map(mv=>mv.cart)])];
     cts.forEach(ct=>{if(!rCarts[ct])rCarts[ct]={ini:0,fi:0,entMes:0,sortMes:0,entHist:0};rCarts[ct].ini+=vCartIniMes(g,l.num,ct,mes,any);rCarts[ct].fi+=vCartAlMes(g,l.num,ct,mes,any);});
   });
-  Object.values(S[g].movs||{}).flat().forEach(mv=>{if(mv.tipus==='entrada'&&mv.cart&&mv.cart!=='-'){if(!rCarts[mv.cart])rCarts[mv.cart]={ini:0,fi:0,entMes:0,sortMes:0,entHist:0};rCarts[mv.cart].entHist+=mv.qty;}});
+  // Total entrades NOMES dels lots actius del mes
+  const lotsActiusNums=new Set(lotsDelMes.map(l=>l.num));
+  Object.values(S[g].movs||{}).flat().forEach(mv=>{if(mv.tipus==='entrada'&&mv.cart&&mv.cart!=='-'&&lotsActiusNums.has(mv.lot)){if(!rCarts[mv.cart])rCarts[mv.cart]={ini:0,fi:0,entMes:0,sortMes:0,entHist:0};rCarts[mv.cart].entHist+=mv.qty;}});
   const rDiff=rTotFi-rTotIni;const rDc=rDiff>0?'#2a7a4b':rDiff<0?'#c0392b':'#888';
   const rGn=g==='fig'?'Figuera':'La Costa';const rGc=g==='fig'?'#4a7c59':'#3d6b8c';const rGcLt=g==='fig'?'#e8f5e9':'#e3f0f7';
   let rCH=Object.entries(rCarts).filter(e=>e[1].ini>0||e[1].fi>0).sort((a,b)=>b[1].fi-a[1].fi).map(e=>{
@@ -4519,7 +4521,7 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
-document.getElementById('build-ver').textContent='v20 · 29/03 17:13';
+document.getElementById('build-ver').textContent='v20 · 29/03 17:18';
 renderG('fig');renderG('costa');
 loadNotes();
 // Init historial
