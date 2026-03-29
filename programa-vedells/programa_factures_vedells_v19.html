@@ -202,7 +202,7 @@ header .sub{font-family:'DM Mono',monospace;font-size:.7rem;color:#999}
 .lchip{display:inline-block;padding:1px 6px;border-radius:8px;font-size:.67rem;font-weight:700}
 
 /* MODAL */
-.mbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:300;align-items:center;justify-content:center;padding:20px}
+.mbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:300;align-items:center;justify-content:center;padding:20px;-webkit-overflow-scrolling:touch}
 .mbg.open{display:flex}
 .mbox{background:#fff;border-radius:14px;padding:20px;width:100%;max-width:380px;box-shadow:0 20px 50px rgba(0,0,0,.22);max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .mbox h3{font-family:'Playfair Display',serif;font-size:1rem;margin-bottom:14px}
@@ -1634,7 +1634,8 @@ function rLots(g){
     const total=totalEntrats(g,l.num);
     const vIniReal=vLotIniMes(g,l.num,mes,any);
     const vFi=esMesActual?l.v:vLotAlMes(g,l.num,mes,any);
-    const tancaAquestMes=(vIniReal>0&&vFi===0);
+    const teMovsMes=(S[g].movs[mes+'-'+any]||[]).some(mv=>mv.lot===l.num);
+    const tancaAquestMes=(vFi===0 && (vIniReal>0 || teMovsMes));
 
     // Moviments del mes per aquest lot
     const movsLot=(S[g].movs[mes+'-'+any]||[]).filter(mv=>mv.lot===l.num).sort((a,b)=>a.dia-b.dia);
@@ -2401,10 +2402,15 @@ function prepMov(g){
   const pillsHtml=dibs.map((d,i)=>dibPillHtml(d, cart, true, i)).join('');
   document.getElementById('m-dibs-pills').innerHTML=pillsHtml;
 
-  // Mostrar secció sexe
+  // Mostrar secció sexe NOMÉS si hi ha DIBs reals
   const sexDiv=document.getElementById('m-dibs-sex');
-  sexDiv.style.display='block';
-  renderSexeList();
+  const teReals2=_pendingMov.dibs.some(d=>d&&d!=='????-????'&&!d.startsWith('BORR-'));
+  if(teReals2){
+    sexDiv.style.display='block';
+    renderSexeList();
+  } else {
+    sexDiv.style.display='none';
+  }
 
   // Warnings
   document.getElementById('m-dibs-warn').innerHTML=warnings.map(w=>'<div>'+w+'</div>').join('');
@@ -3370,14 +3376,20 @@ function editarMov(g,k,mi){
   lotSel.innerHTML=S[g].lots.map(l=>'<option value="'+l.num+'">Lot '+l.num+' ('+l.v+')</option>').join('');
   lotSel.value=m.lot;
   document.getElementById('m-edit-mov-warn').innerHTML='';
-  // Omplir sexes
+  // Omplir sexes - només si hi ha DIBs reals (no ????-????)
   if(m.dibs&&m.dibs.length){
-    _editSexes=m.dibs.map(d=>{
-      if(!d||d==='????-????'||d.startsWith('BORR-')) return '';
-      return (S[g].sexes&&S[g].sexes[d])||'';
-    });
-    renderEditSexeList();
-    document.getElementById('em-sex-section').style.display='block';
+    const teReals=m.dibs.some(d=>d&&d!=='????-????'&&!d.startsWith('BORR-'));
+    if(teReals){
+      _editSexes=m.dibs.map(d=>{
+        if(!d||d==='????-????'||d.startsWith('BORR-')) return '';
+        return (S[g].sexes&&S[g].sexes[d])||'';
+      });
+      renderEditSexeList();
+      document.getElementById('em-sex-section').style.display='block';
+    } else {
+      _editSexes=[];
+      document.getElementById('em-sex-section').style.display='none';
+    }
   } else {
     _editSexes=[];
     document.getElementById('em-sex-section').style.display='none';
@@ -3391,7 +3403,7 @@ function cancelEditMov(){
   _editMov={g:null,k:null,mi:null};
   _editSexes=[];
   if(g && k!==null && mi!==null){
-    try { openHistMov(g,k,mi); } catch(e){ alert('Error: '+e.message); }
+    setTimeout(function(){try{openHistMov(g,k,mi);}catch(e){}},80);
   }
 }
 
@@ -4051,7 +4063,7 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
-document.getElementById('build-ver').textContent='v19 · 29/03 13:45';
+document.getElementById('build-ver').textContent='v19 · 29/03 14:00';
 renderG('fig');renderG('costa');
 loadNotes();
 // Init historial
