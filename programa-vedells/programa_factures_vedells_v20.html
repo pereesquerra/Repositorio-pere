@@ -1494,7 +1494,7 @@ function dibComplet(d){
   if(!d||d==='????-????') return false;
   if(d.startsWith('BORR-')) return false;
   if(d.startsWith('-')) return false;
-  if(/^\d{1,5}$/.test(d)) return false;
+  if(/^\d{1,4}$/.test(d)) return false;
   return /^[A-Z]{2}\d{8,}$/.test(d)||/^\d{10,}$/.test(d);
 }
 function fmtSexe(g,dib,sexDirect){
@@ -1582,8 +1582,13 @@ function guardarAnimalFitxa(){
   const newDib=(document.getElementById('fitxa-dib').value||'').trim().toUpperCase();
   const oldDib=a.dib;
   if(newDib&&newDib!==oldDib){
-    Object.values(S[g].movs||{}).forEach(ms=>{ms.forEach(mv=>{if(!mv.dibs)return;mv.dibs.forEach((d,i)=>{if(d===oldDib)mv.dibs[i]=newDib;});});});
-    if(S[g].sexes[oldDib]){S[g].sexes[newDib]=S[g].sexes[oldDib];delete S[g].sexes[oldDib];}
+    // Canviar NOMÉS aquest animal concret (per aid, no per dib)
+    Object.values(S[g].movs||{}).forEach(ms=>{ms.forEach(mv=>{
+      if(!mv.aids||!mv.dibs) return;
+      var aidIdx=mv.aids.indexOf(_fitxaAid);
+      if(aidIdx>=0) mv.dibs[aidIdx]=newDib;
+    });});
+    if(oldDib!=='????-????'&&S[g].sexes[oldDib]){S[g].sexes[newDib]=S[g].sexes[oldDib];delete S[g].sexes[oldDib];}
     a.dib=newDib;
   }
   if(a.dib!=='????-????'){
@@ -2206,7 +2211,7 @@ function fmtDib(dib, cart){
   if(dib==='????-????') return '<span style="font-family:DM Mono,monospace;font-size:.7rem;color:#854F0B;font-weight:700;background:#FAEEDA;padding:1px 5px;border-radius:4px">????-????</span>';
   if(dib.startsWith('BORR-')) return '<span style="font-family:DM Mono,monospace;font-size:.7rem;color:#854F0B;font-weight:700;background:#FAEEDA;padding:1px 5px;border-radius:4px">'+dib+'</span>';
   // Incomplet: prefix - o número curt (≤5 dígits sols)
-  const isShort=dib.startsWith('-')||(/^\d{1,5}$/.test(dib));
+  const isShort=dib.startsWith('-')||(/^\d{1,4}$/.test(dib));
   if(isShort){const nums=dib.replace(/^-/,'');return '<span style="font-family:DM Mono,monospace;font-size:.7rem;background:#FAEEDA;padding:1px 5px;border-radius:4px"><span style="opacity:.4;color:#854F0B">????</span><span style="opacity:.3">-</span><span style="font-weight:800;color:#854F0B">'+nums+'</span></span>';}
   const last4=dib.slice(-4);
   const prefix=dib.length>4?dib.slice(0,-4):'';
@@ -2276,7 +2281,7 @@ function parseDibs(text, g, lotNum, tipus){
     }
 
     // Número curt (1-5 dígits) → entrada: guardar com -XXXX, sortida: buscar
-    if(/^\d{1,5}$/.test(d)){
+    if(/^\d{1,4}$/.test(d)){
       if(esSortida(tipus)){
         const matches=findDibByLast4(g, lotNum, d);
         if(matches.length===1) dibs.push({dib:matches[0].dib, status:'ok', last4:d});
@@ -2962,7 +2967,7 @@ async function onFormFile(ev,g){
       const bgOk='var(--'+cc+'-lt)';
       const colOk='var(--'+cc+')';
       const isBorr=dib.startsWith('BORR-');
-      const isInc=(dib.startsWith('-')&&!isBorr)||(/^\d{1,5}$/.test(dib));
+      const isInc=(dib.startsWith('-')&&!isBorr)||(/^\d{1,4}$/.test(dib));
       const cleanDib=dib.replace(/^-/,'');
       const bg=(isBorr||isInc)?'#FAEEDA':isErr?'#FCEBEB':bgOk;
       const col=(isBorr||isInc)?'#854F0B':isErr?'#a02020':colOk;
@@ -4284,7 +4289,7 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
-document.getElementById('build-ver').textContent='v20 · 29/03 15:08';
+document.getElementById('build-ver').textContent='v20 · 29/03 15:13';
 renderG('fig');renderG('costa');
 loadNotes();
 // Init historial
