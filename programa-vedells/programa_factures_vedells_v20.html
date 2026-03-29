@@ -2336,7 +2336,7 @@ function rMovList(g){
     const guiaBadge=m.guia?`<span class="ml" title="Guia ${m.guia}" style="cursor:help">📋</span>`:'';
     const nId=m.dibs?m.dibs.filter(dibComplet).length:0;
     const dibsBadge=nId>0?`<span class="ml" style="color:var(--${ccls(m.cart||'-')})" title="${nId} de ${m.qty} identificats">🏷${nId}/${m.qty}</span>`:'';
-    return `<div class="mov-item" onclick="openDetail('${g}',${i})">
+    return `<div class="mov-item" onclick="openDetail('${g}',${i})" style="touch-action:manipulation;min-height:40px">
       <span class="md">${String(m.dia).padStart(2,'0')}/${String(mes).padStart(2,'0')}</span>
       <span class="mb ${bc}">${bt}</span>
       <span class="mq">${m.qty}</span>
@@ -3531,15 +3531,22 @@ function openDetail(g, idx){
 
   // DIBs en format llista vertical
   const dibsEl=document.getElementById('m-detail-dibs');
-  // v20: Migració progressiva - NOMES per entrades, completar si falten
-  if(m.tipus==='entrada' && m.dibs&&m.dibs.length){
+  // v20: Migració progressiva - per TOTES les entrades, completar si falten
+  if(m.dibs&&m.dibs.length){
     if(!S[g].animals) S[g].animals={};
     if(!m.aids) m.aids=[];
     var _needSv=false;
     m.dibs.forEach(function(dib,di){
       if(m.aids[di]) return; // ja migrat
-      var aid2=findOrCreateAid(g,dib,{dib:dib,sex:(m.sexes&&m.sexes[di])||(S[g].sexes&&S[g].sexes[dib])||'',lot:m.lot,cart:m.cart||'-',guia:m.guia||'',diaEnt:m.dia,mesEnt:mes,anyEnt:any});
-      m.aids[di]=aid2;_needSv=true;
+      // Buscar primer per DIB existent
+      var existAid=null;
+      Object.entries(S[g].animals||{}).forEach(function(e){if(e[1].dib===dib)existAid=e[0];});
+      if(existAid){m.aids[di]=existAid;_needSv=true;return;}
+      // Crear només per entrades
+      if(m.tipus==='entrada'){
+        var aid2=findOrCreateAid(g,dib,{dib:dib,sex:(m.sexes&&m.sexes[di])||(S[g].sexes&&S[g].sexes[dib])||'',lot:m.lot,cart:m.cart||'-',guia:m.guia||'',diaEnt:m.dia,mesEnt:mes,anyEnt:any});
+        m.aids[di]=aid2;_needSv=true;
+      }
     });
     if(_needSv) sv();
   }
@@ -3558,7 +3565,7 @@ function openDetail(g, idx){
       // Buscar aid: primer per m.aids, si no, per DIB al registre
       var _aid2=m.aids&&m.aids[i]?m.aids[i]:null;
       if(!_aid2 && d && d!=='????-????' && !isBorr){var _fe=Object.entries(S[g].animals||{}).find(function(e){return e[1].dib===d;});if(_fe)_aid2=_fe[0];}
-      const rowClick=_aid2?'onclick="openAnimalFitxa(\''+g+'\',\''+_aid2+'\')" style="cursor:pointer;'+rowBg+'display:flex;align-items:center;"':'style="'+rowBg+'display:flex;align-items:center;"';
+      const rowClick=_aid2?'onclick="openAnimalFitxa(\''+g+'\',\''+_aid2+'\')" style="cursor:pointer;touch-action:manipulation;min-height:40px;'+rowBg+'display:flex;align-items:center;"':'style="'+rowBg+'display:flex;align-items:center;min-height:40px;"';
       return '<div class="detail-dib-row" '+rowClick+'>'+
         '<span class="dib-idx">'+(i+1)+'</span>'+
         (isPending?'<span style="'+txtCol+'">????-????</span>':
