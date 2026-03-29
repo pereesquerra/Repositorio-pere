@@ -1430,39 +1430,7 @@ let _migrated=false;
   });
 });
 if(_migrated) sv();
-// v20: Neteja duplicats - NOMÉS si mateix DIB + lot + dia entrada (no esborrar animals legítims en lots/guies diferents)
-try{
-var _dedupDone=false;
-['fig','costa'].forEach(function(g){
-  if(!S[g].animals) return;
-  var byKey={};
-  Object.entries(S[g].animals).forEach(function(e){
-    var aid=e[0],a=e[1];
-    if(a.dib==='????-????' || (a.dib&&a.dib.startsWith('BORR-'))) return;
-    var k=a.dib+'|'+a.lot+'|'+a.diaEnt+'-'+a.mesEnt+'-'+a.anyEnt;
-    if(!byKey[k]) byKey[k]=[];
-    byKey[k].push(aid);
-  });
-  Object.entries(byKey).forEach(function(e2){
-    var aids=e2[1];
-    if(aids.length<=1) return;
-    var keep=aids[0];
-    aids.slice(1).forEach(function(dupAid){
-      Object.values(S[g].movs||{}).forEach(function(ms){
-        ms.forEach(function(mv){
-          if(!mv.aids) return;
-          for(var i=0;i<mv.aids.length;i++){
-            if(mv.aids[i]===dupAid) mv.aids[i]=keep;
-          }
-        });
-      });
-      delete S[g].animals[dupAid];
-      _dedupDone=true;
-    });
-  });
-});
-if(_dedupDone) sv();
-}catch(e2){console.error('dedup error:',e2);}let _mg=null,_mfl=null,_mfg=null;
+// v20: El programa MAI esborra animals automàticament. Només el granger pot fer-ho.let _mg=null,_mfl=null,_mfg=null;
 let _pendingSexes={};
 let _editSexes=[];
 let _hist=[], _histIdx=-1;
@@ -1563,20 +1531,20 @@ function cercarAnimal(){
   var cont=document.getElementById('animal-search-results');
   if(!q||q.length<2){cont.innerHTML='';cont.style.display='none';return;}
   var results=[];
+  var seen={};
   ['fig','costa'].forEach(function(g){
     var gNom=g==='fig'?'Figuera':'La Costa';
     Object.entries(S[g].animals||{}).forEach(function(entry){
       var aid=entry[0],a=entry[1];
+      if(seen[aid]) return;
       var dib=a.dib||'';
       var match=false;
       if(q.length<=4){
-        // Buscar per últims dígits
         if(dib.slice(-q.length)===q) match=true;
       } else {
-        // Buscar per número complet o parcial
         if(dib.indexOf(q)>=0) match=true;
       }
-      if(match) results.push({g:g,gNom:gNom,aid:aid,a:a});
+      if(match){seen[aid]=true;results.push({g:g,gNom:gNom,aid:aid,a:a});}
     });
   });
   if(!results.length){
@@ -1586,10 +1554,17 @@ function cercarAnimal(){
   }
   // Mostrar tots amb scroll
   var html='';
-  var maxShow=20;
-  var shown=results.slice(0,maxShow);
-  if(results.length>maxShow) html+='<div style="padding:6px 14px;font-size:.7rem;color:var(--muted);background:var(--bg);border-radius:12px 12px 0 0">Mostrant '+maxShow+' de '+results.length+' resultats</div>';
-  shown.forEach(function(r){
+  // Agrupar per granja
+  var perGranja={fig:[],costa:[]};
+  results.forEach(function(r){perGranja[r.g].push(r);});
+  var maxPerGranja=30;
+  ['fig','costa'].forEach(function(gk){
+    var gItems=perGranja[gk];
+    if(!gItems.length) return;
+    var gTitle=gk==='fig'?'\ud83c\udfdb Figuera':'\ud83c\udfd4 La Costa';
+    html+='<div style="padding:8px 14px;background:var(--bg);font-weight:700;font-size:.78rem;border-bottom:2px solid var(--border)">'+gTitle+' \u00b7 '+gItems.length+' resultat'+(gItems.length!==1?'s':'')+'</div>';
+    var shown2=gItems.slice(0,maxPerGranja);
+    shown2.forEach(function(r){
     var a=r.a,col=ccls(a.cart||'-');
     var isPend=a.dib==='????-????';
     var dibHtml;
@@ -1606,7 +1581,8 @@ function cercarAnimal(){
     html+='<span style="font-size:.62rem;color:var(--muted);background:var(--bg);padding:1px 5px;border-radius:4px">'+r.gNom+'</span>';
     html+='</div>';
   });
-  if(results.length>maxShow) html+='<div style="text-align:center;padding:10px"><button onclick="window._searchShowAll=true;cercarAnimal()" class="btn b-out b-sm" style="font-size:.78rem">Mostrar tots ('+results.length+')</button></div>';
+    if(gItems.length>maxPerGranja) html+='<div style="text-align:center;padding:8px"><button onclick="window._searchShowAll=true;cercarAnimal()" class="btn b-out b-sm" style="font-size:.72rem">Mostrar tots ('+gItems.length+')</button></div>';
+  });
   if(window._searchShowAll){shown=results;window._searchShowAll=false;cont.innerHTML='';html='';results.forEach(function(r){var a=r.a,col=ccls(a.cart||'-');var isPend=a.dib==='????-????';var dibHtml;if(isPend)dibHtml='<span style="color:#854F0B;font-weight:700">????-????</span>';else{var l4=a.dib.slice(-4);var pf=a.dib.slice(0,-4);dibHtml='<span style="opacity:.4;font-size:.72rem">'+pf+'</span><span style="font-weight:800;color:var(--'+col+')">'+l4+'</span>';}var sexH=a.sex==='F'?'<span style="color:#d4508b;font-weight:700">\u2640</span>':a.sex==='M'?'<span style="color:#3d7bc8;font-weight:700">\u2642</span>':'<span style="opacity:.3">\u2014</span>';var dataE=String(a.diaEnt||0).padStart(2,'0')+'/'+String(a.mesEnt||0).padStart(2,'0')+'/'+(a.anyEnt||'');html+='<div onclick="openAnimalFitxa(\''+r.g+'\',\''+r.aid+'\')" style="display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border)" onmouseover="this.style.background=\'var(--bg)\'" onmouseout="this.style.background=\'transparent\'">';html+='<div style="font-family:DM Mono,monospace;min-width:120px">'+dibHtml+'</div>';html+='<span style="font-size:.9rem">'+sexH+'</span>';html+='<span class="cc cc-'+col+'" style="font-size:.65rem;padding:1px 6px">'+(a.cart||'-')+'</span>';html+='<span style="font-size:.72rem;color:var(--muted)">L'+(a.lot||'?')+'</span>';html+='<span style="font-size:.68rem;color:var(--muted);margin-left:auto">'+dataE+'</span>';html+='<span style="font-size:.62rem;color:var(--muted);background:var(--bg);padding:1px 5px;border-radius:4px">'+r.gNom+'</span>';html+='</div>';});}
   cont.innerHTML=html;
   cont.style.display='block';
@@ -1656,7 +1632,7 @@ function openAnimalFitxa(g,aid){
       if(!mv.aids) return;
       if(mv.aids.indexOf(aid)>=0){
         var badge=mv.tipus==='entrada'?'<span style="background:#d4edda;color:#155724;padding:2px 8px;border-radius:6px;font-size:.72rem;font-weight:700">\u2191 Entrada</span>':mv.tipus==='baixa'?'<span style="background:var(--baixa-lt);color:var(--baixa);padding:2px 8px;border-radius:6px;font-size:.72rem;font-weight:700">\u2715 Baixa</span>':'<span style="background:#f8d7da;color:#721c24;padding:2px 8px;border-radius:6px;font-size:.72rem;font-weight:700">\u2193 Sortida</span>';
-        movInfo+='<div onclick="fitxaGoMov(\''+g+'\',\''+k+'\','+mi+',\''+aid+'\')" style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--bg);border-radius:6px;margin-top:4px;cursor:pointer;touch-action:manipulation" ontouchstart="">'+badge+'<span style="font-size:.78rem">Dia '+mv.dia+'/'+mk2+'/'+yk2+' \u00b7 Lot '+mv.lot+' \u00b7 '+mv.qty+' animals</span><span style="margin-left:auto;font-size:.7rem;color:var(--muted)">\u27a4</span></div>';
+        movInfo+='<div onclick="fitxaGoMov(\''+g+'\',\''+k+'\','+mi+',\''+aid+'\')" style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--bg);border-radius:6px;margin-top:4px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,0,0,.1);user-select:none;min-height:44px">'+badge+'<span style="font-size:.78rem">Dia '+mv.dia+'/'+mk2+'/'+yk2+' \u00b7 Lot '+mv.lot+' \u00b7 '+mv.qty+' animals</span><span style="margin-left:auto;font-size:.7rem;color:var(--muted)">\u27a4</span></div>';
       }
     });
   });
@@ -4448,7 +4424,7 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
-document.getElementById('build-ver').textContent='v20 · 29/03 16:16';
+document.getElementById('build-ver').textContent='v20 · 29/03 16:23';
 renderG('fig');renderG('costa');
 loadNotes();
 // Init historial
