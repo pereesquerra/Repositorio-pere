@@ -1493,6 +1493,7 @@ function ecls(e){
 
 // ---- RENDER ----
 function renderG(g){
+  S[g].lots.sort((a,b)=>a.num-b.num);
   rLots(g); rLotSel(g); rMovList(g); rFras(g); rHistSel(g); rHist(g);
   // Sincronitza mes/any del formulari amb la vista
   const {mes,any}=ma(g);
@@ -2375,7 +2376,8 @@ function prepMov(g){
         const lotChk=S[g].lots.find(l=>l.num===lotNum);
         if(lotChk){
           if(qtyManual>lotChk.v){
-            if(!confirm('⚠️ Vols treure '+qtyManual+' animals del Lot '+lotNum+', però el lot només en té '+lotChk.v+'.\n\nVols continuar?')) return;
+            alert('❌ No pots treure '+qtyManual+' animals del Lot '+lotNum+'.\n\nEl lot només té '+lotChk.v+' animals.\n\nRectifica el nombre d\'animals.');
+            return;
           }
           if(cart&&cart!=='-'){
             let vC=0;
@@ -2440,9 +2442,10 @@ function prepMov(g){
   if(esSortida(tipus)){
     const lot=S[g].lots.find(l=>l.num===lotNum);
     if(lot){
-      // Total al lot
+      // Total al lot - BLOQUEIG si no hi ha prou animals
       if(finalQtyPre>lot.v){
-        if(!confirm('⚠️ Vols treure '+finalQtyPre+' animals del Lot '+lotNum+', però el lot només en té '+lot.v+'.\n\nVols continuar igualment?')) return;
+        alert('❌ No pots treure '+finalQtyPre+' animals del Lot '+lotNum+'.\n\nEl lot només té '+lot.v+' animals.\n\nRectifica el nombre d\'animals.');
+        return;
       }
       // Per cartilla
       if(cart && cart!=='-'){
@@ -2545,9 +2548,11 @@ function confirMD(){
     if(lot){
       let vActual=lot.v;
       if(vActual<=0){
-        if(!confirm('⚠️ El lot '+p.lot+' mostra 0 vedells. Vols continuar igualment?')) return;
+        alert('❌ El lot '+p.lot+' té 0 vedells. No es pot fer la sortida.');
+        return;
       } else if(p.qty>vActual){
-        if(!confirm('⚠️ Treus '+p.qty+' vedells però el lot '+p.lot+' en mostra '+vActual+'. Vols continuar?')) return;
+        alert('❌ El lot '+p.lot+' només té '+vActual+' vedells. No pots treure '+p.qty+'.\n\nRectifica el nombre d\'animals.');
+        return;
       }
     }
   }
@@ -3645,7 +3650,7 @@ function confirML(){
   const v=parseInt(document.getElementById('ml-ved').value)||0;
   const emp=_mg==='costa'?'Ramaders':document.getElementById('ml-emp').value;
   if(!num){alert('Introdueix el número');return;}
-  if(S[_mg].lots.find(l=>l.num===num&&l.actiu)){alert('Lot ja existent');return;}
+  if(S[_mg].lots.find(l=>l.num===num)){alert('❌ El lot '+num+' ja existeix o ha existit. Tria un número diferent.');return;}
   S[_mg].lots.push({num,v,vIni:v,actiu:true,carts:{},emp});
   sv(); renderG(_mg); closeML();
 }
@@ -4141,7 +4146,7 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
-document.getElementById('build-ver').textContent='v19 · 29/03 14:21';
+document.getElementById('build-ver').textContent='v19 · 29/03 14:28';
 renderG('fig');renderG('costa');
 loadNotes();
 // Init historial
