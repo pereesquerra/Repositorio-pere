@@ -3035,7 +3035,8 @@ function openDetail(g, idx){
       const txtCol=(isBorr||isIncomplete||isPending)?'color:#854F0B;font-weight:700':'color:'+col;
       const cartBadge=m.cart&&m.cart!=='-'?'<span style="margin-left:auto;font-size:.6rem;font-weight:700;padding:1px 6px;border-radius:4px;background:var(--'+ccls(m.cart)+'-lt);color:var(--'+ccls(m.cart)+')">'+m.cart+'</span>':'';
       const sexBdg2='<span style="margin-left:'+(cartBadge?'6':'auto')+'px;font-size:.85rem">'+fmtSexe(g,d,(m.sexes&&m.sexes[i])||'')+'</span>';
-      return '<div class="detail-dib-row" style="'+rowBg+'display:flex;align-items:center;">'+
+      const rowClick=(m.aids&&m.aids[i])?'onclick="openAnimalFitxa(\''+g+'\',\''+m.aids[i]+'\')" style="cursor:pointer;'+rowBg+'display:flex;align-items:center;"':'style="'+rowBg+'display:flex;align-items:center;"';
+      return '<div class="detail-dib-row" '+rowClick+'>'+
         '<span class="dib-idx">'+(i+1)+'</span>'+
         (isPending?'<span style="'+txtCol+'">????-????</span>':
           isBorr?'<span style="'+txtCol+'">'+d+'</span>':
@@ -3802,7 +3803,8 @@ function openHistMov(g,k,mi){
       const txtCol=(isBorr||isInc||isPending)?'color:#854F0B;font-weight:700':'color:'+col;
       const cartBdg=cart&&cart!=='-'?'<span style="margin-left:auto;font-size:.6rem;font-weight:700;padding:1px 6px;border-radius:4px;background:var(--'+ccls(cart)+'-lt);color:var(--'+ccls(cart)+')">'+cart+'</span>':'';
       const sexBdg='<span style="margin-left:'+(cartBdg?'6':'auto')+'px;font-size:.85rem">'+fmtSexe(g,d,(m.sexes&&m.sexes[i])||'')+'</span>';
-      return '<div class="detail-dib-row" style="'+rowBg+'display:flex;align-items:center;">'+
+      const rowClick2=(m.aids&&m.aids[i])?'onclick="openAnimalFitxa(\''+g+'\',\''+m.aids[i]+'\')" style="cursor:pointer;'+rowBg+'display:flex;align-items:center;"':'style="'+rowBg+'display:flex;align-items:center;"';
+      return '<div class="detail-dib-row" '+rowClick2+'>'+
         '<span class="dib-idx">'+(i+1)+'</span>'+
         (isPending?'<span style="'+txtCol+'">????-????</span>':
           isBorr?'<span style="'+txtCol+'">'+d+'</span>':
@@ -4240,7 +4242,7 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
-document.getElementById('build-ver').textContent='v20 · 29/03 14:59';
+document.getElementById('build-ver').textContent='v20 · 29/03 15:03';
 renderG('fig');renderG('costa');
 loadNotes();
 // Init historial
