@@ -264,7 +264,7 @@ header .sub{font-family:'DM Mono',monospace;font-size:.7rem;color:#999}
 <body>
 
 <header>
-  <div><h1>🐄 Gestió Animals Boví</h1></div>
+  <div><h1>🐄 Gestió Animals Boví</h1><div style="font-size:.55rem;color:#666;font-family:'DM Mono',monospace" id="build-ver"></div></div>
   <div class="sub" id="avui"></div>
 </header>
 
@@ -2251,16 +2251,10 @@ function previewDibs(g){
 
 // ---- SEXE TOGGLE al modal de confirmació ----
 function setSexeAll(val){
-  if(!_pendingMov||!_pendingMov.sexes) return;
-  _pendingMov.dibs.forEach((d,i)=>{_pendingMov.sexes[i]=val;});
-  renderSexeList();
-}
-function toggleSexe(idx){
-  if(!_pendingMov||!_pendingMov.sexes) return;
-  const cur=_pendingMov.sexes[idx]||'';
-  if(cur==='') _pendingMov.sexes[idx]='F';
-  else if(cur==='F') _pendingMov.sexes[idx]='M';
-  else _pendingMov.sexes[idx]='';
+  console.log('[SEXE-ALL] val="'+val+'"');
+  if(!_pendingMov||!_pendingMov.sexes) {console.log('[SEXE-ALL] ABORT');return;}
+  for(let i=0;i<_pendingMov.sexes.length;i++) _pendingMov.sexes[i]=val;
+  console.log('[SEXE-ALL] sexes after='+JSON.stringify(_pendingMov.sexes));
   renderSexeList();
 }
 function renderSexeList(){
@@ -2290,24 +2284,26 @@ function renderSexeList(){
     else dibLabel='<span style="font-family:DM Mono,monospace;font-size:.72rem">'+(prefix?'<span style="opacity:.4">'+prefix+'</span>':'')+'-<span style="font-weight:800;color:var(--'+col+')">'+last4+'</span></span>';
     // Botons amb 3 estats clars: seleccionat = fons ple + blanc, no seleccionat = transparent + atenuat
     const fSel=sex==='F', mSel=sex==='M', xSel=sex==='';
-    const btnFst=fSel?'background:#d4508b;color:#fff;border:2px solid #d4508b;transform:scale(1.05)':'background:transparent;color:#d4508b;border:1.5px solid #e8b0cc;opacity:.45';
-    const btnMst=mSel?'background:#3d7bc8;color:#fff;border:2px solid #3d7bc8;transform:scale(1.05)':'background:transparent;color:#3d7bc8;border:1.5px solid #a0bfe0;opacity:.45';
-    const btnXst=xSel?'background:var(--ink);color:#fff;border:2px solid var(--ink);transform:scale(1.05)':'background:transparent;color:var(--muted);border:1.5px solid var(--border);opacity:.45';
+    const btnFst=fSel?'background:#d4508b;color:#fff;border:2px solid #d4508b':'background:#fdf0f5;color:#d4508b;border:1.5px solid #e8b0cc;opacity:.5';
+    const btnMst=mSel?'background:#3d7bc8;color:#fff;border:2px solid #3d7bc8':'background:#eef3fb;color:#3d7bc8;border:1.5px solid #a0bfe0;opacity:.5';
+    const btnXst=xSel?'background:var(--ink);color:#fff;border:2px solid var(--ink)':'background:#f0f0f0;color:var(--muted);border:1.5px solid var(--border);opacity:.5';
     // Fila
     const rowBg=i%2===0?'#faf9f6':'#fff';
     return '<div style="display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:6px;background:'+rowBg+'">'+
       '<span style="font-size:.6rem;color:var(--muted);min-width:18px;text-align:right">'+(i+1)+'</span>'+
       '<span style="flex:1;min-width:0;overflow:hidden">'+dibLabel+'</span>'+
       '<div style="display:flex;gap:3px;flex-shrink:0">'+
-      '<button onclick="toggleSexeDirect('+i+',\'F\')" style="border-radius:6px;padding:2px 9px;font-size:.82rem;cursor:pointer;font-weight:700;transition:all .15s;'+btnFst+'">♀</button>'+
-      '<button onclick="toggleSexeDirect('+i+',\'M\')" style="border-radius:6px;padding:2px 9px;font-size:.82rem;cursor:pointer;font-weight:700;transition:all .15s;'+btnMst+'">♂</button>'+
-      '<button onclick="toggleSexeDirect('+i+',\'\')" style="border-radius:6px;padding:2px 7px;font-size:.72rem;cursor:pointer;font-weight:700;transition:all .15s;'+btnXst+'">—</button>'+
+      '<button onclick="toggleSexeDirect('+i+',\'F\')" style="border-radius:8px;padding:6px 12px;font-size:.9rem;cursor:pointer;font-weight:700;touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,0,0,.1);min-height:34px;'+btnFst+'">♀</button>'+
+      '<button onclick="toggleSexeDirect('+i+',\'M\')" style="border-radius:8px;padding:6px 12px;font-size:.9rem;cursor:pointer;font-weight:700;touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,0,0,.1);min-height:34px;'+btnMst+'">♂</button>'+
+      '<button onclick="toggleSexeDirect('+i+',\'\')" style="border-radius:8px;padding:6px 10px;font-size:.8rem;cursor:pointer;font-weight:700;touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,0,0,.1);min-height:34px;'+btnXst+'">—</button>'+
       '</div></div>';
   }).join('');
 }
 function toggleSexeDirect(idx,val){
-  if(!_pendingMov||!_pendingMov.sexes) return;
+  console.log('[SEXE-TOGGLE] idx='+idx+' val="'+val+'"');
+  if(!_pendingMov||!_pendingMov.sexes) {console.log('[SEXE-TOGGLE] ABORT: no pendingMov or sexes');return;}
   _pendingMov.sexes[idx]=val;
+  console.log('[SEXE-TOGGLE] sexes after='+JSON.stringify(_pendingMov.sexes));
   renderSexeList();
 }
 
@@ -2392,13 +2388,21 @@ function prepMov(g){
 
 function rmPending(idx){
   if(!_pendingMov) return;
+  // Guardar mapa de sexes actuals ABANS de modificar
+  const sexMap={};
+  if(_pendingMov.sexes && _pendingMov.dibs){
+    _pendingMov.dibs.forEach((d,i)=>{if(_pendingMov.sexes[i]!==undefined) sexMap[d+'_'+i]=_pendingMov.sexes[i];});
+  }
   _pendingMov.dibsFull.splice(idx,1);
   const valid=_pendingMov.dibsFull.filter(d=>d.status==='ok'||d.status==='dup-system'||d.status==='partial'||d.status==='missing');
   _pendingMov.dibs=valid.map(d=>d.dib);
   _pendingMov.qty=valid.length;
-  // Reconstruir sexes per als DIBs vàlids
+  // Reconstruir sexes preservant els canvis manuals
   if(_pendingMov.sexes){
-    const newSexes=valid.map(d=>{
+    const newSexes=valid.map((d,i)=>{
+      // Busca al mapa per dib (pot haver-hi duplicats, per això usem índex com a fallback)
+      const fromMap=Object.entries(sexMap).find(([k,v])=>k.startsWith(d.dib+'_'));
+      if(fromMap) return fromMap[1];
       if(_pendingSexes[d.dib]) return _pendingSexes[d.dib];
       return '';
     });
@@ -2451,17 +2455,21 @@ function confirMD(){
 
   // Guardar sexes dels animals (del modal de confirmació o del PDF)
   if(!S[g].sexes) S[g].sexes={};
-  if(_pendingMov.sexes && _pendingMov.dibs.length){
+  const hasSexes=_pendingMov.sexes && Array.isArray(_pendingMov.sexes);
+  const hasDibs=_pendingMov.dibs && _pendingMov.dibs.length>0;
+  console.log('[SEXE] hasSexes='+hasSexes+' hasDibs='+hasDibs+' sexes='+JSON.stringify(_pendingMov.sexes)+' dibs.length='+((_pendingMov.dibs||[]).length));
+  if(hasSexes && hasDibs){
     _pendingMov.dibs.forEach((dib,i)=>{
       if(!dib || dib==='????-????' || dib.startsWith('BORR-')) return;
-      const sex=_pendingMov.sexes[i]||'';
+      const sex=(_pendingMov.sexes[i]!==undefined)?_pendingMov.sexes[i]:'';
+      console.log('[SEXE] dib='+dib+' i='+i+' sex="'+sex+'"');
       if(sex==='F'||sex==='M'){
         S[g].sexes[dib]=sex;
       } else {
-        // Explícitament sense sexe → esborra si existia
         delete S[g].sexes[dib];
       }
     });
+    console.log('[SEXE] Final S['+g+'].sexes='+JSON.stringify(S[g].sexes));
   }
   _pendingSexes={};
 
@@ -3252,10 +3260,12 @@ let _editMov={g:null,k:null,mi:null};
 
 // ---- SEXE a l'EDITOR DE MOVIMENT ----
 function setEditSexeAll(val){
+  console.log('[EDIT-SEXE-ALL] val="'+val+'"');
   _editSexes=_editSexes.map(()=>val);
   renderEditSexeList();
 }
 function toggleEditSexeDirect(idx,val){
+  console.log('[EDIT-SEXE] idx='+idx+' val="'+val+'"');
   if(idx>=0&&idx<_editSexes.length) _editSexes[idx]=val;
   renderEditSexeList();
 }
@@ -3288,17 +3298,17 @@ function renderEditSexeList(){
     else if(isBorr) dibLabel='<span style="color:#854F0B;font-family:DM Mono,monospace;font-size:.72rem">'+d+'</span>';
     else dibLabel='<span style="font-family:DM Mono,monospace;font-size:.72rem">'+(prefix?'<span style="opacity:.4">'+prefix+'</span>':'')+'-<span style="font-weight:800;color:var(--'+col+')">'+last4+'</span></span>';
     const fSel=sex==='F', mSel=sex==='M', xSel=sex==='';
-    const btnFst=fSel?'background:#d4508b;color:#fff;border:2px solid #d4508b;transform:scale(1.05)':'background:transparent;color:#d4508b;border:1.5px solid #e8b0cc;opacity:.45';
-    const btnMst=mSel?'background:#3d7bc8;color:#fff;border:2px solid #3d7bc8;transform:scale(1.05)':'background:transparent;color:#3d7bc8;border:1.5px solid #a0bfe0;opacity:.45';
-    const btnXst=xSel?'background:var(--ink);color:#fff;border:2px solid var(--ink);transform:scale(1.05)':'background:transparent;color:var(--muted);border:1.5px solid var(--border);opacity:.45';
+    const btnFst=fSel?'background:#d4508b;color:#fff;border:2px solid #d4508b':'background:#fdf0f5;color:#d4508b;border:1.5px solid #e8b0cc;opacity:.5';
+    const btnMst=mSel?'background:#3d7bc8;color:#fff;border:2px solid #3d7bc8':'background:#eef3fb;color:#3d7bc8;border:1.5px solid #a0bfe0;opacity:.5';
+    const btnXst=xSel?'background:var(--ink);color:#fff;border:2px solid var(--ink)':'background:#f0f0f0;color:var(--muted);border:1.5px solid var(--border);opacity:.5';
     const rowBg=i%2===0?'#faf9f6':'#fff';
     return '<div style="display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:6px;background:'+rowBg+'">'+
       '<span style="font-size:.6rem;color:var(--muted);min-width:18px;text-align:right">'+(i+1)+'</span>'+
       '<span style="flex:1;min-width:0;overflow:hidden">'+dibLabel+'</span>'+
       '<div style="display:flex;gap:3px;flex-shrink:0">'+
-      '<button onclick="toggleEditSexeDirect('+i+',\'F\')" style="border-radius:6px;padding:2px 9px;font-size:.82rem;cursor:pointer;font-weight:700;transition:all .15s;'+btnFst+'">♀</button>'+
-      '<button onclick="toggleEditSexeDirect('+i+',\'M\')" style="border-radius:6px;padding:2px 9px;font-size:.82rem;cursor:pointer;font-weight:700;transition:all .15s;'+btnMst+'">♂</button>'+
-      '<button onclick="toggleEditSexeDirect('+i+',\'\')" style="border-radius:6px;padding:2px 7px;font-size:.72rem;cursor:pointer;font-weight:700;transition:all .15s;'+btnXst+'">—</button>'+
+      '<button onclick="toggleEditSexeDirect('+i+',\'F\')" style="border-radius:8px;padding:6px 12px;font-size:.9rem;cursor:pointer;font-weight:700;touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,0,0,.1);min-height:34px;'+btnFst+'">♀</button>'+
+      '<button onclick="toggleEditSexeDirect('+i+',\'M\')" style="border-radius:8px;padding:6px 12px;font-size:.9rem;cursor:pointer;font-weight:700;touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,0,0,.1);min-height:34px;'+btnMst+'">♂</button>'+
+      '<button onclick="toggleEditSexeDirect('+i+',\'\')" style="border-radius:8px;padding:6px 10px;font-size:.8rem;cursor:pointer;font-weight:700;touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,0,0,.1);min-height:34px;'+btnXst+'">—</button>'+
       '</div></div>';
   }).join('');
 }
@@ -3446,6 +3456,7 @@ function guardarEditMov(){
   if(newLot){if(tipus==='entrada')newLot.v+=finalQty;else{newLot.v-=finalQty;if(newLot.v<0)newLot.v=0;}}
   // Guardar sexes editats
   if(!S[g].sexes) S[g].sexes={};
+  console.log('[EDIT-SEXE-SAVE] editSexes='+JSON.stringify(_editSexes)+' dibs='+JSON.stringify(dibs));
   if(_editSexes.length>0 && dibs.length>0){
     dibs.forEach((dib,i)=>{
       if(!dib||dib==='????-????'||dib.startsWith('BORR-')) return;
@@ -4013,6 +4024,7 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
+document.getElementById('build-ver').textContent='v19 · build 29mar-B';
 renderG('fig');renderG('costa');
 loadNotes();
 // Init historial
