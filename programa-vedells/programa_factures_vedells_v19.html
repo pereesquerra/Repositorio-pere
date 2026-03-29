@@ -1479,7 +1479,7 @@ function dibComplet(d){
   return /^[A-Z]{2}\d{8,}$/.test(d)||/^\d{10,}$/.test(d);
 }
 function fmtSexe(g,dib){
-  if(!dib||dib==='????-????'||dib.startsWith('BORR-')) return '<span style="color:var(--muted)">—</span>';
+  if(!dib||dib==='????-????') return '<span style="color:var(--muted)">—</span>';
   const s=(S[g]&&S[g].sexes)?S[g].sexes[dib]:null;
   if(s==='F') return '<span style="color:#d4508b;font-weight:700" title="Femella">♀</span>';
   if(s==='M') return '<span style="color:#3d7bc8;font-weight:700" title="Mascle">♂</span>';
@@ -2404,7 +2404,7 @@ function prepMov(g){
 
   // Mostrar secció sexe NOMÉS si hi ha DIBs reals
   const sexDiv=document.getElementById('m-dibs-sex');
-  const teReals2=_pendingMov.dibs.some(d=>d&&d!=='????-????'&&!d.startsWith('BORR-'));
+  const teReals2=_pendingMov.dibs.some(d=>d&&d!=='????-????');
   if(teReals2){
     sexDiv.style.display='block';
     renderSexeList();
@@ -2493,7 +2493,7 @@ function confirMD(){
   console.log('[SEXE] hasSexes='+hasSexes+' hasDibs='+hasDibs+' sexes='+JSON.stringify(_pendingMov.sexes)+' dibs.length='+((_pendingMov.dibs||[]).length));
   if(hasSexes && hasDibs){
     _pendingMov.dibs.forEach((dib,i)=>{
-      if(!dib || dib==='????-????' || dib.startsWith('BORR-')) return;
+      if(!dib || dib==='????-????') return;
       const sex=(_pendingMov.sexes[i]!==undefined)?_pendingMov.sexes[i]:'';
       console.log('[SEXE] dib='+dib+' i='+i+' sex="'+sex+'"');
       if(sex==='F'||sex==='M'){
@@ -3378,10 +3378,10 @@ function editarMov(g,k,mi){
   document.getElementById('m-edit-mov-warn').innerHTML='';
   // Omplir sexes - només si hi ha DIBs reals (no ????-????)
   if(m.dibs&&m.dibs.length){
-    const teReals=m.dibs.some(d=>d&&d!=='????-????'&&!d.startsWith('BORR-'));
+    const teReals=m.dibs.some(d=>d&&d!=='????-????');
     if(teReals){
       _editSexes=m.dibs.map(d=>{
-        if(!d||d==='????-????'||d.startsWith('BORR-')) return '';
+        if(!d||d==='????-????') return '';
         return (S[g].sexes&&S[g].sexes[d])||'';
       });
       renderEditSexeList();
@@ -3498,7 +3498,7 @@ function guardarEditMov(){
   console.log('[EDIT-SEXE-SAVE] editSexes='+JSON.stringify(_editSexes)+' dibs='+JSON.stringify(dibs));
   if(_editSexes.length>0 && dibs.length>0){
     dibs.forEach((dib,i)=>{
-      if(!dib||dib==='????-????'||dib.startsWith('BORR-')) return;
+      if(!dib||dib==='????-????') return;
       const sex=_editSexes[i]||'';
       if(sex==='F'||sex==='M') S[g].sexes[dib]=sex;
       else delete S[g].sexes[dib];
@@ -4063,7 +4063,7 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
-document.getElementById('build-ver').textContent='v19 · 29/03 14:00';
+document.getElementById('build-ver').textContent='v19 · 29/03 14:04';
 renderG('fig');renderG('costa');
 loadNotes();
 // Init historial
