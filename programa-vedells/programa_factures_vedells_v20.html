@@ -4057,7 +4057,8 @@ function rHist(g){
         sex:(mv.sexes&&mv.sexes[i])||'',
         diaEnt:mv.dia, mesEnt:mv.mes, anyEnt:mv.any,
         guia:mv.guia||'',
-        sortit:false, diaSort:0, mesSort:0, anySort:0, tipusSort:''
+        sortit:false, diaSort:0, mesSort:0, anySort:0, tipusSort:'',
+        aid:(mv.aids&&mv.aids[i])||''
       });
     });
   });
@@ -4121,7 +4122,7 @@ function rHist(g){
       const cartBadge=d.cart&&d.cart!=='-'?`<span class="cc cc-${ccls(d.cart)}">${d.cart}</span>`:'—';
       const rowBg=d.sortit?'':'';
       const sexVal=d.sex||(S[g]&&S[g].sexes&&S[g].sexes[d.dib])||'';
-      html+=`<tr style="${d.sortit?'opacity:.6':''}" data-dib="${d.dib}" data-sexe="${sexVal}" data-cart="${d.cart}" data-ent="${d.anyEnt*10000+d.mesEnt*100+d.diaEnt}" data-estat="${d.sortit?1:0}" data-dies="${dies}">
+      html+=`<tr style="${d.sortit?'opacity:.6':''}${d.aid?';cursor:pointer':''}" ${d.aid?`onclick="openAnimalFitxa('${g}','${d.aid}')"`:''}  data-dib="${d.dib}" data-sexe="${sexVal}" data-cart="${d.cart}" data-ent="${d.anyEnt*10000+d.mesEnt*100+d.diaEnt}" data-estat="${d.sortit?1:0}" data-dies="${dies}">
         <td style="color:var(--muted);font-size:.65rem">${i+1}</td>
         <td>${dibHtml}</td>
         <td style="text-align:center">${fmtSexe(g,d.dib,sexVal)}</td>
@@ -4160,7 +4161,7 @@ function rCartLlista(g){
       if(dEnt>selDate) return;
       if(!mv.dibs||!mv.dibs.length) return;
       mv.dibs.forEach((d,di)=>{
-        animals.push({dib:d, cart:mv.cart||'-', sex:(mv.sexes&&mv.sexes[di])||'', lot:lot.num, diaEnt:mv.dia, mesEnt:mv.mes, anyEnt:mv.any, guia:mv.guia||'', sortit:false, diaSort:0, mesSort:0, anySort:0, tipusSort:''});
+        animals.push({dib:d, cart:mv.cart||'-', sex:(mv.sexes&&mv.sexes[di])||'', lot:lot.num, diaEnt:mv.dia, mesEnt:mv.mes, anyEnt:mv.any, guia:mv.guia||'', sortit:false, diaSort:0, mesSort:0, anySort:0, tipusSort:'', aid:(mv.aids&&mv.aids[di])||''});
       });
     });
     movs.filter(mv=>esSortida(mv.tipus)).forEach(mv=>{
@@ -4228,7 +4229,8 @@ function rCartLlista(g){
       }
       const lotBadge='<span style="display:inline-block;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:1px 7px;font-size:.68rem;font-weight:600;color:var(--ink);min-width:36px;text-align:center">L'+a.lot+'</span>';
       const sexValC=a.sex||(S[g]&&S[g].sexes&&S[g].sexes[a.dib])||'';
-      html+='<tr data-dib="'+a.dib+'" data-sexe="'+sexValC+'" data-lot="'+a.lot+'" data-ent="'+a.anyEnt*10000+a.mesEnt*100+a.diaEnt+'" data-dies="'+dies+'">';
+      var trClick3=a.aid?'cursor:pointer':'';
+      html+='<tr data-dib="'+a.dib+'" data-sexe="'+sexValC+'" data-lot="'+a.lot+'" data-ent="'+a.anyEnt*10000+a.mesEnt*100+a.diaEnt+'" data-dies="'+dies+'"'+(a.aid?' onclick="openAnimalFitxa(\''+g+'\',\''+a.aid+'\')\" style="'+trClick3+'"':'')+'>'; 
       html+='<td style="color:var(--muted);font-size:.65rem">'+(i+1)+'</td>';
       html+='<td>'+dibHtml+'</td>';
       html+='<td style="text-align:center">'+fmtSexe(g,a.dib,a.sex)+'</td>';
@@ -4321,7 +4323,7 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
-document.getElementById('build-ver').textContent='v20 · 29/03 15:42';
+document.getElementById('build-ver').textContent='v20 · 29/03 15:55';
 renderG('fig');renderG('costa');
 loadNotes();
 // Init historial
