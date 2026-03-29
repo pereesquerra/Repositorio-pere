@@ -1628,6 +1628,11 @@ function fitxaGoMov(g,k,mi,aid){
   window._fitxaReturnAid=aid;window._fitxaReturnG=g;
   openHistMov(g,k,parseInt(mi));
 }
+function fitxaGoMovIdx(idx){
+  var d=window._fitxaMovs[idx];
+  if(!d) return;
+  fitxaGoMov(d.g,d.k,d.mi,d.aid);
+}
 let _fitxaAid=null,_fitxaG=null;
 function openAnimalFitxa(g,aid){
   _fitxaG=g;_fitxaAid=aid;
@@ -1648,6 +1653,7 @@ function openAnimalFitxa(g,aid){
   const xS=sexSel===''?'background:var(--ink);color:#fff;border:2px solid var(--ink)':'background:#f0f0f0;color:var(--muted);border:1.5px solid var(--border);opacity:.5';
   // Buscar en quin moviment participa
   let movInfo='';
+  window._fitxaMovs=[];
   Object.entries(S[g].movs||{}).forEach(function(entry){
     var k=entry[0],ms=entry[1];
     var pts=k.split('-');var mk2=parseInt(pts[0]),yk2=parseInt(pts[1]);
@@ -1655,8 +1661,9 @@ function openAnimalFitxa(g,aid){
       if(!mv.aids) return;
       if(mv.aids.indexOf(aid)>=0){
         var badge=mv.tipus==='entrada'?'<span style="background:#d4edda;color:#155724;padding:2px 8px;border-radius:6px;font-size:.72rem;font-weight:700">\u2191 Entrada</span>':mv.tipus==='baixa'?'<span style="background:var(--baixa-lt);color:var(--baixa);padding:2px 8px;border-radius:6px;font-size:.72rem;font-weight:700">\u2715 Baixa</span>':'<span style="background:#f8d7da;color:#721c24;padding:2px 8px;border-radius:6px;font-size:.72rem;font-weight:700">\u2193 Sortida</span>';
-        var mid='fitxa-mov-'+g+'-'+k.replace('-','_')+'-'+mi;
-        movInfo+='<button type="button" id="'+mid+'" data-g="'+g+'" data-k="'+k+'" data-mi="'+mi+'" data-aid="'+aid+'" class="fitxa-mov-link" style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg);border-radius:6px;margin-top:4px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,0,0,.1);min-height:44px;border:1.5px solid var(--border);width:100%;text-align:left;font-family:inherit;font-size:inherit">'+badge+'<span style="font-size:.78rem">Dia '+mv.dia+'/'+mk2+'/'+yk2+' \u00b7 Lot '+mv.lot+' \u00b7 '+mv.qty+' animals</span><span style="margin-left:auto;font-size:.7rem;color:var(--muted)">\u27a4</span></button>';
+        var idx99=window._fitxaMovs.length;
+        window._fitxaMovs.push({g:g,k:k,mi:mi,aid:aid});
+        movInfo+='<button type="button" onclick="fitxaGoMovIdx('+idx99+')" style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg);border-radius:6px;margin-top:4px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,0,0,.1);min-height:44px;border:1.5px solid var(--border);width:100%;text-align:left;font-family:inherit;font-size:inherit">'+badge+'<span style="font-size:.78rem">Dia '+mv.dia+'/'+mk2+'/'+yk2+' \u00b7 Lot '+mv.lot+' \u00b7 '+mv.qty+' animals</span><span style="margin-left:auto;font-size:.7rem;color:var(--muted)">\u27a4</span></button>';
       }
     });
   });
@@ -1684,17 +1691,6 @@ function openAnimalFitxa(g,aid){
   document.getElementById('m-animal-body').innerHTML=html;
   document.getElementById('m-animal-save').style.display='';
   document.getElementById('m-animal').classList.add('open');
-  // Assignar events als moviments (millor compatibilitat mobil que onclick inline)
-  setTimeout(function(){
-    var links=document.querySelectorAll('.fitxa-mov-link');
-    for(var li=0;li<links.length;li++){
-      (function(el){
-        el.addEventListener('click',function(){
-          fitxaGoMov(el.getAttribute('data-g'),el.getAttribute('data-k'),parseInt(el.getAttribute('data-mi')),el.getAttribute('data-aid'));
-        });
-      })(links[li]);
-    }
-  },50);
 }
 function setFitxaSexe(val){
   if(!_fitxaAid||!_fitxaG) return;
@@ -4459,7 +4455,7 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
-document.getElementById('build-ver').textContent='v20 · 29/03 16:35';
+document.getElementById('build-ver').textContent='v20 · 29/03 16:39';
 renderG('fig');renderG('costa');
 loadNotes();
 // Init historial
