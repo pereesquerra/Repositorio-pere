@@ -4179,8 +4179,8 @@ function rHist(g){
   // Recull DIBs d'entrades
   allMovs.filter(mv=>mv.tipus==='entrada').forEach(mv=>{
     if(!mv.dibs||!mv.dibs.length) return;
-    // v20: lazy migration
-    if(!mv.aids||!mv.aids.length){var pts3=mv._k.split('-');var m3=parseInt(pts3[0]),y3=parseInt(pts3[1]);mv.aids=[];mv.dibs.forEach(function(dd,ddi){var a3=findOrCreateAid(g,dd,{dib:dd,sex:(mv.sexes&&mv.sexes[ddi])||(S[g].sexes&&S[g].sexes[dd])||'',lot:mv.lot,cart:mv.cart||'-',guia:mv.guia||'',diaEnt:mv.dia,mesEnt:m3,anyEnt:y3});mv.aids[ddi]=a3;});sv();}
+    // v20: lazy migration - actualitzar ORIGINAL (no la copia)
+    if(!mv.aids||!mv.aids.length){var pts3=mv._k.split('-');var m3=parseInt(pts3[0]),y3=parseInt(pts3[1]);mv.aids=[];mv.dibs.forEach(function(dd,ddi){var a3=findOrCreateAid(g,dd,{dib:dd,sex:(mv.sexes&&mv.sexes[ddi])||(S[g].sexes&&S[g].sexes[dd])||'',lot:mv.lot,cart:mv.cart||'-',guia:mv.guia||'',diaEnt:mv.dia,mesEnt:m3,anyEnt:y3});mv.aids[ddi]=a3;});var origMv=S[g].movs[mv._k]?S[g].movs[mv._k][mv._mi]:null;if(origMv){origMv.aids=mv.aids.slice();}sv();}
     mv.dibs.forEach((d,i)=>{
       dibsList.push({
         dib:d, cart:mv.cart||'-',
@@ -4290,8 +4290,16 @@ function rCartLlista(g){
       const dEnt=new Date(mv.any,mv.mes-1,mv.dia);
       if(dEnt>selDate) return;
       if(!mv.dibs||!mv.dibs.length) return;
-      // v20: lazy migration
-      if(!mv.aids||!mv.aids.length){mv.aids=[];mv.dibs.forEach(function(dd,ddi){var a2=findOrCreateAid(g,dd,{dib:dd,sex:(mv.sexes&&mv.sexes[ddi])||(S[g].sexes&&S[g].sexes[dd])||'',lot:lot.num,cart:mv.cart||'-',guia:mv.guia||'',diaEnt:mv.dia,mesEnt:mv.mes,anyEnt:mv.any});mv.aids[ddi]=a2;});sv();}
+      // v20: lazy migration - trobar i actualitzar ORIGINAL
+      if(!mv.aids||!mv.aids.length){
+        // Trobar moviment original a S[g].movs
+        var origMv2=null;
+        Object.entries(S[g].movs||{}).forEach(function(ek){var kk=ek[0],mss=ek[1];mss.forEach(function(mm){if(mm.dia===mv.dia&&mm.lot===lot.num&&mm.tipus===mv.tipus&&mm.dibs===mv.dibs){origMv2=mm;}});});
+        var target=origMv2||mv;
+        target.aids=[];mv.aids=[];
+        mv.dibs.forEach(function(dd,ddi){var a2=findOrCreateAid(g,dd,{dib:dd,sex:(mv.sexes&&mv.sexes[ddi])||(S[g].sexes&&S[g].sexes[dd])||'',lot:lot.num,cart:mv.cart||'-',guia:mv.guia||'',diaEnt:mv.dia,mesEnt:mv.mes,anyEnt:mv.any});target.aids[ddi]=a2;mv.aids[ddi]=a2;});
+        sv();
+      }
       mv.dibs.forEach((d,di)=>{
         animals.push({dib:d, cart:mv.cart||'-', sex:(mv.sexes&&mv.sexes[di])||'', lot:lot.num, diaEnt:mv.dia, mesEnt:mv.mes, anyEnt:mv.any, guia:mv.guia||'', sortit:false, diaSort:0, mesSort:0, anySort:0, tipusSort:'', aid:(mv.aids&&mv.aids[di])||''});
       });
@@ -4455,7 +4463,7 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
-document.getElementById('build-ver').textContent='v20 · 29/03 16:39';
+document.getElementById('build-ver').textContent='v20 · 29/03 16:43';
 renderG('fig');renderG('costa');
 loadNotes();
 // Init historial
