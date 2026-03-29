@@ -1541,71 +1541,53 @@ function cercarAnimal(){
   var q=(document.getElementById('animal-search-input').value||'').trim().toUpperCase();
   var cont=document.getElementById('animal-search-results');
   if(!q||q.length<2){cont.innerHTML='';cont.style.display='none';return;}
-  var results=[];
-  var seen={};
+  // Recollir resultats separats per granja
+  var aGranja=[],aSortits=[],seen={};
   ['fig','costa'].forEach(function(g){
     var gNom=g==='fig'?'Figuera':'La Costa';
     Object.entries(S[g].animals||{}).forEach(function(entry){
-      var aid=entry[0],a=entry[1];
-      if(seen[aid]) return;
-      var dib=a.dib||'';
-      var match=false;
-      if(q.length<=4){
-        if(dib.slice(-q.length)===q) match=true;
-      } else {
-        if(dib.indexOf(q)>=0) match=true;
-      }
-      if(match){var sk=g+'_'+aid;if(!seen[sk]){seen[sk]=true;var aGr=estaAGranja(g,aid);results.push({g:g,gNom:gNom,aid:aid,a:a,aGranja:aGr});}}
+      var aid=entry[0],a=entry[1],dib=a.dib||'',match=false;
+      var sk=g+'_'+aid;if(seen[sk])return;
+      if(q.length<=4){if(dib.slice(-q.length)===q)match=true;}
+      else{if(dib.indexOf(q)>=0)match=true;}
+      if(match){seen[sk]=true;var r={g:g,gNom:gNom,aid:aid,a:a};if(estaAGranja(g,aid))aGranja.push(r);else aSortits.push(r);}
     });
   });
-  if(!results.length){
+  if(!aGranja.length&&!aSortits.length){
     cont.innerHTML='<div style="padding:14px;text-align:center;color:var(--muted);font-size:.82rem">Cap animal trobat per "'+q+'"</div>';
-    cont.style.display='block';
-    return;
+    cont.style.display='block';return;
   }
-  // Mostrar tots amb scroll
+  // Renderitzar fila d'animal
+  function renderRow(r){
+    var a=r.a,col=ccls(a.cart||'-'),isPend=a.dib==='????-????',dibHtml;
+    if(isPend)dibHtml='<span style="color:#854F0B;font-weight:700">????-????</span>';
+    else{var l4=a.dib.slice(-4),pf=a.dib.slice(0,-4);dibHtml='<span style="opacity:.4;font-size:.7rem">'+pf+'</span><span style="font-weight:800;color:var(--'+col+')">'+l4+'</span>';}
+    var sexH=a.sex==='F'?'<span style="color:#d4508b">\u2640</span>':a.sex==='M'?'<span style="color:#3d7bc8">\u2642</span>':'';
+    return '<div onclick="openAnimalFitxa(\''+r.g+'\',\''+r.aid+'\')" style="display:flex;align-items:center;gap:6px;padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--border);touch-action:manipulation;min-height:40px">'+
+      '<span style="font-family:DM Mono,monospace;min-width:100px;font-size:.78rem">'+dibHtml+'</span>'+
+      sexH+
+      '<span class="cc cc-'+col+'" style="font-size:.55rem;padding:1px 4px">'+(a.cart||'-')+'</span>'+
+      '<span style="font-size:.65rem;color:var(--muted)">L'+(a.lot||'?')+'</span>'+
+      '<span style="font-size:.6rem;color:var(--muted);margin-left:auto">'+r.gNom+'</span>'+
+      '</div>';
+  }
   var html='';
-  // Agrupar per granja
-  var perGranja={fig:[],costa:[]};
-  results.forEach(function(r){perGranja[r.g].push(r);});
-  var maxPerGranja=30;
-  ['fig','costa'].forEach(function(gk){
-    var gItems=perGranja[gk];
-    if(!gItems.length) return;
-    var gTitle=gk==='fig'?'\ud83c\udfdb Figuera':'\ud83c\udfd4 La Costa';
-    var gAGranja=gItems.filter(function(r2){return r2.aGranja;});
-    var gSortits=gItems.filter(function(r2){return !r2.aGranja;});
-    html+='<div style="padding:8px 14px;background:var(--bg);font-weight:700;font-size:.78rem;border-bottom:2px solid var(--border)">'+gTitle+' \u00b7 '+gAGranja.length+' a granja'+(gSortits.length?' <span style="font-weight:400;color:var(--muted);font-size:.7rem">+ '+gSortits.length+' sortit'+(gSortits.length!==1?'s':'')+'</span>':'')+'</div>';
-    gItems=gAGranja;
-    if(window._searchShowSortits) gItems=gAGranja.concat(gSortits);
-    var shown2=gItems.slice(0,maxPerGranja);
-    shown2.forEach(function(r){
-    var a=r.a,col=ccls(a.cart||'-');
-    var isPend=a.dib==='????-????';
-    var dibHtml;
-    if(isPend) dibHtml='<span style="color:#854F0B;font-weight:700">????-????</span>';
-    else{var l4=a.dib.slice(-4);var pf=a.dib.slice(0,-4);dibHtml='<span style="opacity:.4;font-size:.72rem">'+pf+'</span><span style="font-weight:800;color:var(--'+col+')">'+l4+'</span>';}
-    var sexH=a.sex==='F'?'<span style="color:#d4508b;font-weight:700">\u2640</span>':a.sex==='M'?'<span style="color:#3d7bc8;font-weight:700">\u2642</span>':'<span style="opacity:.3">\u2014</span>';
-    var dataE=String(a.diaEnt||0).padStart(2,'0')+'/'+String(a.mesEnt||0).padStart(2,'0')+'/'+(a.anyEnt||'');
-    var sortitStyle=r.aGranja?'':'opacity:.45;background:#f8f8f8;';
-    var sortitBadge=r.aGranja?'':'<span style="font-size:.55rem;color:var(--pe);font-weight:700;background:#f8d7da;padding:1px 4px;border-radius:3px">SORTIT</span>';
-    html+='<div onclick="openAnimalFitxa(\''+r.g+'\',\''+r.aid+'\')" style="display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border);'+sortitStyle+'">';
-    html+='<div style="font-family:DM Mono,monospace;min-width:120px">'+dibHtml+'</div>';
-    html+='<span style="font-size:.9rem">'+sexH+'</span>';
-    html+='<span class="cc cc-'+col+'" style="font-size:.65rem;padding:1px 6px">'+(a.cart||'-')+'</span>';
-    html+='<span style="font-size:.72rem;color:var(--muted)">L'+(a.lot||'?')+'</span>';
-    html+=sortitBadge;
-    html+='<span style="font-size:.68rem;color:var(--muted);margin-left:auto">'+dataE+'</span>';
-    html+='</div>';
-  });
-    if(gItems.length>maxPerGranja) html+='<div style="text-align:center;padding:8px"><button onclick="window._searchShowAll=true;cercarAnimal()" class="btn b-out b-sm" style="font-size:.72rem">Mostrar tots ('+gItems.length+')</button></div>';
-  });
-  if(window._searchShowAll){maxPerGranja=9999;window._searchShowAll=false;}
-  if(!window._searchShowSortits){
-    var totalSort=results.filter(function(r3){return !r3.aGranja;}).length;
-    if(totalSort>0) html+='<div style="text-align:center;padding:8px;border-top:1px solid var(--border)"><button onclick="window._searchShowSortits=true;cercarAnimal()" class="btn b-out b-sm" style="font-size:.72rem;opacity:.6">Mostrar '+totalSort+' animal'+(totalSort!==1?'s':'')+' sortit'+(totalSort!==1?'s':'')+'</button></div>';
-  } else {
-    html+='<div style="text-align:center;padding:8px;border-top:1px solid var(--border)"><button onclick="window._searchShowSortits=false;cercarAnimal()" class="btn b-out b-sm" style="font-size:.72rem;opacity:.6">Amagar sortits</button></div>';
+  // A GRANJA
+  if(aGranja.length){
+    html+='<div style="padding:6px 12px;background:#d4edda;font-size:.7rem;font-weight:700;color:#155724">\ud83c\udfe1 A granja: '+aGranja.length+' animals</div>';
+    var maxG=window._searchMax||20;
+    aGranja.slice(0,maxG).forEach(function(r){html+=renderRow(r);});
+    if(aGranja.length>maxG) html+='<div style="text-align:center;padding:8px"><button type="button" onclick="window._searchMax='+(maxG+50)+';cercarAnimal()" class="btn b-out b-sm" style="font-size:.72rem;touch-action:manipulation;min-height:40px">Mostrar m\u00e9s ('+aGranja.length+' total)</button></div>';
+  }
+  // SORTITS
+  if(aSortits.length){
+    if(!window._searchShowSortits){
+      html+='<div style="text-align:center;padding:8px;border-top:1px solid var(--border)"><button type="button" onclick="window._searchShowSortits=true;cercarAnimal()" class="btn b-out b-sm" style="font-size:.72rem;opacity:.6;touch-action:manipulation;min-height:40px">Mostrar '+aSortits.length+' sortit'+(aSortits.length!==1?'s':'')+'</button></div>';
+    } else {
+      html+='<div style="padding:6px 12px;background:#f8d7da;font-size:.7rem;font-weight:700;color:#721c24">Sortits: '+aSortits.length+' animals <button type="button" onclick="window._searchShowSortits=false;cercarAnimal()" style="float:right;background:none;border:none;font-size:.7rem;color:#721c24;cursor:pointer;touch-action:manipulation">\u2715 Amagar</button></div>';
+      aSortits.slice(0,20).forEach(function(r){html+='<div style="opacity:.45">'+renderRow(r).replace('border-bottom','border-bottom')+'</div>';});
+      if(aSortits.length>20) html+='<div style="text-align:center;padding:6px;font-size:.6rem;color:var(--muted)">Mostrant 20 de '+aSortits.length+'</div>';
+    }
   }
   cont.innerHTML=html;
   cont.style.display='block';
@@ -4521,7 +4503,7 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
-document.getElementById('build-ver').textContent='v20 · 29/03 17:52';
+document.getElementById('build-ver').textContent='v20 · 29/03 17:56';
 renderG('fig');renderG('costa');
 loadNotes();
 // Init historial
