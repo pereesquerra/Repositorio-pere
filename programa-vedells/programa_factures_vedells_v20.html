@@ -15,6 +15,7 @@
   --pe:#e06a00;--pe-lt:#fff0e0;
   --sat:#7b5ea7;--sat-lt:#f0ebf8;
   --ram:#3d6b8c;--ram-lt:#e4eff7;
+  --coma:#8B6914;--coma-lt:#f5f0e0;
   --shadow:0 2px 14px rgba(0,0,0,.07);
   --baixa:#8c3d6b;--baixa-lt:#f5e4ef;
 }
@@ -88,6 +89,7 @@ header .sub{font-family:'DM Mono',monospace;font-size:.7rem;color:#999}
 .cc-pe{background:var(--pe-lt);color:var(--pe)}
 .cc-sat{background:var(--sat-lt);color:var(--sat)}
 .cc-ram{background:var(--ram-lt);color:var(--ram)}
+.cc-com{background:var(--coma-lt);color:var(--coma)}
 .cc-unknown{background:#f0f0f0;color:#bbb}
 .lot-card .xbtn{position:absolute;top:8px;right:8px;width:20px;height:20px;background:none;border:1px solid var(--border);border-radius:50%;cursor:pointer;font-size:.6rem;color:var(--muted);display:flex;align-items:center;justify-content:center}
 .lot-card .xbtn:hover{background:#fee;color:#c44;border-color:#f99}
@@ -95,6 +97,7 @@ header .sub{font-family:'DM Mono',monospace;font-size:.7rem;color:#999}
 .bl-pe{border-left-color:var(--pe)}
 .bl-sat{border-left-color:var(--sat)}
 .bl-ram{border-left-color:var(--ram)}
+.bl-com{border-left-color:var(--coma)}
 .bl-eco-sat{border-left:5px solid transparent;border-image:linear-gradient(to bottom,var(--eco) 50%,var(--sat) 50%) 1}
 .bl-eco-pe{border-left:5px solid transparent;border-image:linear-gradient(to bottom,var(--eco) 50%,var(--pe) 50%) 1}
 .bl-sat-pe{border-left:5px solid transparent;border-image:linear-gradient(to bottom,var(--sat) 50%,var(--pe) 50%) 1}
@@ -111,6 +114,7 @@ header .sub{font-family:'DM Mono',monospace;font-size:.7rem;color:#999}
 .b-ink{background:var(--ink);color:#fff}.b-ink:hover{background:#333}
 .b-fig{background:var(--fig);color:#fff}.b-fig:hover{background:#3a6347}
 .b-costa{background:var(--costa);color:#fff}.b-costa:hover{background:#2f5470}
+.b-coma{background:var(--coma);color:#fff}.b-coma:hover{background:#6d5510}
 .b-out{background:#fff;color:var(--ink);border:1.5px solid var(--border)}.b-out:hover{border-color:var(--ink)}
 .b-sm{padding:5px 10px;font-size:.76rem}
 .btn-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:7px}
@@ -263,6 +267,9 @@ header .sub{font-family:'DM Mono',monospace;font-size:.7rem;color:#999}
 </head>
 <body>
 
+
+
+
 <header>
   <div><h1>🐄 Gestió Animals Boví</h1></div>
   <div style="text-align:right"><div class="sub" id="avui"></div><div style="font-size:.7rem;color:#f0c040;font-family:'DM Mono',monospace;font-weight:700" id="build-ver"></div></div>
@@ -285,6 +292,7 @@ header .sub{font-family:'DM Mono',monospace;font-size:.7rem;color:#999}
 <div class="tabs">
   <button class="tab active" onclick="showPage('fig',this)">🌿 Figuera</button>
   <button class="tab" onclick="showPage('costa',this)">🏔 La Costa</button>
+  <button class="tab" onclick="showPage('coma',this)">🐄 La Coma</button>
 </div>
 
 <!-- FIGUERA -->
@@ -491,6 +499,114 @@ header .sub{font-family:'DM Mono',monospace;font-size:.7rem;color:#999}
 
 </div>
 
+
+<!-- LA COMA -->
+<div class="page" id="page-coma">
+  <div class="g-header">
+    <div class="g-dot" style="background:var(--coma)"></div>
+    <div><h2>Granja La Coma</h2><div class="gsub">ECOFUTUR AGRÍCOLA RAMADER · COM 712:AX · REGA ES082290036967</div></div>
+  </div>
+
+  <!-- LOTS + BOTONS -->
+  <div class="stitle">Lots actius</div>
+  <div class="lots-grid" id="coma-lots"></div>
+  <div class="btn-row">
+    <button class="btn b-coma b-sm" onclick="openMLot('coma')">+ Nou lot</button>
+    <button class="btn b-out b-sm" onclick="openGestio('coma')">Gestió</button>
+    <button class="btn b-out b-sm" id="coma-undo" onclick="undo('coma')" disabled>↩</button>
+    <button class="btn b-out b-sm" id="coma-redo" onclick="redo('coma')" disabled>↪</button>
+  </div>
+
+  <!-- MOVIMENTS DEL MES -->
+  <div class="mes-bar" style="margin-top:14px">
+    <label>Mes</label>
+    <select id="coma-mes" onchange="renderG('coma')">
+      <option value="1">Gen</option><option value="2">Feb</option><option value="3" selected>Mar</option>
+      <option value="4">Abr</option><option value="5">Mai</option><option value="6">Jun</option>
+      <option value="7">Jul</option><option value="8">Ago</option><option value="9">Set</option>
+      <option value="10">Oct</option><option value="11">Nov</option><option value="12">Des</option>
+    </select>
+    <select id="coma-any" onchange="renderG('coma')">
+      <option value="2025">2025</option><option value="2026" selected>2026</option>
+    </select>
+  </div>
+
+  <div class="stitle">Moviments del mes</div>
+  <div class="mov-box">
+    <div class="fgrid">
+      <div class="fg"><label>Data</label><input type="date" id="coma-date-picker" style="padding:6px 8px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.84rem;color:var(--ink);width:100%" onchange="if(this.value){var p=this.value.split('-');document.getElementById('coma-dia').value=parseInt(p[2]);document.getElementById('coma-mov-mes').value=parseInt(p[1]);document.getElementById('coma-mov-any').value=parseInt(p[0]);}"></div>
+      <div class="fg"><label>Tipus</label>
+        <select id="coma-tipus" onchange="onTipusC('coma')"><option value="entrada">Entrada</option><option value="sortida">Sortida</option><option value="baixa">Baixa</option></select>
+      </div>
+      <div class="fg"><label>Lot</label><select id="coma-lot" onchange="onLotC('coma')"></select></div>
+      <div class="fg" id="coma-nlg" style="display:none"><label>Nº lot nou</label><input type="number" id="coma-nl" placeholder="ex:101"></div>
+      <div class="fg"><label>Guia sanitària</label><input type="text" id="coma-guia" placeholder="Nº guia" style="font-family:'DM Mono',monospace;font-size:.78rem"></div>
+    </div>
+    <!-- Camps ocults necessaris pel sistema -->
+    <input type="hidden" id="coma-dia">
+    <select id="coma-mov-mes" style="display:none"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option></select>
+    <select id="coma-mov-any" style="display:none"><option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option></select>
+    <div class="dibs-zone" id="coma-dibs-zone">
+      <div class="dibs-head">
+        <label>Crotals (DIBs)</label>
+        <span class="dibs-count" id="coma-dibs-count"></span>
+      </div>
+      <textarea class="dibs-ta" id="coma-dibs" oninput="previewDibs('coma')" placeholder="Números separats per comes/espais"></textarea>
+      <div class="dibs-pills" id="coma-dibs-pills"></div>
+      <div class="dibs-warn" id="coma-dibs-warn"></div>
+      <div class="dibs-actions">
+        <input type="file" id="coma-dibs-file" accept=".pdf" onchange="onFormFile(event,'coma')" style="display:none">
+        <button onclick="document.getElementById('coma-dibs-file').click()">📎 Adjuntar guia PDF</button>
+        <button onclick="toggleManual('coma')">Entrada manual (sense crotals)</button>
+      </div>
+      <div id="coma-manual" style="display:none">
+        <div class="fg" style="margin-top:6px"><label>Nº Animals</label><input type="number" id="coma-qty-manual" min="1" placeholder="Nº animals"></div>
+      </div>
+    </div>
+    <div class="btn-row"><button class="btn b-coma b-sm" onclick="prepMov('coma')">Revisar i confirmar</button></div>
+    <div class="mov-list" id="coma-movlist"></div>
+  </div>
+
+  <!-- LLISTAT COMPLET D'ANIMALS -->
+  <div id="coma-counters" style="margin-top:16px"></div>
+  <div id="coma-animals-resum"></div>
+
+  <!-- NOTES -->
+  <details class="notes-section">
+    <summary class="notes-toggle">📝 Notes</summary>
+    <div class="notes-body">
+      <textarea class="notes-ta" id="coma-notes" oninput="saveNotes('coma')" placeholder="Anotacions..."></textarea>
+    </div>
+  </details>
+
+  <!-- HISTORIAL DE LOTS -->
+  <div class="stitle">📋 Historial de lots</div>
+  <div class="hist-bar">
+    <label>Lot</label>
+    <select id="coma-hist-lot" onchange="rHist('coma')"><option value="">— Selecciona lot —</option></select>
+  </div>
+  <div id="coma-hist-cont"></div>
+
+  <!-- ANIMALS PER CARTILLA -->
+  <div class="stitle" style="margin-top:28px">🏷 Animals per cartilla</div>
+  <div class="hist-bar">
+    <label>Data</label>
+    <input type="date" id="coma-cart-date" onchange="rCartLlista('coma')" style="padding:6px 10px;border-radius:7px;border:1.5px solid var(--border);font-size:.84rem;font-family:'DM Sans',sans-serif;color:var(--ink)">
+    <button class="btn b-out b-sm" onclick="document.getElementById('coma-cart-date').valueAsDate=new Date();rCartLlista('coma')">Avui</button>
+  </div>
+  <div id="coma-cart-cont"></div>
+
+  <!-- IMPORTAR CSV (al final, menys prominent) -->
+  <details class="notes-section" style="margin-top:16px">
+    <summary class="notes-toggle">📂 Importar animals (CSV)</summary>
+    <div class="notes-body">
+      <input type="file" id="coma-excel-file" accept=".xlsx,.xls,.csv" onchange="importExcelComa(event)" style="font-size:.78rem">
+      <div style="font-size:.68rem;color:var(--muted);margin-top:4px">Capçaleres: DIB, Sexe, DataNaix, Mare, Lot</div>
+    </div>
+  </details>
+
+</div>
+
 <!-- MODAL NOU LOT -->
 <div class="mbg" id="m-lot">
   <div class="mbox">
@@ -503,6 +619,7 @@ header .sub{font-family:'DM Mono',monospace;font-size:.7rem;color:#999}
           <option value="Ecofutur">Ecofutur</option>
           <option value="Pere Esquerrà">Pere Esquerrà</option>
           <option value="SAT Figuera">SAT Figuera</option>
+          <option value="Ecofutur La Coma">Ecofutur La Coma</option>
         </select>
       </div>
     </div>
@@ -582,7 +699,9 @@ header .sub{font-family:'DM Mono',monospace;font-size:.7rem;color:#999}
     <div id="m-animal-body"></div>
     <div class="mact" style="margin-top:12px">
       <button class="btn b-out" onclick="document.getElementById('m-animal').classList.remove('open')">Tancar</button>
+      <button class="btn b-out" id="m-animal-edit-btn" style="font-size:.78rem">✏️ Editar</button>
       <button class="btn b-ink" id="m-animal-save" onclick="guardarAnimalFitxa()" style="display:none">Guardar canvis</button>
+      <button class="btn" id="m-animal-delete" onclick="eliminarAnimal()" style="display:none;background:#dc3545;color:#fff;font-size:.72rem">🗑 Eliminar</button>
     </div>
   </div>
 </div>
@@ -664,6 +783,19 @@ header .sub{font-family:'DM Mono',monospace;font-size:.7rem;color:#999}
     <div class="mact">
       <button class="btn b-out" onclick="closeDetail()">Tancar</button>
       <button class="btn b-ink" id="m-detail-fullEdit" onclick="fullEditFromDetail()">Editar moviment</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DADES EXTRA COMA -->
+<div class="mbg" id="m-coma-extra">
+  <div class="mbox" style="max-width:420px;max-height:85vh;overflow-y:auto">
+    <h3 style="color:var(--coma)">🐄 Dades de l'animal</h3>
+    <div style="font-size:.78rem;color:var(--muted);margin-bottom:10px">Completa les dades del nou animal a La Coma</div>
+    <div id="m-coma-extra-list"></div>
+    <div class="mact" style="margin-top:12px">
+      <button class="btn b-out" onclick="document.getElementById('m-coma-extra').classList.remove('open')">Tancar</button>
+      <button class="btn b-coma" onclick="guardarComaExtra()">Guardar</button>
     </div>
   </div>
 </div>
@@ -1402,7 +1534,8 @@ function defState(){
             "qty":40,
             "lot":24,
             "cart":"RAM"
-          }],"1-2025":[{"dia":16,"tipus":"entrada","qty":40,"lot":20,"cart":"RAM"},{"dia":17,"tipus":"sortida","qty":1,"lot":20,"cart":"RAM"},{"dia":31,"tipus":"sortida","qty":1,"lot":23,"cart":"RAM"},{"dia":16,"tipus":"entrada","qty":40,"lot":24,"cart":"RAM"},{"dia":17,"tipus":"sortida","qty":1,"lot":24,"cart":"RAM"}],"5-2025":[{"dia":26,"tipus":"sortida","qty":15,"lot":21,"cart":"RAM"},{"dia":28,"tipus":"sortida","qty":16,"lot":21,"cart":"RAM"},{"dia":29,"tipus":"sortida","qty":13,"lot":21,"cart":"RAM"}],"6-2025":[{"dia":2,"tipus":"sortida","qty":10,"lot":21,"cart":"RAM"},{"dia":3,"tipus":"sortida","qty":25,"lot":21,"cart":"RAM"},{"dia":5,"tipus":"sortida","qty":19,"lot":21,"cart":"RAM"},{"dia":9,"tipus":"sortida","qty":15,"lot":21,"cart":"RAM"},{"dia":16,"tipus":"sortida","qty":14,"lot":21,"cart":"RAM"},{"dia":1,"tipus":"entrada","qty":1,"lot":25,"cart":"RAM"},{"dia":1,"tipus":"entrada","qty":162,"lot":26,"cart":"RAM"},{"dia":3,"tipus":"entrada","qty":1,"lot":26,"cart":"RAM"},{"dia":4,"tipus":"entrada","qty":1,"lot":26,"cart":"RAM"},{"dia":5,"tipus":"entrada","qty":1,"lot":26,"cart":"RAM"},{"dia":18,"tipus":"sortida","qty":3,"lot":26,"cart":"RAM"}],"7-2025":[{"dia":3,"tipus":"sortida","qty":4,"lot":21,"cart":"RAM"},{"dia":31,"tipus":"sortida","qty":10,"lot":21,"cart":"RAM"},{"dia":1,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"},{"dia":3,"tipus":"sortida","qty":1,"lot":26,"cart":"RAM"},{"dia":21,"tipus":"sortida","qty":1,"lot":26,"cart":"RAM"}],"4-2025":[{"dia":30,"tipus":"sortida","qty":1,"lot":23,"cart":"RAM"},{"dia":1,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"}],"8-2025":[{"dia":29,"tipus":"sortida","qty":25,"lot":23,"cart":"RAM"},{"dia":1,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"},{"dia":23,"tipus":"entrada","qty":99,"lot":27,"cart":"RAM"},{"dia":30,"tipus":"entrada","qty":67,"lot":27,"cart":"RAM"}],"9-2025":[{"dia":2,"tipus":"sortida","qty":34,"lot":23,"cart":"RAM"},{"dia":4,"tipus":"sortida","qty":18,"lot":23,"cart":"RAM"},{"dia":5,"tipus":"sortida","qty":25,"lot":23,"cart":"RAM"},{"dia":12,"tipus":"sortida","qty":6,"lot":23,"cart":"RAM"},{"dia":22,"tipus":"sortida","qty":12,"lot":23,"cart":"RAM"},{"dia":23,"tipus":"sortida","qty":14,"lot":23,"cart":"RAM"},{"dia":13,"tipus":"sortida","qty":1,"lot":27,"cart":"RAM"}],"10-2025":[{"dia":2,"tipus":"sortida","qty":2,"lot":23,"cart":"RAM"},{"dia":7,"tipus":"sortida","qty":5,"lot":23,"cart":"RAM"},{"dia":14,"tipus":"sortida","qty":1,"lot":23,"cart":"RAM"},{"dia":20,"tipus":"sortida","qty":1,"lot":27,"cart":"RAM"}],"12-2025":[{"dia":9,"tipus":"sortida","qty":45,"lot":25,"cart":"RAM"},{"dia":12,"tipus":"sortida","qty":29,"lot":25,"cart":"RAM"},{"dia":15,"tipus":"sortida","qty":28,"lot":25,"cart":"RAM"},{"dia":16,"tipus":"sortida","qty":26,"lot":25,"cart":"RAM"},{"dia":18,"tipus":"sortida","qty":7,"lot":25,"cart":"RAM"},{"dia":22,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"},{"dia":30,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"},{"dia":30,"tipus":"sortida","qty":1,"lot":27,"cart":"RAM"}],"11-2025":[{"dia":5,"tipus":"sortida","qty":1,"lot":26,"cart":"RAM"},{"dia":1,"tipus":"entrada","qty":1,"lot":27,"cart":"RAM"},{"dia":18,"tipus":"sortida","qty":1,"lot":27,"cart":"RAM"},{"dia":22,"tipus":"entrada","qty":112,"lot":28,"cart":"RAM"},{"dia":29,"tipus":"entrada","qty":38,"lot":28,"cart":"RAM"}],"1-2026":[{"dia":2,"tipus":"sortida","qty":1,"lot":28,"cart":"RAM"}]},"assig":{},"preuEmp":{}}
+          }],"1-2025":[{"dia":16,"tipus":"entrada","qty":40,"lot":20,"cart":"RAM"},{"dia":17,"tipus":"sortida","qty":1,"lot":20,"cart":"RAM"},{"dia":31,"tipus":"sortida","qty":1,"lot":23,"cart":"RAM"},{"dia":16,"tipus":"entrada","qty":40,"lot":24,"cart":"RAM"},{"dia":17,"tipus":"sortida","qty":1,"lot":24,"cart":"RAM"}],"5-2025":[{"dia":26,"tipus":"sortida","qty":15,"lot":21,"cart":"RAM"},{"dia":28,"tipus":"sortida","qty":16,"lot":21,"cart":"RAM"},{"dia":29,"tipus":"sortida","qty":13,"lot":21,"cart":"RAM"}],"6-2025":[{"dia":2,"tipus":"sortida","qty":10,"lot":21,"cart":"RAM"},{"dia":3,"tipus":"sortida","qty":25,"lot":21,"cart":"RAM"},{"dia":5,"tipus":"sortida","qty":19,"lot":21,"cart":"RAM"},{"dia":9,"tipus":"sortida","qty":15,"lot":21,"cart":"RAM"},{"dia":16,"tipus":"sortida","qty":14,"lot":21,"cart":"RAM"},{"dia":1,"tipus":"entrada","qty":1,"lot":25,"cart":"RAM"},{"dia":1,"tipus":"entrada","qty":162,"lot":26,"cart":"RAM"},{"dia":3,"tipus":"entrada","qty":1,"lot":26,"cart":"RAM"},{"dia":4,"tipus":"entrada","qty":1,"lot":26,"cart":"RAM"},{"dia":5,"tipus":"entrada","qty":1,"lot":26,"cart":"RAM"},{"dia":18,"tipus":"sortida","qty":3,"lot":26,"cart":"RAM"}],"7-2025":[{"dia":3,"tipus":"sortida","qty":4,"lot":21,"cart":"RAM"},{"dia":31,"tipus":"sortida","qty":10,"lot":21,"cart":"RAM"},{"dia":1,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"},{"dia":3,"tipus":"sortida","qty":1,"lot":26,"cart":"RAM"},{"dia":21,"tipus":"sortida","qty":1,"lot":26,"cart":"RAM"}],"4-2025":[{"dia":30,"tipus":"sortida","qty":1,"lot":23,"cart":"RAM"},{"dia":1,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"}],"8-2025":[{"dia":29,"tipus":"sortida","qty":25,"lot":23,"cart":"RAM"},{"dia":1,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"},{"dia":23,"tipus":"entrada","qty":99,"lot":27,"cart":"RAM"},{"dia":30,"tipus":"entrada","qty":67,"lot":27,"cart":"RAM"}],"9-2025":[{"dia":2,"tipus":"sortida","qty":34,"lot":23,"cart":"RAM"},{"dia":4,"tipus":"sortida","qty":18,"lot":23,"cart":"RAM"},{"dia":5,"tipus":"sortida","qty":25,"lot":23,"cart":"RAM"},{"dia":12,"tipus":"sortida","qty":6,"lot":23,"cart":"RAM"},{"dia":22,"tipus":"sortida","qty":12,"lot":23,"cart":"RAM"},{"dia":23,"tipus":"sortida","qty":14,"lot":23,"cart":"RAM"},{"dia":13,"tipus":"sortida","qty":1,"lot":27,"cart":"RAM"}],"10-2025":[{"dia":2,"tipus":"sortida","qty":2,"lot":23,"cart":"RAM"},{"dia":7,"tipus":"sortida","qty":5,"lot":23,"cart":"RAM"},{"dia":14,"tipus":"sortida","qty":1,"lot":23,"cart":"RAM"},{"dia":20,"tipus":"sortida","qty":1,"lot":27,"cart":"RAM"}],"12-2025":[{"dia":9,"tipus":"sortida","qty":45,"lot":25,"cart":"RAM"},{"dia":12,"tipus":"sortida","qty":29,"lot":25,"cart":"RAM"},{"dia":15,"tipus":"sortida","qty":28,"lot":25,"cart":"RAM"},{"dia":16,"tipus":"sortida","qty":26,"lot":25,"cart":"RAM"},{"dia":18,"tipus":"sortida","qty":7,"lot":25,"cart":"RAM"},{"dia":22,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"},{"dia":30,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"},{"dia":30,"tipus":"sortida","qty":1,"lot":27,"cart":"RAM"}],"11-2025":[{"dia":5,"tipus":"sortida","qty":1,"lot":26,"cart":"RAM"},{"dia":1,"tipus":"entrada","qty":1,"lot":27,"cart":"RAM"},{"dia":18,"tipus":"sortida","qty":1,"lot":27,"cart":"RAM"},{"dia":22,"tipus":"entrada","qty":112,"lot":28,"cart":"RAM"},{"dia":29,"tipus":"entrada","qty":38,"lot":28,"cart":"RAM"}],"1-2026":[{"dia":2,"tipus":"sortida","qty":1,"lot":28,"cart":"RAM"}]},"assig":{},"preuEmp":{}},
+    coma:{"preu":0.4,"facturacio":false,"lots":[{"num":100,"v":0,"vIni":0,"actiu":true,"carts":{"COM":0},"emp":"Ecofutur La Coma"}],"movs":{},"assig":{},"preuEmp":{}}
     };
 }
 
@@ -1417,9 +1550,33 @@ if(!S.fig.animals) S.fig.animals={};
 if(!S.costa.animals) S.costa.animals={};
 if(!S.fig._aidCounter) S.fig._aidCounter=0;
 if(!S.costa._aidCounter) S.costa._aidCounter=0;
+if(!S.coma) S.coma=defState().coma;
+if(!S.coma.preuEmp) S.coma.preuEmp={};
+if(!S.coma.sexes) S.coma.sexes={};
+if(!S.coma.animals) S.coma.animals={};
+if(!S.coma._aidCounter) S.coma._aidCounter=0;
+if(S.coma.facturacio===undefined) S.coma.facturacio=false;
+// ---- MIGRACIÓ LA COMA: 68 animals — dates PDF verificades 1 per 1 ----
+if(S.coma && !S.coma._v3){ // Migració v3: 69 animals + historial parts (s'executa UNA vegada)
+  S.coma.animals={};S.coma._aidCounter=0;S.coma.movs={};S.coma.lots[0].v=69;S.coma.lots[0].carts={'COM':69};
+  var _comaInit=[{"dib": "FR8524578115", "sex": "F", "dataNaix": "2009-06-27", "morfotip": "Salers", "lot": 100, "cart": "COM", "diaEnt": 29, "mesEnt": 12, "anyEnt": 2015, "fills": [{"dib": "ES070905342222", "sex": "F", "morfo": "Salers", "data": "2022-03-10", "estat": "Sacrificat"}, {"dib": "ES030905424685", "sex": "M", "morfo": "Salers", "data": "2023-05-09", "estat": "Sacrificat"}, {"dib": "ES040905619563", "sex": "M", "morfo": "Salers", "data": "2024-11-26", "estat": "Sacrificat"}, {"dib": "ES220900126362", "sex": "M", "morfo": "Creuat", "data": "2026-01-17", "estat": "Present"}]}, {"dib": "FR7915050210", "sex": "F", "dataNaix": "2007-02-19", "morfotip": "Salers", "lot": 100, "cart": "COM", "diaEnt": 29, "mesEnt": 12, "anyEnt": 2015, "fills": [{"dib": "ES070905342233", "sex": "F", "morfo": "Creuat", "data": "2022-03-31", "estat": "Sacrificat"}]}, {"dib": "FR5821527896", "sex": "F", "dataNaix": "2007-03-12", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 29, "mesEnt": 12, "anyEnt": 2015, "fills": [{"dib": "ES000905342236", "sex": "M", "morfo": "Creuat", "data": "2022-05-12", "estat": "Sacrificat"}, {"dib": "ES010905619560", "sex": "M", "morfo": "Creuat", "data": "2024-08-26", "estat": "Sacrificat"}, {"dib": "ES220900126357", "sex": "M", "morfo": "Creuat", "data": "2025-10-24", "estat": "Present"}]}, {"dib": "FR5821527879", "sex": "F", "dataNaix": "2007-03-01", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 29, "mesEnt": 12, "anyEnt": 2015, "fills": [{"dib": "ES090905342235", "sex": "M", "morfo": "Creuat", "data": "2022-05-05", "estat": "Sacrificat"}, {"dib": "ES020905619549", "sex": "F", "morfo": "Creuat", "data": "2024-02-01", "estat": "Sacrificat"}, {"dib": "ES020905619572", "sex": "F", "morfo": "Creuat", "data": "2025-05-31", "estat": "Present"}]}, {"dib": "FR4341315938", "sex": "F", "dataNaix": "2014-07-30", "morfotip": "Salers", "lot": 100, "cart": "COM", "diaEnt": 16, "mesEnt": 6, "anyEnt": 2016, "fills": [{"dib": "ES010905342248", "sex": "M", "morfo": "Salers", "data": "2022-07-28", "estat": "Sacrificat"}, {"dib": "ES030905619540", "sex": "F", "morfo": "Salers", "data": "2024-03-14", "estat": "Sacrificat"}, {"dib": "ES020905711846", "sex": "F", "morfo": "Salers", "data": "2025-02-21", "estat": "Sacrificat"}, {"dib": "ES220900126361", "sex": "F", "morfo": "Creuat", "data": "2026-01-17", "estat": "Present"}]}, {"dib": "FR1638420023", "sex": "F", "dataNaix": "2011-03-25", "morfotip": "Salers", "lot": 100, "cart": "COM", "diaEnt": 29, "mesEnt": 12, "anyEnt": 2015, "fills": [{"dib": "ES090905424670", "sex": "M", "morfo": "Salers", "data": "2022-10-15", "estat": "Sacrificat"}, {"dib": "ES070905619544", "sex": "M", "morfo": "Salers", "data": "2024-04-02", "estat": "Sacrificat"}, {"dib": "ES000905619570", "sex": "M", "morfo": "Salers", "data": "2025-04-29", "estat": "Present"}]}, {"dib": "FR1541133440", "sex": "M", "dataNaix": "2021-02-27", "morfotip": "Xarolesa", "lot": 100, "cart": "COM", "diaEnt": 5, "mesEnt": 10, "anyEnt": 2022}, {"dib": "FR1538030451", "sex": "F", "dataNaix": "2017-12-20", "morfotip": "Salers", "lot": 100, "cart": "COM", "diaEnt": 10, "mesEnt": 9, "anyEnt": 2019, "fills": [{"dib": "ES010905342226", "sex": "F", "morfo": "Creuat", "data": "2022-03-28", "estat": "Sacrificat"}, {"dib": "ES020905619550", "sex": "F", "morfo": "Salers", "data": "2024-01-31", "estat": "Sacrificat"}, {"dib": "ES220900126354", "sex": "M", "morfo": "Salers", "data": "2025-09-22", "estat": "Present"}]}, {"dib": "FR1538030449", "sex": "F", "dataNaix": "2017-12-19", "morfotip": "Salers", "lot": 100, "cart": "COM", "diaEnt": 10, "mesEnt": 9, "anyEnt": 2019, "fills": [{"dib": "ES040905342229", "sex": "F", "morfo": "Creuat", "data": "2022-03-30", "estat": "Sacrificat"}, {"dib": "ES070905424690", "sex": "M", "morfo": "Salers", "data": "2023-06-20", "estat": "Sacrificat"}, {"dib": "ES000905711844", "sex": "F", "morfo": "Salers", "data": "2025-02-21", "estat": "Sacrificat"}]}, {"dib": "FR1538030447", "sex": "F", "dataNaix": "2017-11-28", "morfotip": "Salers", "lot": 100, "cart": "COM", "diaEnt": 10, "mesEnt": 9, "anyEnt": 2019, "fills": [{"dib": "ES060905424677", "sex": "M", "morfo": "Salers", "data": "2022-12-10", "estat": "Sacrificat"}, {"dib": "ES030905619539", "sex": "F", "morfo": "Salers", "data": "2024-03-10", "estat": "Sacrificat"}, {"dib": "ES220900126349", "sex": "F", "morfo": "Salers", "data": "2025-08-07", "estat": "Present"}]}, {"dib": "FR1538030446", "sex": "F", "dataNaix": "2017-11-27", "morfotip": "Salers", "lot": 100, "cart": "COM", "diaEnt": 10, "mesEnt": 9, "anyEnt": 2019, "fills": [{"dib": "ES000905342247", "sex": "M", "morfo": "Creuat", "data": "2022-08-25", "estat": "Sacrificat"}, {"dib": "ES010905424694", "sex": "F", "morfo": "Salers", "data": "2023-08-16", "estat": "Sacrificat"}, {"dib": "ES050905619564", "sex": "M", "morfo": "Salers", "data": "2025-01-12", "estat": "Sacrificat"}, {"dib": "ES220900126363", "sex": "F", "morfo": "Creuat", "data": "2026-01-17", "estat": "Present"}]}, {"dib": "FR1538030434", "sex": "F", "dataNaix": "2017-10-08", "morfotip": "Salers", "lot": 100, "cart": "COM", "diaEnt": 9, "mesEnt": 9, "anyEnt": 2020, "fills": [{"dib": "ES050905342219", "sex": "F", "morfo": "Salers", "data": "2022-03-03", "estat": "Sacrificat"}, {"dib": "ES060905424688", "sex": "M", "morfo": "Salers", "data": "2023-05-13", "estat": "Sacrificat"}, {"dib": "ES000905619558", "sex": "F", "morfo": "Salers", "data": "2024-07-12", "estat": "Present"}, {"dib": "ES220900126347", "sex": "M", "morfo": "Salers", "data": "2025-07-19", "estat": "Present"}]}, {"dib": "FR1538030427", "sex": "F", "dataNaix": "2017-10-01", "morfotip": "Salers", "lot": 100, "cart": "COM", "diaEnt": 9, "mesEnt": 9, "anyEnt": 2020, "fills": [{"dib": "ES010905424672", "sex": "F", "morfo": "Salers", "data": "2022-11-02", "estat": "Sacrificat"}, {"dib": "ES020905424673", "sex": "M", "morfo": "Salers", "data": "2022-11-02", "estat": "Sacrificat"}, {"dib": "ES040905424697", "sex": "M", "morfo": "Salers", "data": "2023-11-15", "estat": "Sacrificat"}, {"dib": "ES090905619568", "sex": "F", "morfo": "Salers", "data": "2025-02-20", "estat": "Sacrificat"}, {"dib": "ES220900126358", "sex": "M", "morfo": "Creuat", "data": "2026-01-01", "estat": "Present"}]}, {"dib": "FR1538030404", "sex": "F", "dataNaix": "2017-09-02", "morfotip": "Salers", "lot": 100, "cart": "COM", "diaEnt": 9, "mesEnt": 9, "anyEnt": 2020, "fills": [{"dib": "ES080905424680", "sex": "F", "morfo": "Salers", "data": "2023-05-03", "estat": "Sacrificat"}, {"dib": "ES010905619559", "sex": "M", "morfo": "Salers", "data": "2024-08-24", "estat": "Sacrificat"}, {"dib": "ES220900126350", "sex": "F", "morfo": "Salers", "data": "2025-08-22", "estat": "Present"}]}, {"dib": "FR1538030387", "sex": "F", "dataNaix": "2017-09-08", "morfotip": "Salers", "lot": 100, "cart": "COM", "diaEnt": 10, "mesEnt": 9, "anyEnt": 2019, "fills": [{"dib": "ES000905424682", "sex": "M", "morfo": "Salers", "data": "2023-05-03", "estat": "Sacrificat"}, {"dib": "ES090905424681", "sex": "M", "morfo": "Salers", "data": "2023-05-03", "estat": "Sacrificat"}, {"dib": "ES060905619554", "sex": "M", "morfo": "Salers", "data": "2024-06-06", "estat": "Sacrificat"}, {"dib": "ES010905619571", "sex": "F", "morfo": "Salers", "data": "2025-05-30", "estat": "Present"}]}, {"dib": "FR1538030380", "sex": "F", "dataNaix": "2017-09-06", "morfotip": "Salers", "lot": 100, "cart": "COM", "diaEnt": 10, "mesEnt": 9, "anyEnt": 2019, "fills": [{"dib": "ES010905342237", "sex": "F", "morfo": "Creuat", "data": "2022-05-21", "estat": "Sacrificat"}, {"dib": "ES080905619545", "sex": "M", "morfo": "Salers", "data": "2024-05-16", "estat": "Sacrificat"}, {"dib": "ES030905619573", "sex": "F", "morfo": "Salers", "data": "2025-06-08", "estat": "Present"}]}, {"dib": "FR1537006631", "sex": "M", "dataNaix": "2017-04-09", "morfotip": "Xarolesa", "lot": 100, "cart": "COM", "diaEnt": 8, "mesEnt": 9, "anyEnt": 2018}, {"dib": "FR1536175218", "sex": "F", "dataNaix": "2016-02-09", "morfotip": "Salers", "lot": 100, "cart": "COM", "diaEnt": 9, "mesEnt": 12, "anyEnt": 2017, "fills": [{"dib": "ES060905339217", "sex": "F", "morfo": "Creuat", "data": "2022-01-30", "estat": "Sacrificat"}, {"dib": "ES030905424696", "sex": "M", "morfo": "Salers", "data": "2023-08-22", "estat": "Desaparegut"}, {"dib": "ES070905619566", "sex": "M", "morfo": "Salers", "data": "2025-01-15", "estat": "Present"}, {"dib": "ES050905619575", "sex": "F", "morfo": "Creuat", "data": "2026-01-18", "estat": "Present"}]}, {"dib": "FR1536175211", "sex": "F", "dataNaix": "2016-01-24", "morfotip": "Salers", "lot": 100, "cart": "COM", "diaEnt": 9, "mesEnt": 12, "anyEnt": 2017, "fills": [{"dib": "ES030905342228", "sex": "F", "morfo": "Creuat", "data": "2022-04-01", "estat": "Sacrificat"}, {"dib": "ES040905424686", "sex": "F", "morfo": "Salers", "data": "2023-05-10", "estat": "Sacrificat"}, {"dib": "ES080905619556", "sex": "F", "morfo": "Salers", "data": "2024-07-10", "estat": "Sacrificat"}, {"dib": "ES220900126356", "sex": "M", "morfo": "Salers", "data": "2025-10-06", "estat": "Present"}]}, {"dib": "FR1536017102", "sex": "F", "dataNaix": "2015-09-29", "morfotip": "Salers", "lot": 100, "cart": "COM", "diaEnt": 2, "mesEnt": 10, "anyEnt": 2018, "fills": [{"dib": "ES080905342234", "sex": "M", "morfo": "Creuat", "data": "2022-04-09", "estat": "Sacrificat"}, {"dib": "ES070905424689", "sex": "M", "morfo": "Salers", "data": "2023-06-19", "estat": "Sacrificat"}, {"dib": "ES090905619557", "sex": "M", "morfo": "Salers", "data": "2024-07-11", "estat": "Sacrificat"}, {"dib": "ES220900126353", "sex": "M", "morfo": "Creuat", "data": "2025-09-13", "estat": "Present"}]}, {"dib": "FR1536017056", "sex": "F", "dataNaix": "2015-09-22", "morfotip": "Salers", "lot": 100, "cart": "COM", "diaEnt": 2, "mesEnt": 10, "anyEnt": 2018, "fills": [{"dib": "ES070905339218", "sex": "F", "morfo": "Creuat", "data": "2022-01-30", "estat": "Sacrificat"}, {"dib": "ES080905424691", "sex": "F", "morfo": "Salers", "data": "2023-06-23", "estat": "Sacrificat"}, {"dib": "ES060905619565", "sex": "F", "morfo": "Salers", "data": "2025-01-14", "estat": "Sacrificat"}]}, {"dib": "FR1533307422", "sex": "F", "dataNaix": "2013-05-06", "morfotip": "Salers", "lot": 100, "cart": "COM", "diaEnt": 16, "mesEnt": 6, "anyEnt": 2016, "fills": [{"dib": "ES060905342243", "sex": "F", "morfo": "Salers", "data": "2022-07-15", "estat": "Sacrificat"}]}, {"dib": "FR1531135699", "sex": "F", "dataNaix": "2010-12-31", "morfotip": "Salers", "lot": 100, "cart": "COM", "diaEnt": 16, "mesEnt": 6, "anyEnt": 2016, "fills": [{"dib": "ES050905339216", "sex": "M", "morfo": "Creuat", "data": "2022-01-23", "estat": "Sacrificat"}, {"dib": "ES020905424695", "sex": "M", "morfo": "Salers", "data": "2023-08-17", "estat": "Sacrificat"}, {"dib": "ES010905711845", "sex": "M", "morfo": "Salers", "data": "2025-02-21", "estat": "Present"}]}, {"dib": "FR1530601610", "sex": "F", "dataNaix": "2010-01-19", "morfotip": "Salers", "lot": 100, "cart": "COM", "diaEnt": 29, "mesEnt": 12, "anyEnt": 2015, "fills": [{"dib": "ES040905424675", "sex": "M", "morfo": "Salers", "data": "2022-11-23", "estat": "Sacrificat"}, {"dib": "ES030905619562", "sex": "M", "morfo": "Salers", "data": "2024-10-26", "estat": "Sacrificat"}, {"dib": "ES220900126359", "sex": "F", "morfo": "Creuat", "data": "2026-01-17", "estat": "Present"}]}, {"dib": "FR1146032139", "sex": "F", "dataNaix": "2007-03-18", "morfotip": "Gasconne", "lot": 100, "cart": "COM", "diaEnt": 29, "mesEnt": 12, "anyEnt": 2015, "fills": [{"dib": "ES030905342240", "sex": "F", "morfo": "Creuat", "data": "2022-07-01", "estat": "Sacrificat"}, {"dib": "ES080905619567", "sex": "M", "morfo": "Gasconne", "data": "2025-01-17", "estat": "Sacrificat"}]}, {"dib": "ES000905619558", "sex": "F", "dataNaix": "2024-07-12", "morfotip": "Salers", "lot": 100, "cart": "COM", "diaEnt": 12, "mesEnt": 7, "anyEnt": 2024, "mare": "FR1538030434", "pendent": true}, {"dib": "ES220900126364", "sex": "M", "dataNaix": "2026-01-18", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 18, "mesEnt": 1, "anyEnt": 2026, "mare": "ES030904940986"}, {"dib": "ES220900126363", "sex": "F", "dataNaix": "2026-01-17", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 17, "mesEnt": 1, "anyEnt": 2026, "mare": "FR1538030446"}, {"dib": "ES220900126362", "sex": "M", "dataNaix": "2026-01-17", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 17, "mesEnt": 1, "anyEnt": 2026, "mare": "FR8524578115"}, {"dib": "ES220900126361", "sex": "F", "dataNaix": "2026-01-17", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 17, "mesEnt": 1, "anyEnt": 2026, "mare": "FR4341315938"}, {"dib": "ES220900126360", "sex": "M", "dataNaix": "2026-01-18", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 18, "mesEnt": 1, "anyEnt": 2026, "mare": "ES070904594722"}, {"dib": "ES220900126359", "sex": "F", "dataNaix": "2026-01-17", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 17, "mesEnt": 1, "anyEnt": 2026, "mare": "FR1530601610"}, {"dib": "ES220900126358", "sex": "M", "dataNaix": "2026-01-01", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 1, "mesEnt": 1, "anyEnt": 2026, "mare": "FR1538030427"}, {"dib": "ES220900126357", "sex": "M", "dataNaix": "2025-10-24", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 24, "mesEnt": 10, "anyEnt": 2025, "mare": "FR5821527896"}, {"dib": "ES220900126356", "sex": "M", "dataNaix": "2025-10-06", "morfotip": "Salers", "lot": 100, "cart": "COM", "diaEnt": 6, "mesEnt": 10, "anyEnt": 2025, "mare": "FR1536175211"}, {"dib": "ES220900126355", "sex": "M", "dataNaix": "2025-10-04", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 4, "mesEnt": 10, "anyEnt": 2025, "mare": "ES080903936047"}, {"dib": "ES220900126354", "sex": "M", "dataNaix": "2025-09-22", "morfotip": "Salers", "lot": 100, "cart": "COM", "diaEnt": 22, "mesEnt": 9, "anyEnt": 2025, "mare": "FR1538030451"}, {"dib": "ES220900126353", "sex": "M", "dataNaix": "2025-09-13", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 13, "mesEnt": 9, "anyEnt": 2025, "mare": "FR1536017102"}, {"dib": "ES220900126352", "sex": "F", "dataNaix": "2025-09-10", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 10, "mesEnt": 9, "anyEnt": 2025, "mare": "ES080904594723"}, {"dib": "ES220900126351", "sex": "M", "dataNaix": "2025-08-24", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 24, "mesEnt": 8, "anyEnt": 2025, "mare": "ES070904940979"}, {"dib": "ES220900126350", "sex": "F", "dataNaix": "2025-08-22", "morfotip": "Salers", "lot": 100, "cart": "COM", "diaEnt": 22, "mesEnt": 8, "anyEnt": 2025, "mare": "FR1538030404"}, {"dib": "ES220900126349", "sex": "F", "dataNaix": "2025-08-07", "morfotip": "Salers", "lot": 100, "cart": "COM", "diaEnt": 7, "mesEnt": 8, "anyEnt": 2025, "mare": "FR1538030447"}, {"dib": "ES220900126348", "sex": "F", "dataNaix": "2025-07-19", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 19, "mesEnt": 7, "anyEnt": 2025, "mare": "ES070903846954"}, {"dib": "ES220900126347", "sex": "M", "dataNaix": "2025-07-19", "morfotip": "Salers", "lot": 100, "cart": "COM", "diaEnt": 19, "mesEnt": 7, "anyEnt": 2025, "mare": "FR1538030434"}, {"dib": "ES220900126346", "sex": "M", "dataNaix": "2025-07-22", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 22, "mesEnt": 7, "anyEnt": 2025, "mare": "ES070903980173"}, {"dib": "ES220900126345", "sex": "F", "dataNaix": "2025-07-20", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 20, "mesEnt": 7, "anyEnt": 2025, "mare": "ES010904596971"}, {"dib": "ES090904596968", "sex": "F", "dataNaix": "2018-03-10", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 12, "mesEnt": 9, "anyEnt": 2023, "mare": "ES080902784749", "fills": [{"dib": "ES000905619547", "sex": "M", "morfo": "Creuat", "data": "2024-05-30", "estat": "Sacrificat"}, {"dib": "ES040905619574", "sex": "F", "morfo": "Creuat", "data": "2025-06-10", "estat": "Present"}]}, {"dib": "ES090903936071", "sex": "F", "dataNaix": "2010-03-20", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 29, "mesEnt": 12, "anyEnt": 2015, "mare": "FR1597014975", "fills": [{"dib": "ES090905424669", "sex": "M", "morfo": "Creuat", "data": "2022-09-25", "estat": "Mort"}]}, {"dib": "ES080904594723", "sex": "F", "dataNaix": "2017-03-10", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 12, "mesEnt": 9, "anyEnt": 2023, "mare": "ES010902253708", "fills": [{"dib": "ES090905619546", "sex": "F", "morfo": "Creuat", "data": "2024-05-22", "estat": "Sacrificat"}, {"dib": "ES220900126352", "sex": "F", "morfo": "Creuat", "data": "2025-09-10", "estat": "Present"}]}, {"dib": "ES080903938214", "sex": "F", "dataNaix": "2012-06-01", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 12, "mesEnt": 9, "anyEnt": 2023, "mare": "ES070902784748", "fills": [{"dib": "ES040905619552", "sex": "F", "morfo": "Creuat", "data": "2024-06-05", "estat": "Sacrificat"}]}, {"dib": "ES080903936047", "sex": "F", "dataNaix": "2010-01-05", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 29, "mesEnt": 12, "anyEnt": 2015, "mare": "FR1520408014", "fills": [{"dib": "ES000905424671", "sex": "F", "morfo": "Creuat", "data": "2022-10-19", "estat": "Sacrificat"}, {"dib": "ES000905424693", "sex": "M", "morfo": "Creuat", "data": "2023-07-26", "estat": "Sacrificat"}, {"dib": "ES020905619561", "sex": "M", "morfo": "Creuat", "data": "2024-09-26", "estat": "Sacrificat"}, {"dib": "ES220900126355", "sex": "M", "morfo": "Creuat", "data": "2025-10-04", "estat": "Present"}]}, {"dib": "ES070905619566", "sex": "M", "dataNaix": "2025-01-15", "morfotip": "Salers", "lot": 100, "cart": "COM", "diaEnt": 15, "mesEnt": 1, "anyEnt": 2025, "mare": "FR1536175218"}, {"dib": "ES070904940979", "sex": "F", "dataNaix": "2019-04-10", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 12, "mesEnt": 9, "anyEnt": 2023, "mare": "ES080903938214", "fills": [{"dib": "ES220900126351", "sex": "M", "morfo": "Creuat", "data": "2025-08-24", "estat": "Present"}]}, {"dib": "ES070904594722", "sex": "F", "dataNaix": "2017-03-02", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 12, "mesEnt": 9, "anyEnt": 2023, "mare": "ES080903938214", "fills": [{"dib": "ES010905619548", "sex": "F", "morfo": "Creuat", "data": "2024-06-01", "estat": "Sacrificat"}, {"dib": "ES220900126360", "sex": "M", "morfo": "Creuat", "data": "2026-01-18", "estat": "Present"}]}, {"dib": "ES070903980173", "sex": "F", "dataNaix": "2011-04-27", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 29, "mesEnt": 12, "anyEnt": 2015, "mare": "FR1524249060", "fills": [{"dib": "ES050905342220", "sex": "F", "morfo": "Creuat", "data": "2022-03-01", "estat": "Sacrificat"}, {"dib": "ES050905619542", "sex": "F", "morfo": "Creuat", "data": "2023-03-31", "estat": "Sacrificat"}, {"dib": "ES220900126346", "sex": "M", "morfo": "Creuat", "data": "2025-07-22", "estat": "Present"}]}, {"dib": "ES070903846954", "sex": "F", "dataNaix": "2009-05-15", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 12, "mesEnt": 9, "anyEnt": 2023, "mare": "ES020902253709", "fills": [{"dib": "ES070905619555", "sex": "M", "morfo": "Creuat", "data": "2024-07-09", "estat": "Sacrificat"}, {"dib": "ES220900126348", "sex": "F", "morfo": "Creuat", "data": "2025-07-19", "estat": "Present"}]}, {"dib": "ES050905619575", "sex": "F", "dataNaix": "2026-01-18", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 18, "mesEnt": 1, "anyEnt": 2026, "mare": "FR1536175218"}, {"dib": "ES040905619574", "sex": "F", "dataNaix": "2025-06-10", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 10, "mesEnt": 6, "anyEnt": 2025, "mare": "ES090904596968"}, {"dib": "ES040904940987", "sex": "F", "dataNaix": "2020-04-13", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 12, "mesEnt": 9, "anyEnt": 2023, "mare": "ES080903938214", "fills": [{"dib": "ES000905619569", "sex": "M", "morfo": "Creuat", "data": "2025-04-26", "estat": "Present"}]}, {"dib": "ES040903846951", "sex": "F", "dataNaix": "2009-05-20", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 12, "mesEnt": 9, "anyEnt": 2023, "mare": "ES060902784747"}, {"dib": "ES030905619573", "sex": "F", "dataNaix": "2025-06-08", "morfotip": "Salers", "lot": 100, "cart": "COM", "diaEnt": 8, "mesEnt": 6, "anyEnt": 2025, "mare": "FR1538030380"}, {"dib": "ES030904940986", "sex": "F", "dataNaix": "2020-04-06", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 12, "mesEnt": 9, "anyEnt": 2023, "mare": "ES070903846954", "fills": [{"dib": "ES220900126364", "sex": "M", "morfo": "Creuat", "data": "2026-01-18", "estat": "Present"}]}, {"dib": "ES020905619572", "sex": "F", "dataNaix": "2025-05-31", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 31, "mesEnt": 5, "anyEnt": 2025, "mare": "FR5821527879"}, {"dib": "ES020904047130", "sex": "F", "dataNaix": "2010-06-26", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 29, "mesEnt": 12, "anyEnt": 2015, "mare": "FR1597012798", "fills": [{"dib": "ES080905342223", "sex": "F", "morfo": "Creuat", "data": "2022-03-15", "estat": "Sacrificat"}, {"dib": "ES020905424684", "sex": "F", "morfo": "Creuat", "data": "2023-05-08", "estat": "Sacrificat"}, {"dib": "ES040905619541", "sex": "F", "morfo": "Creuat", "data": "2024-03-15", "estat": "Sacrificat"}]}, {"dib": "ES010905711845", "sex": "M", "dataNaix": "2025-02-21", "morfotip": "Salers", "lot": 100, "cart": "COM", "diaEnt": 21, "mesEnt": 2, "anyEnt": 2025, "mare": "FR1531135699"}, {"dib": "ES010905619571", "sex": "F", "dataNaix": "2025-05-30", "morfotip": "Salers", "lot": 100, "cart": "COM", "diaEnt": 30, "mesEnt": 5, "anyEnt": 2025, "mare": "FR1538030387"}, {"dib": "ES010904596971", "sex": "F", "dataNaix": "2018-05-10", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 12, "mesEnt": 9, "anyEnt": 2023, "mare": "ES070902784748", "fills": [{"dib": "ES030905619551", "sex": "M", "morfo": "Creuat", "data": "2024-06-04", "estat": "Sacrificat"}, {"dib": "ES220900126345", "sex": "F", "morfo": "Creuat", "data": "2025-07-20", "estat": "Present"}]}, {"dib": "ES000905619570", "sex": "M", "dataNaix": "2025-04-29", "morfotip": "Salers", "lot": 100, "cart": "COM", "diaEnt": 29, "mesEnt": 4, "anyEnt": 2025, "mare": "FR1638420023"}, {"dib": "ES000905619569", "sex": "M", "dataNaix": "2025-04-26", "morfotip": "Creuat", "lot": 100, "cart": "COM", "diaEnt": 26, "mesEnt": 4, "anyEnt": 2025, "mare": "ES040904940987"}];
+  _comaInit.forEach(function(ai){
+    S.coma._aidCounter=(S.coma._aidCounter||0)+1;
+    var aid='a'+S.coma._aidCounter;
+    S.coma.animals[aid]={dib:ai.dib,lot:ai.lot,cart:ai.cart,diaEnt:ai.diaEnt,mesEnt:ai.mesEnt,anyEnt:ai.anyEnt,sex:ai.sex,dataNaix:ai.dataNaix,morfotip:ai.morfotip};
+    if(ai.mare) S.coma.animals[aid].mare=ai.mare;
+    if(ai.pendent) S.coma.animals[aid].pendent=true;
+    if(ai.fills) S.coma.animals[aid].fills=ai.fills;
+  });
+  try{localStorage.setItem(VER,JSON.stringify(S));}catch(e){}
+  S.coma._v3=true;
+  console.log('La Coma: '+_comaInit.length+' animals importats — dates verificades');
+  
+}
+
 // Migració: afegir ????-???? als moviments antics sense crotals
 let _migrated=false;
-['fig','costa'].forEach(g=>{
+['fig','costa','coma'].forEach(g=>{
   Object.values(S[g].movs||{}).forEach(ms=>{
     ms.forEach(m=>{
       if(m.qty>0 && (!m.dibs || m.dibs.length===0)){
@@ -1429,7 +1586,7 @@ let _migrated=false;
     });
   });
 });
-if(_migrated) sv();
+if(_migrated) try{localStorage.setItem(VER,JSON.stringify(S));}catch(e){}
 // v20: El programa MAI esborra animals automàticament. Només el granger pot fer-ho.let _mg=null,_mfl=null,_mfg=null;
 let _pendingSexes={};
 let _editSexes=[];
@@ -1438,7 +1595,7 @@ function saveNotes(g){
   try{localStorage.setItem('notes-'+g,document.getElementById(g+'-notes').value);}catch(e){}
 }
 function loadNotes(){
-  ['fig','costa'].forEach(g=>{
+  ['fig','costa','coma'].forEach(g=>{
     const ta=document.getElementById(g+'-notes');
     if(ta) try{ta.value=localStorage.getItem('notes-'+g)||'';}catch(e){}
   });
@@ -1452,7 +1609,7 @@ function sv(){
   updUndoBtn();
 }
 function updUndoBtn(){
-  ['fig','costa'].forEach(g=>{
+  ['fig','costa','coma'].forEach(g=>{
     const u=document.getElementById(g+'-undo');
     const r=document.getElementById(g+'-redo');
     if(u) u.disabled=_histIdx<=0;
@@ -1486,12 +1643,13 @@ function ma(g){return{mes:parseInt(document.getElementById(g+'-mes').value),any:
 function mk(m,y){return m+'-'+y;}
 function gmovs(g,m,y){return S[g].movs[mk(m,y)]||[];}
 function ak(l,m,y){return l+'-'+m+'-'+y;}
-function gassig(g,l,m,y){return S[g].assig[ak(l,m,y)]||(S[g].lots.find(x=>x.num===l)||{}).emp||'Ecofutur';}
+function gassig(g,l,m,y){return S[g].assig[ak(l,m,y)]||(S[g].lots.find(x=>x.num===l)||{}).emp||(g==='coma'?'Ecofutur La Coma':'Ecofutur');}
 
 function ccls(c){
   if(c==='ECO') return 'eco';
   if(c==='PE') return 'pe';
   if(c==='SATF') return 'sat';
+  if(c==='COM') return 'com';
   return 'ram';
 }
 // Helper: baixa funciona com sortida (resta animals) però es mostra diferent
@@ -1543,8 +1701,13 @@ function cercarAnimal(){
   if(!q||q.length<2){cont.innerHTML='';cont.style.display='none';return;}
   // Recollir resultats separats per granja
   var aGranja=[],aSortits=[],seen={};
-  ['fig','costa'].forEach(function(g){
-    var gNom=g==='fig'?'Figuera':'La Costa';
+  // Detectar granja activa pel tab actiu
+  var _activeTab='fig';
+  var _tabs=document.querySelectorAll('.tab');
+  _tabs.forEach(function(t){if(t.classList.contains('active')&&t.textContent.indexOf('Coma')>=0)_activeTab='coma';});
+  var grangesSearch=(_activeTab==='coma')?['coma']:['fig','costa','coma'];
+  grangesSearch.forEach(function(g){
+    var gNom=g==='fig'?'Figuera':g==='costa'?'La Costa':'La Coma';
     Object.entries(S[g].animals||{}).forEach(function(entry){
       var aid=entry[0],a=entry[1],dib=a.dib||'',match=false;
       var sk=g+'_'+aid;if(seen[sk])return;
@@ -1660,26 +1823,114 @@ function openAnimalFitxa(g,aid){
   let html='<div style="font-family:DM Mono,monospace;font-size:1.1rem;margin-bottom:12px">'+dibHtml+'</div>';
   html+='<div style="display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:.82rem;margin-bottom:10px">';
   html+='<span style="color:var(--muted)">Cartilla</span><span><span class="cc cc-'+col+'">'+cart+'</span></span>';
+  if(a.morfotip && g==='coma') html+='<span style="color:var(--muted)">Raça</span><span style="font-weight:500">'+a.morfotip+'</span>';
   html+='<span style="color:var(--muted)">Lot</span><span style="font-weight:600">Lot '+(a.lot||'?')+'</span>';
   html+='<span style="color:var(--muted)">Entrada</span><span>'+dataEnt+'</span>';
+  // Tipus animal basat en edat — només coma
+  if(a.dataNaix && g==='coma'){
+    var _dn2=a.dataNaix.split('-');var _bd2=new Date(+_dn2[0],+_dn2[1]-1,+_dn2[2]);
+    var _ageMs2=Date.now()-_bd2.getTime();var _ageYrs=_ageMs2/31557600000;
+    var tipus2=_ageYrs>=2?(a.sex==='M'?'🐂 Toro':'🐄 Vaca'):(a.sex==='M'?'Vedell ♂':'Vedella ♀');
+    html+='<span style="color:var(--muted)">Tipus</span><span style="font-weight:700;font-size:.9rem">'+tipus2+'</span>';
+  }
   if(a.guia) html+='<span style="color:var(--muted)">Guia</span><span style="font-family:DM Mono,monospace;font-size:.72rem">'+a.guia+'</span>';
+  if(a.dataNaix && g==='coma'){
+    var dn=a.dataNaix.split('-');var edatMs=Date.now()-new Date(+dn[0],+dn[1]-1,+dn[2]).getTime();
+    var edatAnys=Math.floor(edatMs/31557600000);var edatMesos=Math.floor((edatMs%31557600000)/2629800000);
+    html+='<span style="color:var(--muted)">Naixement</span><span>'+dn[2]+'/'+dn[1]+'/'+dn[0]+' <span style="font-size:.72rem;color:var(--muted)">('+edatAnys+'a '+edatMesos+'m)</span></span>';
+  }
+  if(a.mare && g==='coma'){
+    var mareAid=null;Object.entries(S[g].animals||{}).forEach(function(e2){if(e2[1].dib===a.mare)mareAid=e2[0];});
+    var mareLink;
+    if(mareAid) mareLink='<a href="#" onclick="event.preventDefault();openAnimalFitxa(\''+g+'\',\''+mareAid+'\');return false" style="color:var(--coma);font-weight:700;text-decoration:underline">'+a.mare+' ➤</a>';
+    else mareLink='<span style="opacity:.5">'+a.mare+'</span> <span style="font-size:.62rem;background:#f8d7da;color:#721c24;padding:1px 6px;border-radius:4px">Fora explotació</span>';
+    html+='<span style="color:var(--muted)">Mare</span><span style="font-family:DM Mono,monospace;font-size:.78rem">'+mareLink+'</span>';
+  }
   html+='</div>';
+  // Fills (historial de parts complet) — NOMÉS La Coma
+  var fillsHtml='';var nFills=0;
+  if(g==='coma'){
+  if(a.fills&&a.fills.length>0){
+    a.fills.forEach(function(fi){
+      nFills++;
+      var sexI=fi.sex==='F'?'<span style="color:#d4508b">♀</span>':'<span style="color:#3d7bc8">♂</span>';
+      var dn=fi.data?fi.data.split('-'):[];var dnStr=dn.length===3?(dn[2]+'/'+dn[1]+'/'+dn[0]):'';
+      var isPresent=fi.estat==='Present';
+      var estatBadge=isPresent?'<span style="background:#d4edda;color:#155724;padding:1px 6px;border-radius:4px;font-size:.62rem;font-weight:700">A granja</span>':fi.estat==='Sacrificat'?'<span style="background:#f8d7da;color:#721c24;padding:1px 6px;border-radius:4px;font-size:.62rem">Sacrificat</span>':'<span style="background:#e2ddd5;color:#666;padding:1px 6px;border-radius:4px;font-size:.62rem">'+fi.estat+'</span>';
+      // Si present, buscar aid i fer clicable
+      var faid=null;if(isPresent){Object.entries(S[g].animals||{}).forEach(function(e3){if(e3[1].dib===fi.dib)faid=e3[0];});}
+      var opacity=isPresent?'1':'.6';
+      var clickAttr=faid?'onclick="openAnimalFitxa(\''+g+'\',\''+faid+'\')" style="cursor:pointer"':'';
+      fillsHtml+='<div '+clickAttr+' style="display:flex;align-items:center;gap:6px;padding:5px 8px;background:'+(isPresent?'var(--bg)':'#f9f8f6')+';border-radius:6px;margin-top:3px;border:1px solid var(--border);opacity:'+opacity+';min-height:34px">'+sexI+' <span style="font-family:DM Mono,monospace;font-size:.76rem;font-weight:700">'+fi.dib.slice(-4)+'</span><span style="font-size:.7rem;color:var(--muted)">'+dnStr+'</span><span style="font-size:.7rem;color:var(--muted)">'+fi.morfo+'</span><span style="margin-left:auto">'+estatBadge+'</span>'+(faid?'<span style="font-size:.7rem;color:var(--muted)">➤</span>':'')+'</div>';
+    });
+  }
+  // Also check animals in registry that have this cow as mare
+  Object.entries(S[g].animals||{}).forEach(function(e3){
+    var fa=e3[1];
+    if(fa.mare===a.dib){
+      // Check not already in fills list
+      var already=a.fills&&a.fills.some(function(fi){return fi.dib===fa.dib;});
+      if(!already){
+        nFills++;
+        var sexI2=fa.sex==='F'?'<span style="color:#d4508b">♀</span>':'<span style="color:#3d7bc8">♂</span>';
+        var dn2=fa.dataNaix?fa.dataNaix.split('-'):[];var dnStr2=dn2.length===3?(dn2[2]+'/'+dn2[1]+'/'+dn2[0]):'';
+        fillsHtml+='<div onclick="openAnimalFitxa(\''+g+'\',\''+e3[0]+'\')" style="display:flex;align-items:center;gap:6px;padding:5px 8px;background:var(--bg);border-radius:6px;margin-top:3px;cursor:pointer;border:1px solid var(--border);min-height:34px">'+sexI2+' <span style="font-family:DM Mono,monospace;font-size:.76rem;font-weight:700">'+fa.dib.slice(-4)+'</span><span style="font-size:.7rem;color:var(--muted)">'+dnStr2+'</span><span style="font-size:.7rem;color:var(--muted)">'+(fa.morfotip||'')+'</span><span style="margin-left:auto"><span style="background:#d4edda;color:#155724;padding:1px 6px;border-radius:4px;font-size:.62rem;font-weight:700">A granja</span></span><span style="font-size:.7rem;color:var(--muted)">➤</span></div>';
+      }
+    }
+  });
+  if(fillsHtml){
+    html+='<div style="margin-bottom:10px"><label style="font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">🐄 Historial de parts ('+nFills+')</label>'+fillsHtml+'</div>';
+  }
+  } // fi if(g==='coma') per fills
   // Moviments associats
   if(movInfo){
     html+='<div style="margin-bottom:10px"><label style="font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Moviments</label>'+movInfo+'</div>';
   }
-  // Editar DIB
-  html+='<div style="margin-bottom:10px"><label style="font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Crotal (DIB)</label>';
+  // DIB (només lectura)
+  html+='<div id="fitxa-view-dib" style="margin-bottom:4px"><label style="font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Crotal (DIB)</label>';
+  html+='<div style="font-family:DM Mono,monospace;font-size:.9rem;margin-top:2px;padding:4px 0">'+a.dib+'</div></div>';
+  // Camp editable (amagat per defecte)
+  html+='<div id="fitxa-edit-fields" style="display:none">';
+  html+='<div style="margin-bottom:8px"><label style="font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Crotal (DIB)</label>';
   html+='<input type="text" id="fitxa-dib" value="'+a.dib+'" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-family:DM Mono,monospace;font-size:.9rem;margin-top:4px"></div>';
-  // Editar sexe
-  html+='<div><label style="font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Sexe</label>';
-  html+='<div style="display:flex;gap:6px;margin-top:6px">';
-  html+='<button onclick="setFitxaSexe(\'F\')" id="fitxa-sf" style="'+bbase+fS+'">\u2640 Femella</button>';
-  html+='<button onclick="setFitxaSexe(\'M\')" id="fitxa-sm" style="'+bbase+mS+'">\u2642 Mascle</button>';
-  html+='<button onclick="setFitxaSexe(\'\')" id="fitxa-sx" style="'+bbase+xS+'">\u2014</button>';
+  // Sexe (només lectura)
+  var _sexLabel=sexSel==='F'?'<span style="color:#d4508b;font-weight:700;font-size:1rem">\u2640 Femella</span>':sexSel==='M'?'<span style="color:#3d7bc8;font-weight:700;font-size:1rem">\u2642 Mascle</span>':'<span style="color:var(--muted)">—</span>';
+  html+='<div style="display:flex;align-items:center;gap:8px;margin-top:4px"><span style="font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Sexe</span>'+_sexLabel+'</div>';
+  // Camps editables dataNaix i mare (dins div amagat)
+  if(g==='coma'){
+  html+='<div style="margin-top:8px"><label style="font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Data de naixement</label>';
+  html+='<input type="date" id="fitxa-datanaix" value="'+(a.dataNaix||'')+'" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-family:DM Mono,monospace;font-size:.85rem;margin-top:4px"></div>';
+  html+='<div style="margin-top:8px"><label style="font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Mare (DIB de la mare)</label>';
+  html+='<input type="text" id="fitxa-mare" value="'+(a.mare||'')+'" placeholder="ES... o últims 4 dígits" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-family:DM Mono,monospace;font-size:.85rem;margin-top:4px"></div>';
+  }
+  // Sexe (editable)
+  html+='<div style="margin-top:8px"><label style="font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Sexe</label>';
+  html+='<div style="display:flex;gap:6px;margin-top:4px">';
+  var _bbs='border-radius:8px;padding:6px 12px;font-size:.85rem;cursor:pointer;font-weight:700;touch-action:manipulation;min-height:34px;';
+  html+='<button onclick="setFitxaSexe(\'F\')" id="fitxa-sf" style="'+_bbs+(sexSel==='F'?'background:#d4508b;color:#fff;border:2px solid #d4508b':'background:#fdf0f5;color:#d4508b;border:1.5px solid #e8b0cc;opacity:.5')+'">♀ Femella</button>';
+  html+='<button onclick="setFitxaSexe(\'M\')" id="fitxa-sm" style="'+_bbs+(sexSel==='M'?'background:#3d7bc8;color:#fff;border:2px solid #3d7bc8':'background:#eef3fb;color:#3d7bc8;border:1.5px solid #a0bfe0;opacity:.5')+'">♂ Mascle</button>';
+  html+='<button onclick="setFitxaSexe(\'\')" id="fitxa-sx" style="'+_bbs+(sexSel===''?'background:var(--ink);color:#fff;border:2px solid var(--ink)':'background:#f0f0f0;color:var(--muted);border:1.5px solid var(--border);opacity:.5')+'">— Desc.</button>';
   html+='</div></div>';
+  html+='</div>'; // tanca fitxa-edit-fields
   document.getElementById('m-animal-body').innerHTML=html;
-  document.getElementById('m-animal-save').style.display='';
+    // RESET edit state every time a new fitxa opens
+  var _ef=document.getElementById('fitxa-edit-fields');
+  var _vd=document.getElementById('fitxa-view-dib');
+  var _eb=document.getElementById('m-animal-edit-btn');
+  var _sv=document.getElementById('m-animal-save');
+  var _del=document.getElementById('m-animal-delete');
+  if(_ef)_ef.style.display='none';
+  if(_vd)_vd.style.display='';
+  if(_eb)_eb.textContent='✏️ Editar';
+  if(_sv)_sv.style.display='none';
+  if(_del)_del.style.display='none';
+  // Edit button toggle
+  if(_eb) _eb.onclick=function(){
+    var isEdit=_ef.style.display!=='none';
+    var _del=document.getElementById('m-animal-delete');
+    if(isEdit){_ef.style.display='none';if(_vd)_vd.style.display='';_eb.textContent='✏️ Editar';_sv.style.display='none';if(_del)_del.style.display='none';}
+    else{_ef.style.display='block';if(_vd)_vd.style.display='none';_eb.textContent='Cancel·lar edició';_sv.style.display='';if(_del)_del.style.display='';}
+  };
   document.getElementById('m-animal').classList.add('open');
 }
 function setFitxaSexe(val){
@@ -1689,6 +1940,38 @@ function setFitxaSexe(val){
   document.getElementById('fitxa-sf').style.cssText=bs+(val==='F'?'background:#d4508b;color:#fff;border:2px solid #d4508b':'background:#fdf0f5;color:#d4508b;border:1.5px solid #e8b0cc;opacity:.5');
   document.getElementById('fitxa-sm').style.cssText=bs+(val==='M'?'background:#3d7bc8;color:#fff;border:2px solid #3d7bc8':'background:#eef3fb;color:#3d7bc8;border:1.5px solid #a0bfe0;opacity:.5');
   document.getElementById('fitxa-sx').style.cssText=bs+(val===''?'background:var(--ink);color:#fff;border:2px solid var(--ink)':'background:#f0f0f0;color:var(--muted);border:1.5px solid var(--border);opacity:.5');
+}
+function eliminarAnimal(){
+  if(!_fitxaAid||!_fitxaG) return;
+  var g=_fitxaG,a=S[g].animals[_fitxaAid];
+  if(!a) return;
+  var dib=a.dib||'???';
+  var lotNum=a.lot||'?';
+  var cart=a.cart||'?';
+  var sexIcon=a.sex==='F'?'♀':a.sex==='M'?'♂':'—';
+  var msg='Segur que vols eliminar aquest animal?\n\n';
+  msg+='🏷 Crotal: '+dib+'\n';
+  msg+=sexIcon+' Sexe: '+(a.sex==='F'?'Femella':a.sex==='M'?'Mascle':'Desconegut')+'\n';
+  msg+='📦 Lot: '+lotNum+' ('+cart+')\n\n';
+  msg+='💡 Recorda: pots desfer aquesta acció amb el botó ↩ Desfer a la part superior de la pàgina.';
+  if(!confirm(msg)) return;
+  // Eliminar de la llista d'animals
+  delete S[g].animals[_fitxaAid];
+  // Eliminar de moviments (el DIB dels dibs arrays)
+  Object.keys(S[g].movs||{}).forEach(function(k){
+    (S[g].movs[k]||[]).forEach(function(m){
+      if(m.dibs){
+        var idx=m.dibs.indexOf(dib);
+        if(idx>=0){m.dibs.splice(idx,1);m.qty=Math.max(0,(m.qty||1)-1);if(m.sexes)m.sexes.splice(idx,1);if(m.aids)m.aids.splice(idx,1);}
+      }
+    });
+    // Eliminar moviments buits
+    S[g].movs[k]=S[g].movs[k].filter(function(m){return m.qty>0;});
+    if(!S[g].movs[k].length) delete S[g].movs[k];
+  });
+  // Tancar fitxa i renderitzar
+  document.getElementById('m-animal').classList.remove('open');
+  sv();renderG(g);
 }
 function guardarAnimalFitxa(){
   if(!_fitxaAid||!_fitxaG) return;
@@ -1718,7 +2001,12 @@ function guardarAnimalFitxa(){
     }
   });});
   try{
-    sv();renderG(g);
+    // Guardar dataNaix i mare
+  var dnVal=(document.getElementById('fitxa-datanaix')||{}).value||'';
+  if(dnVal) a.dataNaix=dnVal; else delete a.dataNaix;
+  var mareVal=((document.getElementById('fitxa-mare')||{}).value||'').trim().toUpperCase();
+  if(mareVal) a.mare=mareVal; else delete a.mare;
+  sv();renderG(g);
     // Refrescar cartilla si estava oberta
     if(document.getElementById(g+'-cart-date')&&document.getElementById(g+'-cart-date').value) rCartLlista(g);
     document.getElementById('m-animal').classList.remove('open');
@@ -1752,6 +2040,7 @@ function guardarAnimalFitxa(){
 function renderG(g){
   S[g].lots.sort((a,b)=>a.num-b.num);
   rLots(g); rLotSel(g); rMovList(g); rFras(g); rHistSel(g); rHist(g);
+  if(g==='coma'){if(typeof syncComaLot==='function')syncComaLot();if(typeof rComaResum==='function'){rComaResum();setTimeout(function(){checkComaExtra();},500);}}
   // Sincronitza mes/any del formulari amb la vista
   const {mes,any}=ma(g);
   const movMes=document.getElementById(g+'-mov-mes');
@@ -1868,7 +2157,7 @@ function rLots(g){
   const lotsDelMes=S[g].lots.filter(l=>{
     const vIni=vLotIniMes(g,l.num,mes,any);
     const teMoviments=(S[g].movs[mes+'-'+any]||[]).some(mv=>mv.lot===l.num);
-    return vIni>0||teMoviments;
+    return vIni>0||teMoviments||(g==='coma'&&l.actiu&&l.v>0);
   });
 
   if(!lotsDelMes.length){el.innerHTML='<div class="empty">Cap lot actiu aquest mes</div>';return;}
@@ -1900,7 +2189,7 @@ function rLots(g){
   const lotsActiusNums=new Set(lotsDelMes.map(l=>l.num));
   Object.values(S[g].movs||{}).flat().forEach(mv=>{if(mv.tipus==='entrada'&&mv.cart&&mv.cart!=='-'&&lotsActiusNums.has(mv.lot)){if(!rCarts[mv.cart])rCarts[mv.cart]={ini:0,fi:0,entMes:0,sortMes:0,entHist:0};rCarts[mv.cart].entHist+=mv.qty;}});
   const rDiff=rTotFi-rTotIni;const rDc=rDiff>0?'#2a7a4b':rDiff<0?'#c0392b':'#888';
-  const rGn=g==='fig'?'Figuera':'La Costa';const rGc=g==='fig'?'#4a7c59':'#3d6b8c';const rGcLt=g==='fig'?'#e8f5e9':'#e3f0f7';
+  const rGn=g==='fig'?'Figuera':g==='coma'?'La Coma':'La Costa';const rGc=g==='fig'?'#4a7c59':g==='coma'?'#8B6914':'#3d6b8c';const rGcLt=g==='fig'?'#e8f5e9':g==='coma'?'#f5f0e0':'#e3f0f7';
   let rCH=Object.entries(rCarts).filter(e=>e[1].ini>0||e[1].fi>0).sort((a,b)=>b[1].fi-a[1].fi).map(e=>{
     const ct=e[0],v=e[1],col=ccls(ct),d=v.fi-v.ini,dc=d>0?'#2a7a4b':d<0?'#c0392b':'#888';
     return '<div style="display:inline-flex;align-items:center;gap:4px;background:var(--card);padding:4px 8px;border-radius:6px;border:1px solid var(--border)">'+
@@ -2160,6 +2449,8 @@ function calcTramsByCart(g,lotNum,cart,mes,any,preuOverride){
 }
 
 function rFras(g){
+  if(g==='coma'&&!S.coma.facturacio){const fc=document.getElementById(g+'-fras');if(fc)fc.innerHTML='<div style="padding:14px;background:var(--coma-lt);border-radius:10px;font-size:.82rem;color:var(--coma)">Facturació desactivada per a La Coma</div>';return;}
+
   const {mes,any}=ma(g);
   const preu=preuPerMes(any,mes);
   const dies=dm(mes,any);
@@ -2413,7 +2704,7 @@ function fmtDib(dib, cart){
 // Recull TOTS els DIBs existents al sistema (de tots els moviments de totes les granges)
 function getAllDibs(g){
   const dibs=[];
-  ['fig','costa'].forEach(gr=>{
+  ['fig','costa','coma'].forEach(gr=>{
     Object.values(S[gr].movs||{}).forEach(ms=>{
       ms.forEach(m=>{
         if(m.dibs&&m.dibs.length){
@@ -2637,7 +2928,7 @@ function prepMov(g){
   const dia=parseInt(document.getElementById(g+'-dia').value);
   const tipus=document.getElementById(g+'-tipus').value;
   const lotSel=document.getElementById(g+'-lot').value;
-  const cart=g==='fig'?document.getElementById('fig-cart').value:'-';
+  const cart=g==='fig'?document.getElementById('fig-cart').value:g==='coma'?'COM':'RAM';
   const guia=document.getElementById(g+'-guia').value.trim();
   const dibsText=document.getElementById(g+'-dibs').value;
   const {mes,any}=maForm(g);
@@ -2879,7 +3170,7 @@ function confirMD(){
   }
 
   const lot=S[g].lots.find(l=>l.num===p.lot);
-  if(lot){if(p.tipus==='entrada') lot.v+=p.qty; else{lot.v-=p.qty;if(lot.v<0)lot.v=0;}}
+  if(lot){if(g==='coma'){lot.v=Object.keys(S[g].animals||{}).length;lot.carts={COM:lot.v};}else{if(p.tipus==='entrada') lot.v+=p.qty; else{lot.v-=p.qty;if(lot.v<0)lot.v=0;}}}
 
   // Guardar sexes al diccionari global (per DIBs reals)
   if(!S[g].sexes) S[g].sexes={};
@@ -2897,7 +3188,12 @@ function confirMD(){
   const sexDiv=document.getElementById('m-dibs-sex');
   if(sexDiv) sexDiv.style.display='none';
 
-  sv(); renderG(g);
+  // Tancar modal PRIMER (evita duplicats si renderG falla)
+  closeMD();
+  _pendingMov=null;
+  sv();
+  try{ renderG(g); }catch(e){ console.error('renderG error:',e); }
+  if(g==='coma') setTimeout(function(){ checkComaExtra(); },300);
   // Neteja formulari
   document.getElementById(g+'-dia').value='';
   document.getElementById(g+'-dibs').value='';
@@ -2911,7 +3207,6 @@ function confirMD(){
   if(manDiv) manDiv.style.display='none';
   const taEl=document.getElementById(g+'-dibs');
   if(taEl) taEl.style.display='';
-  closeMD();
 }
 
 // ---- PDF EXTRACT ----
@@ -3260,7 +3555,10 @@ function openDetail(g, idx){
       const txtCol=(isBorr||isIncomplete||isPending)?'color:#854F0B;font-weight:700':'color:'+col;
       const cartBadge=m.cart&&m.cart!=='-'?'<span style="margin-left:auto;font-size:.6rem;font-weight:700;padding:1px 6px;border-radius:4px;background:var(--'+ccls(m.cart)+'-lt);color:var(--'+ccls(m.cart)+')">'+m.cart+'</span>':'';
       const sexBdg2='<span style="margin-left:'+(cartBadge?'6':'auto')+'px;font-size:.85rem">'+fmtSexe(g,d,(m.sexes&&m.sexes[i])||'')+'</span>';
-      const rowClick=(m.aids&&m.aids[i])?'onclick="openAnimalFitxa(\''+g+'\',\''+m.aids[i]+'\')" style="cursor:pointer;'+rowBg+'display:flex;align-items:center;"':'style="'+rowBg+'display:flex;align-items:center;"';
+      // Buscar aid: primer per m.aids, si no, per DIB al registre
+      var _aid2=m.aids&&m.aids[i]?m.aids[i]:null;
+      if(!_aid2 && d && d!=='????-????' && !isBorr){var _fe=Object.entries(S[g].animals||{}).find(function(e){return e[1].dib===d;});if(_fe)_aid2=_fe[0];}
+      const rowClick=_aid2?'onclick="openAnimalFitxa(\''+g+'\',\''+_aid2+'\')" style="cursor:pointer;'+rowBg+'display:flex;align-items:center;"':'style="'+rowBg+'display:flex;align-items:center;"';
       return '<div class="detail-dib-row" '+rowClick+'>'+
         '<span class="dib-idx">'+(i+1)+'</span>'+
         (isPending?'<span style="'+txtCol+'">????-????</span>':
@@ -3462,7 +3760,7 @@ function delMov(g,idx){
 }
 
 // ---- LOTS ----
-const _hiddenLots={fig:new Set(), costa:new Set()};
+const _hiddenLots={fig:new Set(), costa:new Set(), coma:new Set()};
 
 function amagaLot(g,num){
   _hiddenLots[g].add(num);
@@ -3775,6 +4073,7 @@ function editarMov(g,k,mi){
   // Cartilles filtrades per granja
   const cartSel=document.getElementById('em-cart');
   if(g==='fig') cartSel.innerHTML='<option value="ECO">ECO</option><option value="SATF">SATF</option><option value="PE">PE</option><option value="-">—</option>';
+  else if(g==='coma') cartSel.innerHTML='<option value="COM">COM</option>';
   else cartSel.innerHTML='<option value="RAM">RAM</option><option value="-">—</option>';
   cartSel.value=m.cart||'-';
   // Lots
@@ -4512,8 +4811,9 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
-document.getElementById('build-ver').textContent='v20 · 29/03 18:06';
+document.getElementById('build-ver').textContent='v20 29/03 22:10';
 renderG('fig');renderG('costa');
+renderG('coma');
 loadNotes();
 // Init historial
 _hist=[JSON.stringify(S)]; _histIdx=0; updUndoBtn();
@@ -4528,6 +4828,231 @@ document.addEventListener('keydown',function(e){
     redo(g); e.preventDefault();
   }
 });
+
+// ---- IMPORTAR EXCEL LA COMA ----
+function importExcelComa(ev){
+  var file=ev.target.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var data=e.target.result;
+      var lines;
+      if(file.name.endsWith('.csv')){
+        lines=data.split('\n').map(function(l){return l.split(/[,;\t]/).map(function(c){return c.trim().replace(/^"|"$/g,'');});});
+      } else {
+        alert('Per ara només CSV. Exporta el teu Excel com a CSV (punt i coma o coma) i torna a provar.');
+        return;
+      }
+      if(lines.length<2){alert('Fitxer buit');return;}
+      // Detectar capçaleres
+      var h=lines[0].map(function(x){return x.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');});
+      var iDib=h.findIndex(function(x){return x.indexOf('dib')>=0||x.indexOf('crotal')>=0||x.indexOf('identificacio')>=0;});
+      var iSex=h.findIndex(function(x){return x.indexOf('sex')>=0||x.indexOf('genere')>=0;});
+      var iNaix=h.findIndex(function(x){return x.indexOf('naix')>=0||x.indexOf('data')>=0||x.indexOf('birth')>=0;});
+      var iMare=h.findIndex(function(x){return x.indexOf('mare')>=0||x.indexOf('mother')>=0||x.indexOf('dam')>=0;});
+      var iLot=h.findIndex(function(x){return x.indexOf('lot')>=0;});
+      if(iDib<0){alert('No trobo la columna DIB/Crotal. Assegura\'t que la primera fila té capçaleres (DIB, Sexe, DataNaix, Mare, Lot).');return;}
+      var count=0,errors=[];
+      for(var r=1;r<lines.length;r++){
+        var row=lines[r];if(!row||row.length<2)continue;
+        var dib=(row[iDib]||'').trim().toUpperCase();if(!dib)continue;
+        var sex=iSex>=0?(row[iSex]||'').trim().toUpperCase():'';
+        if(sex==='FEMELLA'||sex==='F'||sex==='H')sex='F';
+        else if(sex==='MASCLE'||sex==='M')sex='M';
+        else sex='';
+        var naix=iNaix>=0?(row[iNaix]||'').trim():'';
+        // Intentar parsejar data dd/mm/yyyy o yyyy-mm-dd
+        if(naix&&naix.indexOf('/')>=0){var pp=naix.split('/');if(pp.length===3)naix=pp[2]+'-'+pp[1].padStart(2,'0')+'-'+pp[0].padStart(2,'0');}
+        var mare=iMare>=0?(row[iMare]||'').trim().toUpperCase():'';
+        var lot=iLot>=0?parseInt(row[iLot])||100:100;
+        // Crear animal
+        var aid=findOrCreateAid('coma',dib,{lot:lot,cart:'COM',mes:3,any:2026,dia:1});
+        var a2=S.coma.animals[aid];
+        if(a2){
+          if(sex)a2.sex=sex;
+          if(naix)a2.dataNaix=naix;
+          if(mare)a2.mare=mare;
+          count++;
+        }
+      }
+      sv();renderG('coma');
+      alert('Importats '+count+' animals a La Coma');
+    }catch(err){alert('Error important: '+err.message);}
+  };
+  if(file.name.endsWith('.csv')) reader.readAsText(file,'UTF-8');
+  else reader.readAsArrayBuffer(file);
+  ev.target.value='';
+}
+
+
+// ---- SYNC LA COMA: lot.v SEMPRE = animals reals ----
+function syncComaLot(){
+  if(!S.coma) return;
+  var total=Object.keys(S.coma.animals||{}).length;
+  if(S.coma.lots && S.coma.lots[0]){
+    S.coma.lots[0].v=total;
+    S.coma.lots[0].carts={COM:total};
+  }
+}
+// ---- LA COMA: RESUM VAQUES vs VEDELLS ----
+var _comaSortKey='dib',_comaSortDir=1,_comaSortSection='vaques';
+function rComaResum(){
+  var g='coma';
+  var animals=Object.entries(S[g].animals||{});
+  if(animals.length===0) return;
+  var now=Date.now();
+  var vaques=[],toros=[],vedells=[];
+  animals.forEach(function(e){
+    var aid=e[0],a=e[1];
+    // Gestiona animals amb o sense dataNaix
+    var ageYrs=0,dataNx='—';
+    if(a.dataNaix){var dn=a.dataNaix.split('-');var bd=new Date(+dn[0],+dn[1]-1,+dn[2]);ageYrs=(now-bd.getTime())/31557600000;dataNx=dn[2]+'/'+dn[1]+'/'+dn[0];}
+    var dataInc=String(a.diaEnt||1).padStart(2,'0')+'/'+String(a.mesEnt||1).padStart(2,'0')+'/'+(a.anyEnt||'');
+    var obj={aid:aid,dib:a.dib,sex:a.sex||'',dataNaix:a.dataNaix||'',dataNx:dataNx,dataInc:dataInc,morfotip:a.morfotip||'—',mare:a.mare||'',age:ageYrs,mesEnt:a.mesEnt||0,anyEnt:a.anyEnt||0,diaEnt:a.diaEnt||0};
+    if(ageYrs>=2){
+      if(a.sex==='M') toros.push(obj);
+      else vaques.push(obj);
+    } else {
+      vedells.push(obj);
+    }
+  });
+  
+  var h='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:14px">';
+  h+='<div style="background:var(--coma-lt);border-radius:10px;padding:10px;text-align:center"><div style="font-size:1.6rem;font-weight:800;color:var(--coma)">'+vaques.length+'</div><div style="font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Vaques</div></div>';
+  h+='<div style="background:#eef3fb;border-radius:10px;padding:10px;text-align:center"><div style="font-size:1.6rem;font-weight:800;color:#3d7bc8">'+toros.length+'</div><div style="font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Toros</div></div>';
+  h+='<div style="background:#eaf3ed;border-radius:10px;padding:10px;text-align:center"><div style="font-size:1.6rem;font-weight:800;color:#4a7c59">'+vedells.length+'</div><div style="font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Vedells</div></div>';
+  h+='<div style="background:var(--card);border-radius:10px;padding:10px;text-align:center;border:1.5px solid var(--border)"><div style="font-size:1.6rem;font-weight:800;color:var(--ink)">'+(vaques.length+toros.length+vedells.length)+'</div><div style="font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Total</div></div>';
+  h+='</div>';
+  
+  function sortItems(items,sec){
+    var k=(_comaSortSection===sec)?_comaSortKey:'dib';
+    var d=(_comaSortSection===sec)?_comaSortDir:1;
+    items.sort(function(a,b){
+      var va,vb;
+      if(k==='dib'){va=a.dib;vb=b.dib;}
+      else if(k==='sex'){va=a.sex;vb=b.sex;}
+      else if(k==='age'){va=a.age;vb=b.age;}
+      else if(k==='naix'){va=a.dataNaix;vb=b.dataNaix;}
+      else if(k==='inc'){va=(a.anyEnt*10000+a.mesEnt*100+a.diaEnt);vb=(b.anyEnt*10000+b.mesEnt*100+b.diaEnt);}
+      else if(k==='morfo'){va=a.morfotip;vb=b.morfotip;}
+      else{va=a.dib;vb=b.dib;}
+      if(va<vb)return -1*d;if(va>vb)return 1*d;return 0;
+    });
+  }
+  
+  function thSort(sec,key,label){
+    var arrow=(_comaSortSection===sec&&_comaSortKey===key)?(_comaSortDir===1?' ▲':' ▼'):'';
+    return '<th onclick="_comaSortSection=\''+sec+'\';if(_comaSortKey===\''+key+'\')_comaSortDir*=-1;else{_comaSortKey=\''+key+'\';_comaSortDir=1;}rComaResum()" style="padding:6px 6px;text-align:left;font-size:.65rem;color:var(--muted);cursor:pointer;user-select:none;white-space:nowrap">'+label+arrow+'</th>';
+  }
+  
+  function renderList(items,title,icon,sec){
+    if(!items.length)return '';
+    sortItems(items,sec);
+    var out='<details open style="margin-bottom:12px"><summary style="cursor:pointer;list-style:none;display:flex;align-items:center;gap:6px;padding:8px 12px;background:var(--card);border-radius:10px 10px 0 0;box-shadow:var(--shadow);font-weight:700;font-size:.82rem;user-select:none">'+icon+' '+title+' ('+items.length+')<span style="margin-left:auto;font-size:.7rem;color:var(--muted)">▼</span></summary>';
+    out+='<div style="background:var(--card);border-radius:0 0 10px 10px;box-shadow:var(--shadow);overflow:hidden">';
+    out+='<div style="overflow-x:auto;-webkit-overflow-scrolling:touch">';
+    out+='<table style="width:100%;border-collapse:collapse;font-size:.78rem"><thead><tr style="background:var(--bg)">';
+    out+=thSort(sec,'dib','DIB');
+    out+=thSort(sec,'sex','♀♂');
+    out+=thSort(sec,'morfo','Raça');
+    out+=thSort(sec,'age','Edat');
+    out+=thSort(sec,'naix','Naixement');
+    out+=thSort(sec,'inc','Incorporació');
+    out+='</tr></thead><tbody>';
+    items.forEach(function(it,idx){
+      var sexI=it.sex==='F'?'<span style="color:#d4508b;font-weight:700">♀</span>':it.sex==='M'?'<span style="color:#3d7bc8;font-weight:700">♂</span>':'-';
+      var ageY=Math.floor(it.age);var ageM=Math.floor((it.age-ageY)*12);
+      var ageStr=it.dataNaix?(ageY>0?ageY+'a '+ageM+'m':ageM+'m'):'—';
+      var l4=it.dib.slice(-4);var pf=it.dib.slice(0,-4);
+      var isPend=Object.values(S.coma.animals||{}).some(function(ax){return ax.dib===it.dib&&ax.pendent;});
+      var bg=isPend?'background:#fee0e0':idx%2===0?'':'background:var(--bg)';
+      out+='<tr onclick="openAnimalFitxa(\'coma\',\''+it.aid+'\')" style="cursor:pointer;border-top:1px solid var(--border);'+bg+'" onmouseover="this.style.background=\'#f0ead8\'" onmouseout="this.style.background=\''+bg.replace('background:','')+'\'">';
+      out+='<td style="padding:7px 6px;font-family:DM Mono,monospace"><span style="opacity:.5;font-size:.68rem">'+pf+'</span><b style="font-size:.88rem;color:var(--ink)">'+l4+'</b></td>';
+      out+='<td style="padding:7px 4px;text-align:center">'+sexI+'</td>';
+      out+='<td style="padding:7px 6px;font-size:.74rem">'+it.morfotip+'</td>';
+      out+='<td style="padding:7px 6px;font-family:DM Mono,monospace;font-size:.74rem;font-weight:600;color:var(--ink)">'+ageStr+'</td>';
+      out+='<td style="padding:7px 6px;font-family:DM Mono,monospace;font-size:.72rem;color:var(--ink)">'+it.dataNx+'</td>';
+      out+='<td style="padding:7px 6px;font-family:DM Mono,monospace;font-size:.72rem;color:var(--muted)">'+it.dataInc+'</td>';
+      out+='</tr>';
+    });
+    out+='</tbody></table></div></div></details>';
+    return out;
+  }
+  
+  h+=renderList(vaques,'Vaques','🐄','vaques');
+  h+=renderList(toros,'Toros','🐂','toros');
+  h+=renderList(vedells,'Vedells','🐮','vedells');
+  
+  // Counters → top
+  var cTop=document.getElementById('coma-counters');
+  if(cTop){
+    var cGrid='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">';
+    cGrid+='<div style="background:var(--coma-lt);border-radius:10px;padding:8px;text-align:center"><div style="font-size:1.5rem;font-weight:800;color:var(--coma)">'+vaques.length+'</div><div style="font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Vaques</div></div>';
+    cGrid+='<div style="background:#eef3fb;border-radius:10px;padding:8px;text-align:center"><div style="font-size:1.5rem;font-weight:800;color:#3d7bc8">'+toros.length+'</div><div style="font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Toros</div></div>';
+    cGrid+='<div style="background:#eaf3ed;border-radius:10px;padding:8px;text-align:center"><div style="font-size:1.5rem;font-weight:800;color:#4a7c59">'+vedells.length+'</div><div style="font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Vedells</div></div>';
+    cGrid+='<div style="background:var(--card);border-radius:10px;padding:8px;text-align:center;border:1.5px solid var(--border)"><div style="font-size:1.5rem;font-weight:800;color:var(--ink)">'+(vaques.length+toros.length+vedells.length)+'</div><div style="font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Total</div></div>';
+    cGrid+='</div>';
+    cTop.innerHTML=cGrid;
+  }
+  // Lists → bottom (sense counters duplicats)
+  var cont=document.getElementById('coma-animals-resum');
+  if(cont) cont.innerHTML=h.substring(h.indexOf('<details'));
+}
+
+// ---- DADES EXTRA LA COMA (per nous animals) ----
+function checkComaExtra(){
+  // Buscar animals de coma sense dataNaix (nous)
+  var pendents=[];
+  Object.entries(S.coma.animals||{}).forEach(function(e){
+    var aid=e[0],a=e[1];
+    if(!a.dataNaix && a.dib!=='????-????'){
+      pendents.push({aid:aid,a:a});
+    }
+  });
+  if(!pendents.length) return;
+  // Mostrar modal per completar dades
+  var html='';
+  pendents.forEach(function(p,i){
+    var dib=p.a.dib;var l4=dib.slice(-4);
+    html+='<div style="background:var(--bg);border-radius:10px;padding:10px;margin-bottom:8px;border:1.5px solid var(--border)" data-aid="'+p.aid+'">';
+    html+='<div style="font-family:DM Mono,monospace;font-weight:700;margin-bottom:6px">'+dib+'</div>';
+    html+='<div class="fgrid" style="grid-template-columns:1fr 1fr;gap:6px">';
+    html+='<div class="fg"><label>Data naixement</label><input type="date" class="coma-ex-naix" data-aid="'+p.aid+'" style="width:100%;padding:6px;border:1.5px solid var(--border);border-radius:8px;font-family:DM Mono,monospace;font-size:.82rem"></div>';
+    html+='<div class="fg"><label>Raça</label><select class="coma-ex-morfo" data-aid="'+p.aid+'" style="width:100%;padding:6px;border:1.5px solid var(--border);border-radius:8px;font-size:.82rem"><option value="">—</option><option value="Salers">Salers</option><option value="Creuat">Creuat</option><option value="Xarolesa">Xarolesa</option><option value="Gasconne">Gasconne</option></select></div>';
+    html+='<div class="fg"><label>Sexe</label><select class="coma-ex-sex" data-aid="'+p.aid+'" style="width:100%;padding:6px;border:1.5px solid var(--border);border-radius:8px;font-size:.82rem"><option value="">—</option><option value="F">♀ Femella</option><option value="M">♂ Mascle</option></select></div>';
+    html+='<div class="fg"><label>Tipus</label><select class="coma-ex-tipus" data-aid="'+p.aid+'" style="width:100%;padding:6px;border:1.5px solid var(--border);border-radius:8px;font-size:.82rem"><option value="vedell">Vedell/a</option><option value="vaca">Vaca</option><option value="toro">Toro</option></select></div>';
+    html+='</div>';
+    html+='<div class="fg" style="margin-top:4px"><label>Mare (DIB)</label><input type="text" class="coma-ex-mare" data-aid="'+p.aid+'" placeholder="DIB de la mare (opcional)" style="width:100%;padding:6px;border:1.5px solid var(--border);border-radius:8px;font-family:DM Mono,monospace;font-size:.82rem"></div>';
+    html+='</div>';
+  });
+  document.getElementById('m-coma-extra-list').innerHTML=html;
+  document.getElementById('m-coma-extra').classList.add('open');
+}
+function guardarComaExtra(){
+  document.querySelectorAll('.coma-ex-naix').forEach(function(el){
+    var aid=el.dataset.aid;
+    var a=S.coma.animals[aid];if(!a)return;
+    if(el.value) a.dataNaix=el.value;
+  });
+  document.querySelectorAll('.coma-ex-morfo').forEach(function(el){
+    var aid=el.dataset.aid;
+    var a=S.coma.animals[aid];if(!a)return;
+    if(el.value) a.morfotip=el.value;
+  });
+  document.querySelectorAll('.coma-ex-sex').forEach(function(el){
+    var aid=el.dataset.aid;
+    var a=S.coma.animals[aid];if(!a)return;
+    if(el.value) a.sex=el.value;
+  });
+  document.querySelectorAll('.coma-ex-mare').forEach(function(el){
+    var aid=el.dataset.aid;
+    var a=S.coma.animals[aid];if(!a)return;
+    var v=el.value.trim().toUpperCase();
+    if(v) a.mare=v;
+  });
+  sv();renderG('coma');
+  document.getElementById('m-coma-extra').classList.remove('open');
+}
 </script>
 </body>
 </html>
