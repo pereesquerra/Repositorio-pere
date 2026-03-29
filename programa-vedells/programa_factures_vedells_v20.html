@@ -2733,6 +2733,30 @@ function confirMD(){
   }
   S[g].movs[k].push(mov);
 
+  // v20: Crear animals al registre per noves entrades
+  if(!S[g].animals) S[g].animals={};
+  if(p.tipus==='entrada' && mov.dibs && mov.dibs.length){
+    mov.aids=[];
+    mov.dibs.forEach((dib,i)=>{
+      const aid=nextAid(g);
+      S[g].animals[aid]={
+        dib:dib,
+        sex:(p.sexes&&p.sexes[i])||'',
+        lot:p.lot, cart:p.cart||'-',
+        guia:p.guia||'',
+        diaEnt:p.dia, mesEnt:p.mes, anyEnt:p.any
+      };
+      mov.aids[i]=aid;
+    });
+  } else if(mov.dibs && mov.dibs.length){
+    // Sortida/baixa: buscar aids per dib
+    mov.aids=mov.dibs.map(dib=>{
+      if(dib==='????-????') return '';
+      const found=Object.entries(S[g].animals).find(([id,a])=>a.dib===dib);
+      return found?found[0]:'';
+    });
+  }
+
   const lot=S[g].lots.find(l=>l.num===p.lot);
   if(lot){if(p.tipus==='entrada') lot.v+=p.qty; else{lot.v-=p.qty;if(lot.v<0)lot.v=0;}}
 
@@ -3103,7 +3127,8 @@ function openDetail(g, idx){
       const txtCol=(isBorr||isIncomplete||isPending)?'color:#854F0B;font-weight:700':'color:'+col;
       const cartBadge=m.cart&&m.cart!=='-'?'<span style="margin-left:auto;font-size:.6rem;font-weight:700;padding:1px 6px;border-radius:4px;background:var(--'+ccls(m.cart)+'-lt);color:var(--'+ccls(m.cart)+')">'+m.cart+'</span>':'';
       const sexBdg2='<span style="margin-left:'+(cartBadge?'6':'auto')+'px;font-size:.85rem">'+fmtSexe(g,d,(m.sexes&&m.sexes[i])||'')+'</span>';
-      return '<div class="detail-dib-row" style="'+rowBg+'display:flex;align-items:center;">'+
+      const aidClick=(m.aids&&m.aids[i])?'onclick="openAnimalFitxa(\''+g+'\',\''+m.aids[i]+'\')" style="cursor:pointer;'+rowBg+'display:flex;align-items:center;"':'style="'+rowBg+'display:flex;align-items:center;"';
+      return '<div class="detail-dib-row" '+aidClick+'>'+
         '<span class="dib-idx">'+(i+1)+'</span>'+
         (isPending?'<span style="'+txtCol+'">????-????</span>':
           isBorr?'<span style="'+txtCol+'">'+d+'</span>':
@@ -3870,7 +3895,8 @@ function openHistMov(g,k,mi){
       const txtCol=(isBorr||isInc||isPending)?'color:#854F0B;font-weight:700':'color:'+col;
       const cartBdg=cart&&cart!=='-'?'<span style="margin-left:auto;font-size:.6rem;font-weight:700;padding:1px 6px;border-radius:4px;background:var(--'+ccls(cart)+'-lt);color:var(--'+ccls(cart)+')">'+cart+'</span>':'';
       const sexBdg='<span style="margin-left:'+(cartBdg?'6':'auto')+'px;font-size:.85rem">'+fmtSexe(g,d,(m.sexes&&m.sexes[i])||'')+'</span>';
-      return '<div class="detail-dib-row" style="'+rowBg+'display:flex;align-items:center;">'+
+      const aidClick2=(m.aids&&m.aids[i])?'onclick="openAnimalFitxa(\''+g+'\',\''+m.aids[i]+'\')" style="cursor:pointer;'+rowBg+'display:flex;align-items:center;"':'style="'+rowBg+'display:flex;align-items:center;"';
+      return '<div class="detail-dib-row" '+aidClick2+'>'+
         '<span class="dib-idx">'+(i+1)+'</span>'+
         (isPending?'<span style="'+txtCol+'">????-????</span>':
           isBorr?'<span style="'+txtCol+'">'+d+'</span>':
@@ -4308,7 +4334,7 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
-document.getElementById('build-ver').textContent='v20 · 29/03 14:41';
+document.getElementById('build-ver').textContent='v20 · 29/03 14:49';
 renderG('fig');renderG('costa');
 loadNotes();
 // Init historial
