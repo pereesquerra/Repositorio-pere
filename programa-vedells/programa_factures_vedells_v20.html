@@ -2214,7 +2214,7 @@ function dibPillHtml(d, cart, showX, idx){
   const full=d.dib||'';
   const isPending=full==='????-????';
   const isBorr=full.startsWith('BORR-');
-  const isIncomplete=(full.startsWith('-')&&!isBorr)||(/^\d{1,5}$/.test(full));
+  const isIncomplete=(full.startsWith('-')&&!isBorr)||(/^\d{1,4}$/.test(full));
   if(isBorr||isIncomplete||isPending){bg='#FAEEDA';col='#854F0B';extra='border:1.5px solid #e0c080;';}
   const cleanFull=full.replace(/^-/,'');
   const last4=d.last4||full.slice(-4);
@@ -3087,7 +3087,7 @@ function openDetail(g, idx){
     dibsEl.innerHTML=m.dibs.map((d,i)=>{
       const isPending=d==='????-????';
       const isBorr=d.startsWith('BORR-');
-      const isIncomplete=(d.startsWith('-')&&!isBorr)||(/^\d{1,5}$/.test(d));
+      const isIncomplete=(d.startsWith('-')&&!isBorr)||(/^\d{1,4}$/.test(d));
       const cleanD=d.replace(/^-/,'');
       const last4=d.slice(-4);
       const prefix=d.length>4&&!isBorr&&!isIncomplete&&!isPending?d.slice(0,-4):'';
@@ -3874,7 +3874,7 @@ function openHistMov(g,k,mi){
     dibsEl.innerHTML=m.dibs.map((d,i)=>{
       const isPending=d==='????-????';
       const isBorr=d.startsWith('BORR-');
-      const isInc=(d.startsWith('-')&&!isBorr)||(/^\d{1,5}$/.test(d));
+      const isInc=(d.startsWith('-')&&!isBorr)||(/^\d{1,4}$/.test(d));
       const cleanD=d.replace(/^-/,'');
       const last4=d.slice(-4);
       const prefix=d.length>4&&!isBorr&&!isInc&&!isPending?d.slice(0,-4):'';
@@ -4321,7 +4321,7 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
-document.getElementById('build-ver').textContent='v20 · 29/03 15:22';
+document.getElementById('build-ver').textContent='v20 · 29/03 15:42';
 renderG('fig');renderG('costa');
 loadNotes();
 // Init historial
