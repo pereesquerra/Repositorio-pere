@@ -3455,10 +3455,9 @@ function editarMov(g,k,mi){
   lotSel.innerHTML=S[g].lots.map(l=>'<option value="'+l.num+'">Lot '+l.num+' ('+l.v+')</option>').join('');
   lotSel.value=m.lot;
   document.getElementById('m-edit-mov-warn').innerHTML='';
-  // Omplir sexes - des del moviment (mov.sexes) o diccionari global
-  if(m.dibs&&m.dibs.length){
+  // Omplir sexes - NOMÉS per entrades (sortides/baixes no es pot editar sexe)
+  if(m.tipus==='entrada' && m.dibs&&m.dibs.length){
     _editSexes=m.dibs.map((d,i)=>{
-      // Primer mira mov.sexes, després el diccionari global
       if(m.sexes && m.sexes[i]) return m.sexes[i];
       if(d && d!=='????-????' && S[g].sexes && S[g].sexes[d]) return S[g].sexes[d];
       return '';
@@ -4146,7 +4145,7 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
-document.getElementById('build-ver').textContent='v19 · 29/03 14:28';
+document.getElementById('build-ver').textContent='v19 · 29/03 14:35';
 renderG('fig');renderG('costa');
 loadNotes();
 // Init historial
