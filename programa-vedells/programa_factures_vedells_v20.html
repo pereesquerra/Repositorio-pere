@@ -1429,7 +1429,42 @@ let _migrated=false;
     });
   });
 });
-if(_migrated) sv();let _mg=null,_mfl=null,_mfg=null;
+if(_migrated) sv();
+// v20: Neteja duplicats d'animals (mateixa DIB, diferents IDs)
+try{
+var _dedupDone=false;
+['fig','costa'].forEach(function(g){
+  if(!S[g].animals) return;
+  var byDib={};
+  Object.entries(S[g].animals).forEach(function(e){
+    var aid=e[0],a=e[1];
+    if(a.dib==='????-????' || (a.dib&&a.dib.startsWith('BORR-'))) return;
+    if(!byDib[a.dib]) byDib[a.dib]=[];
+    byDib[a.dib].push(aid);
+  });
+  Object.entries(byDib).forEach(function(e2){
+    var dib=e2[0],aids=e2[1];
+    if(aids.length<=1) return;
+    // Quedar-se amb el primer, eliminar la resta
+    var keep=aids[0];
+    var dupes=aids.slice(1);
+    dupes.forEach(function(dupAid){
+      // Actualitzar moviments que referencien el duplicat
+      Object.values(S[g].movs||{}).forEach(function(ms){
+        ms.forEach(function(mv){
+          if(!mv.aids) return;
+          for(var i=0;i<mv.aids.length;i++){
+            if(mv.aids[i]===dupAid) mv.aids[i]=keep;
+          }
+        });
+      });
+      delete S[g].animals[dupAid];
+      _dedupDone=true;
+    });
+  });
+});
+if(_dedupDone) sv();
+}catch(e2){console.error('dedup error:',e2);}let _mg=null,_mfl=null,_mfg=null;
 let _pendingSexes={};
 let _editSexes=[];
 let _hist=[], _histIdx=-1;
@@ -4410,7 +4445,7 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
-document.getElementById('build-ver').textContent='v20 · 29/03 16:09';
+document.getElementById('build-ver').textContent='v20 · 29/03 16:13';
 renderG('fig');renderG('costa');
 loadNotes();
 // Init historial
