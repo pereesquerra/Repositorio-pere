@@ -3236,15 +3236,17 @@ function openDetail(g, idx){
 
   // DIBs en format llista vertical
   const dibsEl=document.getElementById('m-detail-dibs');
-  // v20: Migració progressiva - NOMES per entrades
-  if(m.tipus==='entrada' && m.dibs&&m.dibs.length&&(!m.aids||!m.aids.length)){
+  // v20: Migració progressiva - NOMES per entrades, completar si falten
+  if(m.tipus==='entrada' && m.dibs&&m.dibs.length){
     if(!S[g].animals) S[g].animals={};
-    m.aids=[];
+    if(!m.aids) m.aids=[];
+    var _needSv=false;
     m.dibs.forEach(function(dib,di){
+      if(m.aids[di]) return; // ja migrat
       var aid2=findOrCreateAid(g,dib,{dib:dib,sex:(m.sexes&&m.sexes[di])||(S[g].sexes&&S[g].sexes[dib])||'',lot:m.lot,cart:m.cart||'-',guia:m.guia||'',diaEnt:m.dia,mesEnt:mes,anyEnt:any});
-      m.aids[di]=aid2;
+      m.aids[di]=aid2;_needSv=true;
     });
-    sv();
+    if(_needSv) sv();
   }
   if(m.dibs&&m.dibs.length){
     dibsEl.innerHTML=m.dibs.map((d,i)=>{
@@ -4027,16 +4029,18 @@ function openHistMov(g,k,mi){
   else guiaEl.innerHTML='<span style="color:var(--muted);font-style:italic">Sense guia registrada</span>';
   document.getElementById('m-detail-total').innerHTML='<span style="color:'+col+'">'+m.qty+' animal'+(m.qty!==1?'s':'')+'</span>';
   const dibsEl=document.getElementById('m-detail-dibs');
-  // v20: Migració progressiva - NOMES per entrades
-  if(m.tipus==='entrada' && m.dibs&&m.dibs.length&&(!m.aids||!m.aids.length)){
+  // v20: Migració progressiva - NOMES per entrades, completar si falten
+  if(m.tipus==='entrada' && m.dibs&&m.dibs.length){
     if(!S[g].animals) S[g].animals={};
-    m.aids=[];
+    if(!m.aids) m.aids=[];
+    var _ns2=false;
     var pts2=k.split('-');var mk3=parseInt(pts2[0]),yk3=parseInt(pts2[1]);
     m.dibs.forEach(function(dib,di){
+      if(m.aids[di]) return;
       var aid3=findOrCreateAid(g,dib,{dib:dib,sex:(m.sexes&&m.sexes[di])||(S[g].sexes&&S[g].sexes[dib])||'',lot:m.lot,cart:m.cart||'-',guia:m.guia||'',diaEnt:m.dia,mesEnt:mk3,anyEnt:yk3});
-      m.aids[di]=aid3;
+      m.aids[di]=aid3;_ns2=true;
     });
-    sv();
+    if(_ns2) sv();
   }
   if(m.dibs&&m.dibs.length){
     dibsEl.innerHTML=m.dibs.map((d,i)=>{
@@ -4219,8 +4223,8 @@ function rHist(g){
   // Recull DIBs d'entrades
   allMovs.filter(mv=>mv.tipus==='entrada').forEach(mv=>{
     if(!mv.dibs||!mv.dibs.length) return;
-    // v20: lazy migration - actualitzar ORIGINAL (no la copia)
-    if(!mv.aids||!mv.aids.length){var pts3=mv._k.split('-');var m3=parseInt(pts3[0]),y3=parseInt(pts3[1]);mv.aids=[];mv.dibs.forEach(function(dd,ddi){var a3=findOrCreateAid(g,dd,{dib:dd,sex:(mv.sexes&&mv.sexes[ddi])||(S[g].sexes&&S[g].sexes[dd])||'',lot:mv.lot,cart:mv.cart||'-',guia:mv.guia||'',diaEnt:mv.dia,mesEnt:m3,anyEnt:y3});mv.aids[ddi]=a3;});var origMv=S[g].movs[mv._k]?S[g].movs[mv._k][mv._mi]:null;if(origMv){origMv.aids=mv.aids.slice();}sv();}
+    // v20: lazy migration - completar si falten, actualitzar ORIGINAL
+    if(mv.tipus==='entrada'){if(!mv.aids)mv.aids=[];var _ns3=false;var pts3=mv._k.split('-');var m3=parseInt(pts3[0]),y3=parseInt(pts3[1]);mv.dibs.forEach(function(dd,ddi){if(mv.aids[ddi])return;var a3=findOrCreateAid(g,dd,{dib:dd,sex:(mv.sexes&&mv.sexes[ddi])||(S[g].sexes&&S[g].sexes[dd])||'',lot:mv.lot,cart:mv.cart||'-',guia:mv.guia||'',diaEnt:mv.dia,mesEnt:m3,anyEnt:y3});mv.aids[ddi]=a3;_ns3=true;});if(_ns3){var origMv=S[g].movs[mv._k]?S[g].movs[mv._k][mv._mi]:null;if(origMv)origMv.aids=mv.aids.slice();sv();}}
     mv.dibs.forEach((d,i)=>{
       dibsList.push({
         dib:d, cart:mv.cart||'-',
@@ -4330,15 +4334,20 @@ function rCartLlista(g){
       const dEnt=new Date(mv.any,mv.mes-1,mv.dia);
       if(dEnt>selDate) return;
       if(!mv.dibs||!mv.dibs.length) return;
-      // v20: lazy migration - trobar i actualitzar ORIGINAL
-      if(!mv.aids||!mv.aids.length){
-        // Trobar moviment original a S[g].movs
-        var origMv2=null;
-        Object.entries(S[g].movs||{}).forEach(function(ek){var kk=ek[0],mss=ek[1];mss.forEach(function(mm){if(mm.dia===mv.dia&&mm.lot===lot.num&&mm.tipus===mv.tipus&&mm.dibs===mv.dibs){origMv2=mm;}});});
-        var target=origMv2||mv;
-        target.aids=[];mv.aids=[];
-        mv.dibs.forEach(function(dd,ddi){var a2=findOrCreateAid(g,dd,{dib:dd,sex:(mv.sexes&&mv.sexes[ddi])||(S[g].sexes&&S[g].sexes[dd])||'',lot:lot.num,cart:mv.cart||'-',guia:mv.guia||'',diaEnt:mv.dia,mesEnt:mv.mes,anyEnt:mv.any});target.aids[ddi]=a2;mv.aids[ddi]=a2;});
-        sv();
+      // v20: lazy migration - completar si falten
+      if(mv.tipus==='entrada'){
+        if(!mv.aids)mv.aids=[];
+        var _ns4=false;
+        mv.dibs.forEach(function(dd,ddi){
+          if(mv.aids[ddi])return;
+          var a2=findOrCreateAid(g,dd,{dib:dd,sex:(mv.sexes&&mv.sexes[ddi])||(S[g].sexes&&S[g].sexes[dd])||'',lot:lot.num,cart:mv.cart||'-',guia:mv.guia||'',diaEnt:mv.dia,mesEnt:mv.mes,anyEnt:mv.any});
+          mv.aids[ddi]=a2;_ns4=true;
+        });
+        if(_ns4){
+          var origMv2=null;Object.entries(S[g].movs||{}).forEach(function(ek){ek[1].forEach(function(mm){if(mm.dia===mv.dia&&mm.lot===lot.num&&mm.tipus===mv.tipus&&mm.dibs===mv.dibs){origMv2=mm;}});});
+          if(origMv2)origMv2.aids=mv.aids.slice();
+          sv();
+        }
       }
       mv.dibs.forEach((d,di)=>{
         animals.push({dib:d, cart:mv.cart||'-', sex:(mv.sexes&&mv.sexes[di])||'', lot:lot.num, diaEnt:mv.dia, mesEnt:mv.mes, anyEnt:mv.any, guia:mv.guia||'', sortit:false, diaSort:0, mesSort:0, anySort:0, tipusSort:'', aid:(mv.aids&&mv.aids[di])||''});
@@ -4503,7 +4512,7 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
-document.getElementById('build-ver').textContent='v20 · 29/03 17:56';
+document.getElementById('build-ver').textContent='v20 · 29/03 18:06';
 renderG('fig');renderG('costa');
 loadNotes();
 // Init historial
