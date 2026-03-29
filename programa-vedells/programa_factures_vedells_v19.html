@@ -1478,9 +1478,8 @@ function dibComplet(d){
   if(/^\d{1,5}$/.test(d)) return false;
   return /^[A-Z]{2}\d{8,}$/.test(d)||/^\d{10,}$/.test(d);
 }
-function fmtSexe(g,dib){
-  if(!dib||dib==='????-????') return '<span style="color:var(--muted)">—</span>';
-  const s=(S[g]&&S[g].sexes)?S[g].sexes[dib]:null;
+function fmtSexe(g,dib,sexDirect){
+  const s=sexDirect||((dib&&dib!=='????-????'&&S[g]&&S[g].sexes)?S[g].sexes[dib]:null);
   if(s==='F') return '<span style="color:#d4508b;font-weight:700" title="Femella">♀</span>';
   if(s==='M') return '<span style="color:#3d7bc8;font-weight:700" title="Mascle">♂</span>';
   return '<span style="color:var(--muted)">—</span>';
@@ -2371,14 +2370,35 @@ function prepMov(g){
     const manualEl=document.getElementById(g+'-qty-manual');
     const qtyManual=manualEl?parseInt(manualEl.value):0;
     if(qtyManual>0){
-      _pendingMov={g, dia, tipus, qty:qtyManual, lot:lotNum, cart, guia, dibs:[], mes, any, isNew:lotSel==='__nou__', dibsFull:[]};
-      confirMD();
+      const manDibs=Array.from({length:qtyManual},()=>'????-????');
+      const manSexes=Array.from({length:qtyManual},()=>'');
+      _pendingMov={g, dia, tipus, qty:qtyManual, lot:lotNum, cart, guia, dibs:manDibs, dibsFull:manDibs.map(d=>({dib:d,status:'ok',last4:'????'})), mes, any, isNew:lotSel==='__nou__', sexes:manSexes};
+      // Obre modal perquè pugui triar sexe
+      const tipusText2=nomTipusCaps(tipus);
+      document.getElementById('m-dibs-title').textContent='Confirmar '+tipusText2+' — Lot '+lotNum;
+      document.getElementById('m-dibs-info').innerHTML='<strong>'+qtyManual+' animals</strong> · Dia '+dia+'/'+mes+'/'+any+(guia?' · Guia '+guia:'')+(cart!=='-'?' · '+cart:'');
+      document.getElementById('m-dibs-pills').innerHTML='<div style="color:var(--muted);font-size:.75rem">'+qtyManual+' animals sense crotals (????-????)</div>';
+      document.getElementById('m-dibs-sex').style.display='block';
+      renderSexeList();
+      document.getElementById('m-dibs-warn').innerHTML='';
+      document.getElementById('m-dibs-ok').textContent='Confirmar '+tipusText2+' ('+qtyManual+')';
+      document.getElementById('m-dibs').classList.add('open');
       return;
     }
     const qtyPrompt=parseInt(prompt('No has introduït crotals ni número manual. Quants vedells?',''));
     if(!qtyPrompt || isNaN(qtyPrompt)) return;
-    _pendingMov={g, dia, tipus, qty:qtyPrompt, lot:lotNum, cart, guia, dibs:[], mes, any, isNew:lotSel==='__nou__', dibsFull:[]};
-    confirMD();
+    const prDibs=Array.from({length:qtyPrompt},()=>'????-????');
+    const prSexes=Array.from({length:qtyPrompt},()=>'');
+    _pendingMov={g, dia, tipus, qty:qtyPrompt, lot:lotNum, cart, guia, dibs:prDibs, dibsFull:prDibs.map(d=>({dib:d,status:'ok',last4:'????'})), mes, any, isNew:lotSel==='__nou__', sexes:prSexes};
+    const tipusText3=nomTipusCaps(tipus);
+    document.getElementById('m-dibs-title').textContent='Confirmar '+tipusText3+' — Lot '+lotNum;
+    document.getElementById('m-dibs-info').innerHTML='<strong>'+qtyPrompt+' animals</strong> · Dia '+dia+'/'+mes+'/'+any+(guia?' · Guia '+guia:'')+(cart!=='-'?' · '+cart:'');
+    document.getElementById('m-dibs-pills').innerHTML='<div style="color:var(--muted);font-size:.75rem">'+qtyPrompt+' animals sense crotals (????-????)</div>';
+    document.getElementById('m-dibs-sex').style.display='block';
+    renderSexeList();
+    document.getElementById('m-dibs-warn').innerHTML='';
+    document.getElementById('m-dibs-ok').textContent='Confirmar '+tipusText3+' ('+qtyPrompt+')';
+    document.getElementById('m-dibs').classList.add('open');
     return;
   }
 
@@ -2402,15 +2422,10 @@ function prepMov(g){
   const pillsHtml=dibs.map((d,i)=>dibPillHtml(d, cart, true, i)).join('');
   document.getElementById('m-dibs-pills').innerHTML=pillsHtml;
 
-  // Mostrar secció sexe NOMÉS si hi ha DIBs reals
+  // Mostrar secció sexe SEMPRE
   const sexDiv=document.getElementById('m-dibs-sex');
-  const teReals2=_pendingMov.dibs.some(d=>d&&d!=='????-????');
-  if(teReals2){
-    sexDiv.style.display='block';
-    renderSexeList();
-  } else {
-    sexDiv.style.display='none';
-  }
+  sexDiv.style.display='block';
+  renderSexeList();
 
   // Warnings
   document.getElementById('m-dibs-warn').innerHTML=warnings.map(w=>'<div>'+w+'</div>').join('');
@@ -2481,28 +2496,24 @@ function confirMD(){
   if(p.guia) mov.guia=p.guia;
   if(p.dibs.length) mov.dibs=p.dibs;
   else if(p.qty>0) mov.dibs=Array.from({length:p.qty},()=>'????-????');
+  // Guardar sexes al moviment (array paral·lel a dibs)
+  if(p.sexes && p.sexes.length>0){
+    mov.sexes=p.sexes.slice();
+  }
   S[g].movs[k].push(mov);
 
   const lot=S[g].lots.find(l=>l.num===p.lot);
   if(lot){if(p.tipus==='entrada') lot.v+=p.qty; else{lot.v-=p.qty;if(lot.v<0)lot.v=0;}}
 
-  // Guardar sexes dels animals (del modal de confirmació o del PDF)
+  // Guardar sexes al diccionari global (per DIBs reals)
   if(!S[g].sexes) S[g].sexes={};
-  const hasSexes=_pendingMov.sexes && Array.isArray(_pendingMov.sexes);
-  const hasDibs=_pendingMov.dibs && _pendingMov.dibs.length>0;
-  console.log('[SEXE] hasSexes='+hasSexes+' hasDibs='+hasDibs+' sexes='+JSON.stringify(_pendingMov.sexes)+' dibs.length='+((_pendingMov.dibs||[]).length));
-  if(hasSexes && hasDibs){
-    _pendingMov.dibs.forEach((dib,i)=>{
+  if(p.sexes && p.dibs.length>0){
+    p.dibs.forEach((dib,i)=>{
       if(!dib || dib==='????-????') return;
-      const sex=(_pendingMov.sexes[i]!==undefined)?_pendingMov.sexes[i]:'';
-      console.log('[SEXE] dib='+dib+' i='+i+' sex="'+sex+'"');
-      if(sex==='F'||sex==='M'){
-        S[g].sexes[dib]=sex;
-      } else {
-        delete S[g].sexes[dib];
-      }
+      const sex=p.sexes[i]||'';
+      if(sex==='F'||sex==='M') S[g].sexes[dib]=sex;
+      else delete S[g].sexes[dib];
     });
-    console.log('[SEXE] Final S['+g+'].sexes='+JSON.stringify(S[g].sexes));
   }
   _pendingSexes={};
 
@@ -2860,7 +2871,7 @@ function openDetail(g, idx){
       const rowBg=(isBorr||isIncomplete||isPending)?'background:#FAEEDA;':'';
       const txtCol=(isBorr||isIncomplete||isPending)?'color:#854F0B;font-weight:700':'color:'+col;
       const cartBadge=m.cart&&m.cart!=='-'?'<span style="margin-left:auto;font-size:.6rem;font-weight:700;padding:1px 6px;border-radius:4px;background:var(--'+ccls(m.cart)+'-lt);color:var(--'+ccls(m.cart)+')">'+m.cart+'</span>':'';
-      const sexBdg2='<span style="margin-left:'+(cartBadge?'6':'auto')+'px;font-size:.85rem">'+fmtSexe(g,d)+'</span>';
+      const sexBdg2='<span style="margin-left:'+(cartBadge?'6':'auto')+'px;font-size:.85rem">'+fmtSexe(g,d,(m.sexes&&m.sexes[i])||'')+'</span>';
       return '<div class="detail-dib-row" style="'+rowBg+'display:flex;align-items:center;">'+
         '<span class="dib-idx">'+(i+1)+'</span>'+
         (isPending?'<span style="'+txtCol+'">????-????</span>':
@@ -3376,26 +3387,20 @@ function editarMov(g,k,mi){
   lotSel.innerHTML=S[g].lots.map(l=>'<option value="'+l.num+'">Lot '+l.num+' ('+l.v+')</option>').join('');
   lotSel.value=m.lot;
   document.getElementById('m-edit-mov-warn').innerHTML='';
-  // Omplir sexes - només si hi ha DIBs reals (no ????-????)
+  // Omplir sexes - des del moviment (mov.sexes) o diccionari global
   if(m.dibs&&m.dibs.length){
-    const teReals=m.dibs.some(d=>d&&d!=='????-????');
-    console.log('[EDIT-MOV] dibs.length='+m.dibs.length+' teReals='+teReals+' dibs='+JSON.stringify(m.dibs.slice(0,3)));
-    if(teReals){
-      _editSexes=m.dibs.map(d=>{
-        if(!d||d==='????-????') return '';
-        return (S[g].sexes&&S[g].sexes[d])||'';
-      });
-      renderEditSexeList();
-      document.getElementById('em-sex-section').style.display='block';
-      // Scroll perquè la secció de sexe sigui visible a mòbil
-      setTimeout(function(){
-        var sec=document.getElementById('em-sex-section');
-        if(sec) sec.scrollIntoView({behavior:'smooth',block:'nearest'});
-      },200);
-    } else {
-      _editSexes=[];
-      document.getElementById('em-sex-section').style.display='none';
-    }
+    _editSexes=m.dibs.map((d,i)=>{
+      // Primer mira mov.sexes, després el diccionari global
+      if(m.sexes && m.sexes[i]) return m.sexes[i];
+      if(d && d!=='????-????' && S[g].sexes && S[g].sexes[d]) return S[g].sexes[d];
+      return '';
+    });
+    renderEditSexeList();
+    document.getElementById('em-sex-section').style.display='block';
+    setTimeout(function(){
+      var sec=document.getElementById('em-sex-section');
+      if(sec) sec.scrollIntoView({behavior:'smooth',block:'nearest'});
+    },200);
   } else {
     _editSexes=[];
     document.getElementById('em-sex-section').style.display='none';
@@ -3499,10 +3504,13 @@ function guardarEditMov(){
   // Ajusta lot nou
   const newLot=S[g].lots.find(l=>l.num===lotInt);
   if(newLot){if(tipus==='entrada')newLot.v+=finalQty;else{newLot.v-=finalQty;if(newLot.v<0)newLot.v=0;}}
-  // Guardar sexes editats
-  if(!S[g].sexes) S[g].sexes={};
-  console.log('[EDIT-SEXE-SAVE] editSexes='+JSON.stringify(_editSexes)+' dibs='+JSON.stringify(dibs));
-  if(_editSexes.length>0 && dibs.length>0){
+  // Guardar sexes al moviment i al diccionari global
+  if(_editSexes.length>0){
+    // Guardar al moviment directament
+    const movRef=newK!==k?(S[g].movs[newK]||[])[(S[g].movs[newK]||[]).length-1]:m;
+    if(movRef) movRef.sexes=_editSexes.slice();
+    // Actualitzar diccionari global per DIBs reals
+    if(!S[g].sexes) S[g].sexes={};
     dibs.forEach((dib,i)=>{
       if(!dib||dib==='????-????') return;
       const sex=_editSexes[i]||'';
@@ -3631,7 +3639,7 @@ function openHistMov(g,k,mi){
       const rowBg=(isBorr||isInc||isPending)?'background:#FAEEDA;':'';
       const txtCol=(isBorr||isInc||isPending)?'color:#854F0B;font-weight:700':'color:'+col;
       const cartBdg=cart&&cart!=='-'?'<span style="margin-left:auto;font-size:.6rem;font-weight:700;padding:1px 6px;border-radius:4px;background:var(--'+ccls(cart)+'-lt);color:var(--'+ccls(cart)+')">'+cart+'</span>':'';
-      const sexBdg='<span style="margin-left:'+(cartBdg?'6':'auto')+'px;font-size:.85rem">'+fmtSexe(g,d)+'</span>';
+      const sexBdg='<span style="margin-left:'+(cartBdg?'6':'auto')+'px;font-size:.85rem">'+fmtSexe(g,d,(m.sexes&&m.sexes[i])||'')+'</span>';
       return '<div class="detail-dib-row" style="'+rowBg+'display:flex;align-items:center;">'+
         '<span class="dib-idx">'+(i+1)+'</span>'+
         (isPending?'<span style="'+txtCol+'">????-????</span>':
@@ -3803,6 +3811,7 @@ function rHist(g){
     mv.dibs.forEach((d,i)=>{
       dibsList.push({
         dib:d, cart:mv.cart||'-',
+        sex:(mv.sexes&&mv.sexes[i])||'',
         diaEnt:mv.dia, mesEnt:mv.mes, anyEnt:mv.any,
         guia:mv.guia||'',
         sortit:false, diaSort:0, mesSort:0, anySort:0, tipusSort:''
@@ -3868,11 +3877,11 @@ function rHist(g){
       }
       const cartBadge=d.cart&&d.cart!=='-'?`<span class="cc cc-${ccls(d.cart)}">${d.cart}</span>`:'—';
       const rowBg=d.sortit?'':'';
-      const sexVal=(S[g]&&S[g].sexes&&S[g].sexes[d.dib])||'';
+      const sexVal=d.sex||(S[g]&&S[g].sexes&&S[g].sexes[d.dib])||'';
       html+=`<tr style="${d.sortit?'opacity:.6':''}" data-dib="${d.dib}" data-sexe="${sexVal}" data-cart="${d.cart}" data-ent="${d.anyEnt*10000+d.mesEnt*100+d.diaEnt}" data-estat="${d.sortit?1:0}" data-dies="${dies}">
         <td style="color:var(--muted);font-size:.65rem">${i+1}</td>
         <td>${dibHtml}</td>
-        <td style="text-align:center">${fmtSexe(g,d.dib)}</td>
+        <td style="text-align:center">${fmtSexe(g,d.dib,sexVal)}</td>
         <td>${cartBadge}</td>
         <td class="md">${String(d.diaEnt).padStart(2,'0')}/${String(d.mesEnt).padStart(2,'0')}/${d.anyEnt}</td>
         <td>${estat}</td>
@@ -3907,8 +3916,8 @@ function rCartLlista(g){
       const dEnt=new Date(mv.any,mv.mes-1,mv.dia);
       if(dEnt>selDate) return;
       if(!mv.dibs||!mv.dibs.length) return;
-      mv.dibs.forEach(d=>{
-        animals.push({dib:d, cart:mv.cart||'-', lot:lot.num, diaEnt:mv.dia, mesEnt:mv.mes, anyEnt:mv.any, guia:mv.guia||'', sortit:false, diaSort:0, mesSort:0, anySort:0, tipusSort:''});
+      mv.dibs.forEach((d,di)=>{
+        animals.push({dib:d, cart:mv.cart||'-', sex:(mv.sexes&&mv.sexes[di])||'', lot:lot.num, diaEnt:mv.dia, mesEnt:mv.mes, anyEnt:mv.any, guia:mv.guia||'', sortit:false, diaSort:0, mesSort:0, anySort:0, tipusSort:''});
       });
     });
     movs.filter(mv=>esSortida(mv.tipus)).forEach(mv=>{
@@ -3975,11 +3984,11 @@ function rCartLlista(g){
         dibHtml='<span style="font-family:DM Mono,monospace;font-size:.72rem;color:#854F0B"><span style="opacity:.4">????</span>-<span style="font-weight:800">'+a.dib.replace(/^-/,'')+'</span></span>';
       }
       const lotBadge='<span style="display:inline-block;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:1px 7px;font-size:.68rem;font-weight:600;color:var(--ink);min-width:36px;text-align:center">L'+a.lot+'</span>';
-      const sexValC=(S[g]&&S[g].sexes&&S[g].sexes[a.dib])||'';
+      const sexValC=a.sex||(S[g]&&S[g].sexes&&S[g].sexes[a.dib])||'';
       html+='<tr data-dib="'+a.dib+'" data-sexe="'+sexValC+'" data-lot="'+a.lot+'" data-ent="'+a.anyEnt*10000+a.mesEnt*100+a.diaEnt+'" data-dies="'+dies+'">';
       html+='<td style="color:var(--muted);font-size:.65rem">'+(i+1)+'</td>';
       html+='<td>'+dibHtml+'</td>';
-      html+='<td style="text-align:center">'+fmtSexe(g,a.dib)+'</td>';
+      html+='<td style="text-align:center">'+fmtSexe(g,a.dib,a.sex)+'</td>';
       html+='<td>'+lotBadge+'</td>';
       html+='<td class="md">'+String(a.diaEnt).padStart(2,'0')+'/'+String(a.mesEnt).padStart(2,'0')+'/'+a.anyEnt+'</td>';
       html+='<td class="r" style="font-family:DM Mono,monospace;font-size:.75rem">'+dies+'d</td>';
@@ -4069,7 +4078,7 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
-document.getElementById('build-ver').textContent='v19 · 29/03 14:07';
+document.getElementById('build-ver').textContent='v19 · 29/03 14:13';
 renderG('fig');renderG('costa');
 loadNotes();
 // Init historial
