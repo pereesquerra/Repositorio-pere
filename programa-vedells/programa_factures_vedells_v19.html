@@ -2370,6 +2370,25 @@ function prepMov(g){
     const manualEl=document.getElementById(g+'-qty-manual');
     const qtyManual=manualEl?parseInt(manualEl.value):0;
     if(qtyManual>0){
+      // Validació sortida manual
+      if(esSortida(tipus)){
+        const lotChk=S[g].lots.find(l=>l.num===lotNum);
+        if(lotChk){
+          if(qtyManual>lotChk.v){
+            if(!confirm('⚠️ Vols treure '+qtyManual+' animals del Lot '+lotNum+', però el lot només en té '+lotChk.v+'.\n\nVols continuar?')) return;
+          }
+          if(cart&&cart!=='-'){
+            let vC=0;
+            Object.entries(S[g].movs||{}).forEach(([k,ll])=>{ll.filter(mv=>mv.lot===lotNum&&mv.cart===cart).forEach(mv=>{if(mv.tipus==='entrada')vC+=mv.qty;else vC-=mv.qty;});});
+            const cks=Object.keys(lotChk.carts||{});
+            const amv=Object.values(S[g].movs||{}).flat().filter(mv=>mv.lot===lotNum);
+            const cne=cks.filter(ct=>!amv.some(mv=>mv.cart===ct&&mv.tipus==='entrada'));
+            if(cne.length>=1&&cne[0]===cart) vC+=(lotChk.vIni||0);
+            vC=Math.max(0,vC);
+            if(qtyManual>vC){alert('❌ La cartilla '+cart+' al Lot '+lotNum+' només té '+vC+' animals. No pots treure '+qtyManual+'.'); return;}
+          }
+        }
+      }
       const manDibs=Array.from({length:qtyManual},()=>'????-????');
       const manSexes=Array.from({length:qtyManual},()=>'');
       _pendingMov={g, dia, tipus, qty:qtyManual, lot:lotNum, cart, guia, dibs:manDibs, dibsFull:manDibs.map(d=>({dib:d,status:'ok',last4:'????'})), mes, any, isNew:lotSel==='__nou__', sexes:manSexes};
@@ -2378,8 +2397,12 @@ function prepMov(g){
       document.getElementById('m-dibs-title').textContent='Confirmar '+tipusText2+' — Lot '+lotNum;
       document.getElementById('m-dibs-info').innerHTML='<strong>'+qtyManual+' animals</strong> · Dia '+dia+'/'+mes+'/'+any+(guia?' · Guia '+guia:'')+(cart!=='-'?' · '+cart:'');
       document.getElementById('m-dibs-pills').innerHTML='<div style="color:var(--muted);font-size:.75rem">'+qtyManual+' animals sense crotals (????-????)</div>';
-      document.getElementById('m-dibs-sex').style.display='block';
-      renderSexeList();
+      if(tipus==='entrada'){
+        document.getElementById('m-dibs-sex').style.display='block';
+        renderSexeList();
+      } else {
+        document.getElementById('m-dibs-sex').style.display='none';
+      }
       document.getElementById('m-dibs-warn').innerHTML='';
       document.getElementById('m-dibs-ok').textContent='Confirmar '+tipusText2+' ('+qtyManual+')';
       document.getElementById('m-dibs').classList.add('open');
@@ -2394,8 +2417,12 @@ function prepMov(g){
     document.getElementById('m-dibs-title').textContent='Confirmar '+tipusText3+' — Lot '+lotNum;
     document.getElementById('m-dibs-info').innerHTML='<strong>'+qtyPrompt+' animals</strong> · Dia '+dia+'/'+mes+'/'+any+(guia?' · Guia '+guia:'')+(cart!=='-'?' · '+cart:'');
     document.getElementById('m-dibs-pills').innerHTML='<div style="color:var(--muted);font-size:.75rem">'+qtyPrompt+' animals sense crotals (????-????)</div>';
-    document.getElementById('m-dibs-sex').style.display='block';
-    renderSexeList();
+    if(tipus==='entrada'){
+      document.getElementById('m-dibs-sex').style.display='block';
+      renderSexeList();
+    } else {
+      document.getElementById('m-dibs-sex').style.display='none';
+    }
     document.getElementById('m-dibs-warn').innerHTML='';
     document.getElementById('m-dibs-ok').textContent='Confirmar '+tipusText3+' ('+qtyPrompt+')';
     document.getElementById('m-dibs').classList.add('open');
@@ -2407,7 +2434,39 @@ function prepMov(g){
     if(_pendingSexes[d.dib]) return _pendingSexes[d.dib];
     return '';
   });
-  _pendingMov={g, dia, tipus, qty:validDibs.length, lot:lotNum, cart, guia, dibs:validDibs.map(d=>d.dib), dibsFull:dibs, mes, any, isNew:lotSel==='__nou__', sexes:sexesArr};
+  const finalQtyPre=validDibs.length;
+
+  // VALIDACIÓ SORTIDES: comprovar que hi ha prou animals al lot i cartilla
+  if(esSortida(tipus)){
+    const lot=S[g].lots.find(l=>l.num===lotNum);
+    if(lot){
+      // Total al lot
+      if(finalQtyPre>lot.v){
+        if(!confirm('⚠️ Vols treure '+finalQtyPre+' animals del Lot '+lotNum+', però el lot només en té '+lot.v+'.\n\nVols continuar igualment?')) return;
+      }
+      // Per cartilla
+      if(cart && cart!=='-'){
+        let vCart=0;
+        Object.entries(S[g].movs||{}).forEach(([k,llista])=>{
+          llista.filter(mv=>mv.lot===lotNum&&mv.cart===cart).forEach(mv=>{
+            if(mv.tipus==='entrada') vCart+=mv.qty; else vCart-=mv.qty;
+          });
+        });
+        // Afegir vIni si la cartilla coincideix amb la dels vedells inicials
+        const carts=Object.keys(lot.carts||{});
+        const allMovs2=Object.values(S[g].movs||{}).flat().filter(mv=>mv.lot===lotNum);
+        const cartsNoEntrada=carts.filter(ct=>!allMovs2.some(mv=>mv.cart===ct&&mv.tipus==='entrada'));
+        if(cartsNoEntrada.length>=1 && cartsNoEntrada[0]===cart) vCart+=(lot.vIni||0);
+        vCart=Math.max(0,vCart);
+        if(finalQtyPre>vCart){
+          alert('❌ No pots treure '+finalQtyPre+' animals de la cartilla '+cart+' al Lot '+lotNum+'.\n\nLa cartilla '+cart+' només té '+vCart+' animals en aquest lot.\n\nRevisa la cartilla seleccionada.');
+          return;
+        }
+      }
+    }
+  }
+
+  _pendingMov={g, dia, tipus, qty:finalQtyPre, lot:lotNum, cart, guia, dibs:validDibs.map(d=>d.dib), dibsFull:dibs, mes, any, isNew:lotSel==='__nou__', sexes:sexesArr};
 
   // Obre modal de confirmació
   const tipusText=nomTipusCaps(tipus);
@@ -2422,10 +2481,14 @@ function prepMov(g){
   const pillsHtml=dibs.map((d,i)=>dibPillHtml(d, cart, true, i)).join('');
   document.getElementById('m-dibs-pills').innerHTML=pillsHtml;
 
-  // Mostrar secció sexe SEMPRE
+  // Mostrar secció sexe NOMÉS a entrades (sortides no cal)
   const sexDiv=document.getElementById('m-dibs-sex');
-  sexDiv.style.display='block';
-  renderSexeList();
+  if(tipus==='entrada'){
+    sexDiv.style.display='block';
+    renderSexeList();
+  } else {
+    sexDiv.style.display='none';
+  }
 
   // Warnings
   document.getElementById('m-dibs-warn').innerHTML=warnings.map(w=>'<div>'+w+'</div>').join('');
@@ -4078,7 +4141,7 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
-document.getElementById('build-ver').textContent='v19 · 29/03 14:13';
+document.getElementById('build-ver').textContent='v19 · 29/03 14:21';
 renderG('fig');renderG('costa');
 loadNotes();
 // Init historial
