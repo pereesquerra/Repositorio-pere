@@ -1551,10 +1551,11 @@ function cercarAnimal(){
     cont.style.display='block';
     return;
   }
-  // Limitar a 20 resultats
-  var shown=results.slice(0,20);
+  // Mostrar tots amb scroll
   var html='';
-  if(results.length>20) html+='<div style="padding:6px 14px;font-size:.7rem;color:var(--muted);background:var(--bg);border-radius:12px 12px 0 0">Mostrant 20 de '+results.length+' resultats</div>';
+  var maxShow=20;
+  var shown=results.slice(0,maxShow);
+  if(results.length>maxShow) html+='<div style="padding:6px 14px;font-size:.7rem;color:var(--muted);background:var(--bg);border-radius:12px 12px 0 0">Mostrant '+maxShow+' de '+results.length+' resultats</div>';
   shown.forEach(function(r){
     var a=r.a,col=ccls(a.cart||'-');
     var isPend=a.dib==='????-????';
@@ -1572,12 +1573,24 @@ function cercarAnimal(){
     html+='<span style="font-size:.62rem;color:var(--muted);background:var(--bg);padding:1px 5px;border-radius:4px">'+r.gNom+'</span>';
     html+='</div>';
   });
+  if(results.length>maxShow) html+='<div style="text-align:center;padding:10px"><button onclick="window._searchShowAll=true;cercarAnimal()" class="btn b-out b-sm" style="font-size:.78rem">Mostrar tots ('+results.length+')</button></div>';
+  if(window._searchShowAll){shown=results;window._searchShowAll=false;cont.innerHTML='';html='';results.forEach(function(r){var a=r.a,col=ccls(a.cart||'-');var isPend=a.dib==='????-????';var dibHtml;if(isPend)dibHtml='<span style="color:#854F0B;font-weight:700">????-????</span>';else{var l4=a.dib.slice(-4);var pf=a.dib.slice(0,-4);dibHtml='<span style="opacity:.4;font-size:.72rem">'+pf+'</span><span style="font-weight:800;color:var(--'+col+')">'+l4+'</span>';}var sexH=a.sex==='F'?'<span style="color:#d4508b;font-weight:700">\u2640</span>':a.sex==='M'?'<span style="color:#3d7bc8;font-weight:700">\u2642</span>':'<span style="opacity:.3">\u2014</span>';var dataE=String(a.diaEnt||0).padStart(2,'0')+'/'+String(a.mesEnt||0).padStart(2,'0')+'/'+(a.anyEnt||'');html+='<div onclick="openAnimalFitxa(\''+r.g+'\',\''+r.aid+'\')" style="display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border)" onmouseover="this.style.background=\'var(--bg)\'" onmouseout="this.style.background=\'transparent\'">';html+='<div style="font-family:DM Mono,monospace;min-width:120px">'+dibHtml+'</div>';html+='<span style="font-size:.9rem">'+sexH+'</span>';html+='<span class="cc cc-'+col+'" style="font-size:.65rem;padding:1px 6px">'+(a.cart||'-')+'</span>';html+='<span style="font-size:.72rem;color:var(--muted)">L'+(a.lot||'?')+'</span>';html+='<span style="font-size:.68rem;color:var(--muted);margin-left:auto">'+dataE+'</span>';html+='<span style="font-size:.62rem;color:var(--muted);background:var(--bg);padding:1px 5px;border-radius:4px">'+r.gNom+'</span>';html+='</div>';});}
   cont.innerHTML=html;
   cont.style.display='block';
 }
 
 // ---- v20: ID INTERN PER ANIMAL ----
 function nextAid(g){S[g]._aidCounter++;return 'a'+String(S[g]._aidCounter).padStart(4,'0');}
+function findOrCreateAid(g,dib,data){
+  // Si el dib no es generic, buscar si ja existeix
+  if(dib!=='????-????'&&!dib.startsWith('BORR-')){
+    var found=Object.entries(S[g].animals).find(function(e){return e[1].dib===dib;});
+    if(found) return found[0];
+  }
+  var aid=nextAid(g);
+  S[g].animals[aid]=data;
+  return aid;
+}
 let _fitxaAid=null,_fitxaG=null;
 function openAnimalFitxa(g,aid){
   _fitxaG=g;_fitxaAid=aid;
@@ -1605,7 +1618,7 @@ function openAnimalFitxa(g,aid){
       if(!mv.aids) return;
       if(mv.aids.indexOf(aid)>=0){
         var badge=mv.tipus==='entrada'?'<span style="background:#d4edda;color:#155724;padding:2px 8px;border-radius:6px;font-size:.72rem;font-weight:700">\u2191 Entrada</span>':mv.tipus==='baixa'?'<span style="background:var(--baixa-lt);color:var(--baixa);padding:2px 8px;border-radius:6px;font-size:.72rem;font-weight:700">\u2715 Baixa</span>':'<span style="background:#f8d7da;color:#721c24;padding:2px 8px;border-radius:6px;font-size:.72rem;font-weight:700">\u2193 Sortida</span>';
-        movInfo+='<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--bg);border-radius:6px;margin-top:4px">'+badge+'<span style="font-size:.78rem">Dia '+mv.dia+'/'+mk2+'/'+yk2+' \u00b7 Lot '+mv.lot+' \u00b7 '+mv.qty+' animals</span></div>';
+        movInfo+='<div onclick="document.getElementById(\'m-animal\').classList.remove(\'open\');window._fitxaReturnAid=\''+aid+'\';window._fitxaReturnG=\''+g+'\';openHistMov(\''+g+'\',\''+k+'\','+mi+')" style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--bg);border-radius:6px;margin-top:4px;cursor:pointer" onmouseover="this.style.background=\'var(--border)\'" onmouseout="this.style.background=\'var(--bg)\'">'+badge+'<span style="font-size:.78rem">Dia '+mv.dia+'/'+mk2+'/'+yk2+' \u00b7 Lot '+mv.lot+' \u00b7 '+mv.qty+' animals</span><span style="margin-left:auto;font-size:.7rem;color:var(--muted)">\u27a4</span></div>';
       }
     });
   });
@@ -3143,8 +3156,7 @@ function openDetail(g, idx){
     if(!S[g].animals) S[g].animals={};
     m.aids=[];
     m.dibs.forEach(function(dib,di){
-      var aid2=nextAid(g);
-      S[g].animals[aid2]={dib:dib,sex:(m.sexes&&m.sexes[di])||(S[g].sexes&&S[g].sexes[dib])||'',lot:m.lot,cart:m.cart||'-',guia:m.guia||'',diaEnt:m.dia,mesEnt:mes,anyEnt:any};
+      var aid2=findOrCreateAid(g,dib,{dib:dib,sex:(m.sexes&&m.sexes[di])||(S[g].sexes&&S[g].sexes[dib])||'',lot:m.lot,cart:m.cart||'-',guia:m.guia||'',diaEnt:m.dia,mesEnt:mes,anyEnt:any});
       m.aids[di]=aid2;
     });
     sv();
@@ -3189,6 +3201,12 @@ function openDetail(g, idx){
 function closeDetail(){
   document.getElementById('m-detail').classList.remove('open');
   _detailG=null; _detailIdx=null;
+  // v20: tornar a la fitxa animal si venim d'allà
+  if(window._fitxaReturnAid && window._fitxaReturnG){
+    var rAid=window._fitxaReturnAid, rG=window._fitxaReturnG;
+    window._fitxaReturnAid=null; window._fitxaReturnG=null;
+    setTimeout(function(){openAnimalFitxa(rG,rAid);},80);
+  }
 }
 
 function toggleDetailEdit(){
@@ -3930,8 +3948,7 @@ function openHistMov(g,k,mi){
     m.aids=[];
     var pts2=k.split('-');var mk3=parseInt(pts2[0]),yk3=parseInt(pts2[1]);
     m.dibs.forEach(function(dib,di){
-      var aid3=nextAid(g);
-      S[g].animals[aid3]={dib:dib,sex:(m.sexes&&m.sexes[di])||(S[g].sexes&&S[g].sexes[dib])||'',lot:m.lot,cart:m.cart||'-',guia:m.guia||'',diaEnt:m.dia,mesEnt:mk3,anyEnt:yk3};
+      var aid3=findOrCreateAid(g,dib,{dib:dib,sex:(m.sexes&&m.sexes[di])||(S[g].sexes&&S[g].sexes[dib])||'',lot:m.lot,cart:m.cart||'-',guia:m.guia||'',diaEnt:m.dia,mesEnt:mk3,anyEnt:yk3});
       m.aids[di]=aid3;
     });
     sv();
@@ -4118,7 +4135,7 @@ function rHist(g){
   allMovs.filter(mv=>mv.tipus==='entrada').forEach(mv=>{
     if(!mv.dibs||!mv.dibs.length) return;
     // v20: lazy migration
-    if(!mv.aids||!mv.aids.length){var pts3=mv._k.split('-');var m3=parseInt(pts3[0]),y3=parseInt(pts3[1]);mv.aids=[];mv.dibs.forEach(function(dd,ddi){var a3=nextAid(g);S[g].animals[a3]={dib:dd,sex:(mv.sexes&&mv.sexes[ddi])||(S[g].sexes&&S[g].sexes[dd])||'',lot:mv.lot,cart:mv.cart||'-',guia:mv.guia||'',diaEnt:mv.dia,mesEnt:m3,anyEnt:y3};mv.aids[ddi]=a3;});sv();}
+    if(!mv.aids||!mv.aids.length){var pts3=mv._k.split('-');var m3=parseInt(pts3[0]),y3=parseInt(pts3[1]);mv.aids=[];mv.dibs.forEach(function(dd,ddi){var a3=findOrCreateAid(g,dd,{dib:dd,sex:(mv.sexes&&mv.sexes[ddi])||(S[g].sexes&&S[g].sexes[dd])||'',lot:mv.lot,cart:mv.cart||'-',guia:mv.guia||'',diaEnt:mv.dia,mesEnt:m3,anyEnt:y3});mv.aids[ddi]=a3;});sv();}
     mv.dibs.forEach((d,i)=>{
       dibsList.push({
         dib:d, cart:mv.cart||'-',
@@ -4229,7 +4246,7 @@ function rCartLlista(g){
       if(dEnt>selDate) return;
       if(!mv.dibs||!mv.dibs.length) return;
       // v20: lazy migration
-      if(!mv.aids||!mv.aids.length){mv.aids=[];mv.dibs.forEach(function(dd,ddi){var a2=nextAid(g);S[g].animals[a2]={dib:dd,sex:(mv.sexes&&mv.sexes[ddi])||(S[g].sexes&&S[g].sexes[dd])||'',lot:lot.num,cart:mv.cart||'-',guia:mv.guia||'',diaEnt:mv.dia,mesEnt:mv.mes,anyEnt:mv.any};mv.aids[ddi]=a2;});sv();}
+      if(!mv.aids||!mv.aids.length){mv.aids=[];mv.dibs.forEach(function(dd,ddi){var a2=findOrCreateAid(g,dd,{dib:dd,sex:(mv.sexes&&mv.sexes[ddi])||(S[g].sexes&&S[g].sexes[dd])||'',lot:lot.num,cart:mv.cart||'-',guia:mv.guia||'',diaEnt:mv.dia,mesEnt:mv.mes,anyEnt:mv.any});mv.aids[ddi]=a2;});sv();}
       mv.dibs.forEach((d,di)=>{
         animals.push({dib:d, cart:mv.cart||'-', sex:(mv.sexes&&mv.sexes[di])||'', lot:lot.num, diaEnt:mv.dia, mesEnt:mv.mes, anyEnt:mv.any, guia:mv.guia||'', sortit:false, diaSort:0, mesSort:0, anySort:0, tipusSort:'', aid:(mv.aids&&mv.aids[di])||''});
       });
@@ -4393,7 +4410,7 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
-document.getElementById('build-ver').textContent='v20 · 29/03 16:00';
+document.getElementById('build-ver').textContent='v20 · 29/03 16:09';
 renderG('fig');renderG('costa');
 loadNotes();
 // Init historial
