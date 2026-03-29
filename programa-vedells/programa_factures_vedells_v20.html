@@ -1921,27 +1921,27 @@ function rLots(g){
   const rGn=g==='fig'?'Figuera':'La Costa';const rGc=g==='fig'?'#4a7c59':'#3d6b8c';const rGcLt=g==='fig'?'#e8f5e9':'#e3f0f7';
   let rCH=Object.entries(rCarts).filter(e=>e[1].ini>0||e[1].fi>0).sort((a,b)=>b[1].fi-a[1].fi).map(e=>{
     const ct=e[0],v=e[1],col=ccls(ct),d=v.fi-v.ini,dc=d>0?'#2a7a4b':d<0?'#c0392b':'#888';
-    return '<div style="background:var(--card);border-radius:10px;padding:8px 12px;border:1.5px solid var(--border);min-width:110px;flex:1">'+
-      '<div style="margin-bottom:4px"><span class="cc cc-'+col+'" style="font-size:.68rem;padding:2px 8px">'+ct+'</span></div>'+
-      '<div style="display:flex;align-items:baseline;gap:4px;margin-bottom:2px">'+
-      '<span style="font-size:1.1rem;font-weight:700">'+v.ini+'</span>'+
-      '<span style="opacity:.35;font-size:.7rem">\u2192</span>'+
-      '<span style="font-size:1.1rem;font-weight:800;color:var(--'+col+')">'+v.fi+'</span>'+
-      '<span style="font-size:.6rem;font-weight:700;color:'+dc+'">('+((d>0)?'+'+d:d)+')</span></div>'+
-      '<div style="font-size:.58rem;color:var(--muted)">'+(v.entMes?'\u2191'+v.entMes+' ent ':'')+(v.sortMes?'\u2193'+v.sortMes+' sort ':'')+'\u00b7 total \u2191'+v.entHist+'</div></div>';
+    return '<div style="display:inline-flex;align-items:center;gap:4px;background:var(--card);padding:4px 8px;border-radius:6px;border:1px solid var(--border)">'+
+      '<span class="cc cc-'+col+'" style="font-size:.58rem;padding:1px 5px">'+ct+'</span>'+
+      '<b style="font-size:.78rem">'+v.ini+'</b>'+
+      '<span style="opacity:.3;font-size:.6rem">\u2192</span>'+
+      '<b style="font-size:.78rem;color:var(--'+col+')">'+v.fi+'</b>'+
+      '<span style="font-size:.55rem;color:'+dc+'">('+((d>0)?'+'+d:d)+')</span>'+
+      (v.entMes||v.sortMes?'<span style="font-size:.5rem;color:var(--muted)">'+(v.entMes?'\u2191'+v.entMes:'')+(v.sortMes?' \u2193'+v.sortMes:'')+'</span>':'')+
+      '</div>';
   }).join('');
-  const resumPanel='<div style="background:'+rGcLt+';border-radius:14px;padding:14px 16px;margin-bottom:14px;border:2px solid '+rGc+'30">'+
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px">'+
-    '<div style="font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:'+rGc+'">\ud83c\udfe1 '+rGn+' \u00b7 '+MESOS_CA[mes]+' '+any+'</div>'+
-    '<div style="font-size:.6rem;color:var(--muted)">'+lotsDelMes.length+' lots actius</div></div>'+
-    '<div style="display:flex;align-items:baseline;gap:10px;margin-bottom:12px">'+
-    '<span style="font-family:Playfair Display,serif;font-size:2.2rem;line-height:1">'+rTotIni+'</span>'+
-    '<span style="opacity:.35;font-size:1rem">\u2192</span>'+
-    '<span style="font-family:Playfair Display,serif;font-size:2.2rem;line-height:1;color:'+rGc+'">'+rTotFi+'</span>'+
-    '<span style="font-size:.85rem;font-weight:700;color:'+rDc+';background:var(--card);padding:3px 10px;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.1)">'+(rDiff>0?'+':'')+rDiff+'</span>'+
-    '<span style="font-size:.65rem;color:var(--muted)">animals a granja</span></div>'+
-    (rTotEnt||rTotSort?'<div style="font-size:.7rem;color:var(--muted);margin-bottom:10px">Aquest mes: '+(rTotEnt?'<span style="color:#2a7a4b;font-weight:600">\u2191'+rTotEnt+' entrades</span> ':'')+(rTotSort?'<span style="color:#c0392b;font-weight:600">\u2193'+rTotSort+' sortides</span>':'')+'</div>':'')+
-    '<div style="display:flex;flex-wrap:wrap;gap:8px">'+rCH+'</div></div>';
+  const resumPanel='<div style="background:'+rGcLt+';border-radius:10px;padding:8px 12px;margin-bottom:12px;border-left:4px solid '+rGc+';display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px">'+
+    '<span style="font-size:.65rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:'+rGc+'">'+rGn+'</span>'+
+    '<span style="font-family:Playfair Display,serif;font-size:1.4rem;font-weight:700">'+rTotIni+'</span>'+
+    '<span style="opacity:.3;font-size:.7rem">\u2192</span>'+
+    '<span style="font-family:Playfair Display,serif;font-size:1.4rem;font-weight:700;color:'+rGc+'">'+rTotFi+'</span>'+
+    '<span style="font-size:.7rem;font-weight:700;color:'+rDc+';background:var(--card);padding:1px 6px;border-radius:4px">'+(rDiff>0?'+':'')+rDiff+'</span>'+
+    (rTotEnt?'<span style="font-size:.6rem;color:#2a7a4b;font-weight:600">\u2191'+rTotEnt+'</span>':'')+
+    (rTotSort?'<span style="font-size:.6rem;color:#c0392b;font-weight:600">\u2193'+rTotSort+'</span>':'')+
+    '<span style="font-size:.55rem;color:var(--muted)">'+lotsDelMes.length+' lots</span>'+
+    '<span style="width:100%;height:0"></span>'+
+    rCH+
+    '</div>';
 
   el.innerHTML=resumPanel+lotsVisibles.map(l=>{
     const ec=ecls(l.emp);
@@ -4521,7 +4521,7 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
-document.getElementById('build-ver').textContent='v20 · 29/03 17:18';
+document.getElementById('build-ver').textContent='v20 · 29/03 17:24';
 renderG('fig');renderG('costa');
 loadNotes();
 // Init historial
