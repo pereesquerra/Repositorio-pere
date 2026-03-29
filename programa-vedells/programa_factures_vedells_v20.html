@@ -559,7 +559,7 @@ header .sub{font-family:'DM Mono',monospace;font-size:.7rem;color:#999}
 </div>
 
 <!-- MODAL FITXA ANIMAL -->
-<div class="mbg" id="m-animal">
+<div class="mbg" id="m-animal" style="z-index:400">
   <div class="mbox" style="max-width:360px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <h3 style="margin:0">Fitxa animal</h3>
@@ -1530,15 +1530,34 @@ function openAnimalFitxa(g,aid){
   const fS=sexSel==='F'?'background:#d4508b;color:#fff;border:2px solid #d4508b':'background:#fdf0f5;color:#d4508b;border:1.5px solid #e8b0cc;opacity:.5';
   const mS=sexSel==='M'?'background:#3d7bc8;color:#fff;border:2px solid #3d7bc8':'background:#eef3fb;color:#3d7bc8;border:1.5px solid #a0bfe0;opacity:.5';
   const xS=sexSel===''?'background:var(--ink);color:#fff;border:2px solid var(--ink)':'background:#f0f0f0;color:var(--muted);border:1.5px solid var(--border);opacity:.5';
+  // Buscar en quin moviment participa
+  let movInfo='';
+  Object.entries(S[g].movs||{}).forEach(function(entry){
+    var k=entry[0],ms=entry[1];
+    var pts=k.split('-');var mk2=parseInt(pts[0]),yk2=parseInt(pts[1]);
+    ms.forEach(function(mv,mi){
+      if(!mv.aids) return;
+      if(mv.aids.indexOf(aid)>=0){
+        var badge=mv.tipus==='entrada'?'<span style="background:#d4edda;color:#155724;padding:2px 8px;border-radius:6px;font-size:.72rem;font-weight:700">\u2191 Entrada</span>':mv.tipus==='baixa'?'<span style="background:var(--baixa-lt);color:var(--baixa);padding:2px 8px;border-radius:6px;font-size:.72rem;font-weight:700">\u2715 Baixa</span>':'<span style="background:#f8d7da;color:#721c24;padding:2px 8px;border-radius:6px;font-size:.72rem;font-weight:700">\u2193 Sortida</span>';
+        movInfo+='<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--bg);border-radius:6px;margin-top:4px">'+badge+'<span style="font-size:.78rem">Dia '+mv.dia+'/'+mk2+'/'+yk2+' \u00b7 Lot '+mv.lot+' \u00b7 '+mv.qty+' animals</span></div>';
+      }
+    });
+  });
   let html='<div style="font-family:DM Mono,monospace;font-size:1.1rem;margin-bottom:12px">'+dibHtml+'</div>';
-  html+='<div style="display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:.82rem;margin-bottom:14px">';
+  html+='<div style="display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:.82rem;margin-bottom:10px">';
   html+='<span style="color:var(--muted)">Cartilla</span><span><span class="cc cc-'+col+'">'+cart+'</span></span>';
   html+='<span style="color:var(--muted)">Lot</span><span style="font-weight:600">Lot '+(a.lot||'?')+'</span>';
   html+='<span style="color:var(--muted)">Entrada</span><span>'+dataEnt+'</span>';
   if(a.guia) html+='<span style="color:var(--muted)">Guia</span><span style="font-family:DM Mono,monospace;font-size:.72rem">'+a.guia+'</span>';
   html+='</div>';
+  // Moviments associats
+  if(movInfo){
+    html+='<div style="margin-bottom:10px"><label style="font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Moviments</label>'+movInfo+'</div>';
+  }
+  // Editar DIB
   html+='<div style="margin-bottom:10px"><label style="font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Crotal (DIB)</label>';
   html+='<input type="text" id="fitxa-dib" value="'+a.dib+'" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-family:DM Mono,monospace;font-size:.9rem;margin-top:4px"></div>';
+  // Editar sexe
   html+='<div><label style="font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Sexe</label>';
   html+='<div style="display:flex;gap:6px;margin-top:6px">';
   html+='<button onclick="setFitxaSexe(\'F\')" id="fitxa-sf" style="'+bbase+fS+'">\u2640 Femella</button>';
@@ -3023,6 +3042,17 @@ function openDetail(g, idx){
 
   // DIBs en format llista vertical
   const dibsEl=document.getElementById('m-detail-dibs');
+  // v20: Migració progressiva - crear aids si no existeixen
+  if(m.dibs&&m.dibs.length&&(!m.aids||!m.aids.length)){
+    if(!S[g].animals) S[g].animals={};
+    m.aids=[];
+    m.dibs.forEach(function(dib,di){
+      var aid2=nextAid(g);
+      S[g].animals[aid2]={dib:dib,sex:(m.sexes&&m.sexes[di])||(S[g].sexes&&S[g].sexes[dib])||'',lot:m.lot,cart:m.cart||'-',guia:m.guia||'',diaEnt:m.dia,mesEnt:mes,anyEnt:any};
+      m.aids[di]=aid2;
+    });
+    sv();
+  }
   if(m.dibs&&m.dibs.length){
     dibsEl.innerHTML=m.dibs.map((d,i)=>{
       const isPending=d==='????-????';
@@ -3791,6 +3821,18 @@ function openHistMov(g,k,mi){
   else guiaEl.innerHTML='<span style="color:var(--muted);font-style:italic">Sense guia registrada</span>';
   document.getElementById('m-detail-total').innerHTML='<span style="color:'+col+'">'+m.qty+' animal'+(m.qty!==1?'s':'')+'</span>';
   const dibsEl=document.getElementById('m-detail-dibs');
+  // v20: Migració progressiva
+  if(m.dibs&&m.dibs.length&&(!m.aids||!m.aids.length)){
+    if(!S[g].animals) S[g].animals={};
+    m.aids=[];
+    var pts2=k.split('-');var mk3=parseInt(pts2[0]),yk3=parseInt(pts2[1]);
+    m.dibs.forEach(function(dib,di){
+      var aid3=nextAid(g);
+      S[g].animals[aid3]={dib:dib,sex:(m.sexes&&m.sexes[di])||(S[g].sexes&&S[g].sexes[dib])||'',lot:m.lot,cart:m.cart||'-',guia:m.guia||'',diaEnt:m.dia,mesEnt:mk3,anyEnt:yk3};
+      m.aids[di]=aid3;
+    });
+    sv();
+  }
   if(m.dibs&&m.dibs.length){
     dibsEl.innerHTML=m.dibs.map((d,i)=>{
       const isPending=d==='????-????';
@@ -4242,7 +4284,7 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
-document.getElementById('build-ver').textContent='v20 · 29/03 15:03';
+document.getElementById('build-ver').textContent='v20 · 29/03 15:08';
 renderG('fig');renderG('costa');
 loadNotes();
 // Init historial
