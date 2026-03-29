@@ -1555,7 +1555,7 @@ function cercarAnimal(){
       } else {
         if(dib.indexOf(q)>=0) match=true;
       }
-      if(match){seen[aid]=true;var aGr=estaAGranja(g,aid);results.push({g:g,gNom:gNom,aid:aid,a:a,aGranja:aGr});}
+      if(match){var sk=g+'_'+aid;if(!seen[sk]){seen[sk]=true;var aGr=estaAGranja(g,aid);results.push({g:g,gNom:gNom,aid:aid,a:a,aGranja:aGr});}}
     });
   });
   if(!results.length){
@@ -4521,7 +4521,7 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
-document.getElementById('build-ver').textContent='v20 · 29/03 17:28';
+document.getElementById('build-ver').textContent='v20 · 29/03 17:43';
 renderG('fig');renderG('costa');
 loadNotes();
 // Init historial
