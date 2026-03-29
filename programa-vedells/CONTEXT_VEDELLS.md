@@ -97,3 +97,74 @@ El programa MAI esborra animals automàticament. Zero `delete S[g].animals`. Nom
 - REGA La Coma: ES082290036967
 - Colors: ECO=#4a7c59, PE=#e06a00, SATF=#7b5ea7, RAM=#3d6b8c, COM=#8B6914
 - Preus: pre-2025=0.30, 2025=0.35, 2026+=0.40
+
+
+---
+
+## BUGS CONEGUTS / PENDENTS (29 març 2026)
+
+### Buscador
+- 1.652 animals al Mac quan haurien de ser ~707: duplicats de migracions anteriors bugades
+- Fix aplicat: migració ara completa en lloc de resetejar, però els duplicats antics segueixen al localStorage
+- Per netejar: localStorage.removeItem('vd29') al Mac i GitHub Pages
+- A l'iPhone: esborrar dades de github.io a Safari
+- Buscar "????" funciona però mostra massa resultats per duplicats antics
+
+### Panell resum granja
+- Al mòbil (iPhone) no es veu bé — massa gran, no s'adapta
+- Els números de cartilla poden ser incorrectes si hi ha lots amb vIni sense cartilla assignada
+- Cal fer-lo més prim/horitzontal i responsive
+
+### Fitxa animal al mòbil
+- Moviments clicables: FUNCIONA amb fitxaGoMovIdx + lookup table (botó natiu)
+- Guardar canvis: FUNCIONA des de tots els llocs
+
+### Migracions
+- La migració progressiva NOMES crea animals per ENTRADES (no sortides)
+- Si m.aids ja existeix, completa els que falten sense resetejar
+- findOrCreateAid NO deduplicà ????-???? (cada un és únic)
+
+---
+
+## FLUX DE TREBALL
+
+### Editar fitxer al Mac
+1. Desktop Commander: read_file, edit_block, write_file, start_process
+2. Filesystem: edit_file (alternativa per edicions exactes)
+3. Python scripts via start_process per substitucions complexes
+
+### Verificar JS
+```
+python3 -c "import re,subprocess;..." (veure CONTEXT anterior)
+```
+Alternativa: `cd /tmp && node -c check_js.js`
+
+### Pujar a GitHub
+```
+cd /Users/pereesquerra24/Desktop/Repositorio-pere
+cp "...factures_vedells_20.html" programa-vedells/programa_factures_vedells_v20.html
+git add -A && git commit -m "msg" && git push origin claude/add-claude-documentation-KINri
+```
+
+### Obrir Chrome
+```
+open -a 'Google Chrome' '/Users/.../factures_vedells_20.html'
+```
+
+### iPad/iPhone
+```
+https://pereesquerra.github.io/Repositorio-pere/programa-vedells/programa_factures_vedells_v20.html?v=N
+```
+Incrementar ?v=N per forçar refresc caché
+
+---
+
+## DECISIONS D'ARQUITECTURA IMPORTANTS
+
+1. **Un sol fitxer HTML** — tot el CSS, JS i dades en un sol fitxer
+2. **localStorage** — les dades es guarden al navegador, no al servidor
+3. **defState()** — dades inicials hardcodejades al codi (fallback si localStorage buit)
+4. **No esborrar mai** — el programa MAI esborra animals, només el granger
+5. **Migració progressiva** — els IDs es creen quan l'usuari consulta vistes, no al carregar
+6. **Granges independents** — cada granja té el seu S[g] completament separat
+7. **findOrCreateAid** — per DIBs reals busca si existeix; per ????-???? crea sempre un de nou
