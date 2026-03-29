@@ -1904,50 +1904,72 @@ function rLots(g){
   }
 
   // ---- PANELL RESUM GRANJA ----
-  let totalIni=0, totalFi=0;
+  // Calcular totals DIRECTAMENT dels lots actius
+  let totalIni=0, totalFi=0, totalEntrades=0;
   const cartTotals={};
   lotsDelMes.forEach(l=>{
     const vIni2=vLotIniMes(g,l.num,mes,any);
     const vFi2=esMesActual?l.v:vLotAlMes(g,l.num,mes,any);
     totalIni+=vIni2; totalFi+=vFi2;
-    // Per cartilla
-    const allMvLot2=Object.values(S[g].movs||{}).flat().filter(mv=>mv.lot===l.num);
-    const carts2=[...new Set([...Object.keys(l.carts||{}),...allMvLot2.filter(mv=>mv.cart&&mv.cart!=='-').map(mv=>mv.cart)])];
-    carts2.forEach(ct=>{
-      const ci=vCartIniMes(g,l.num,ct,mes,any);
-      const cf=vCartAlMes(g,l.num,ct,mes,any);
-      if(!cartTotals[ct]) cartTotals[ct]={ini:0,fi:0};
-      cartTotals[ct].ini+=ci; cartTotals[ct].fi+=cf;
+  });
+  // Per cartilla: sumar TOTS els moviments de TOTS els lots
+  Object.entries(S[g].movs||{}).forEach(([k,ms])=>{
+    const pts=k.split('-');const km=parseInt(pts[0]),ky=parseInt(pts[1]);
+    ms.forEach(mv=>{
+      const ct=mv.cart||'-';
+      if(ct==='-') return;
+      if(!cartTotals[ct]) cartTotals[ct]={ini:0,fi:0,totEnt:0};
+      // Total entrades historic
+      if(mv.tipus==='entrada') cartTotals[ct].totEnt+=mv.qty;
     });
+  });
+  // Calcular fi de mes per cartilla (sumant tots els lots)
+  const allCarts=[...new Set(Object.values(S[g].movs||{}).flat().filter(mv=>mv.cart&&mv.cart!=='-').map(mv=>mv.cart))];
+  allCarts.forEach(ct=>{
+    if(!cartTotals[ct]) cartTotals[ct]={ini:0,fi:0,totEnt:0};
+    let cIni=0,cFi=0;
+    lotsDelMes.forEach(l=>{
+      cIni+=vCartIniMes(g,l.num,ct,mes,any);
+      cFi+=vCartAlMes(g,l.num,ct,mes,any);
+    });
+    cartTotals[ct].ini=cIni;
+    cartTotals[ct].fi=cFi;
   });
   const diff=totalFi-totalIni;
   const diffColor=diff>0?'var(--eco)':diff<0?'var(--pe)':'var(--muted)';
   const diffText=diff>0?'+'+diff:diff===0?'=':''+diff;
   const gNomResum=g==='fig'?'Figuera':'La Costa';
-  let cartsResumHTML=Object.entries(cartTotals).filter(([c,v])=>v.ini>0||v.fi>0).map(([ct,v])=>{
+  const gIcon=g==='fig'?'\ud83c\udfdb':'\ud83c\udfd4';
+  const gBorderColor=g==='fig'?'var(--eco)':'var(--costa)';
+  // Cartilles HTML
+  let cartsResumHTML=Object.entries(cartTotals).filter(([c,v])=>v.ini>0||v.fi>0).sort((a,b)=>b[1].fi-a[1].fi).map(([ct,v])=>{
     const col=ccls(ct);const d2=v.fi-v.ini;const dc=d2>0?'var(--eco)':d2<0?'var(--pe)':'var(--muted)';
-    return `<div style="display:flex;align-items:center;gap:6px">
-      <span class="cc cc-${col}" style="font-size:.7rem;padding:2px 8px">${ct}</span>
-      <span style="font-weight:600;font-size:.85rem">${v.ini}</span>
-      <span style="color:var(--muted);font-size:.7rem">\u2192</span>
-      <span style="font-weight:700;font-size:.85rem;color:var(--${col})">${v.fi}</span>
-      <span style="font-size:.65rem;color:${dc};font-weight:600">(${d2>0?'+'+d2:d2})</span>
-    </div>`;
+    return '<div style="display:flex;align-items:center;gap:5px;padding:6px 10px;background:var(--bg);border-radius:8px">'+
+      '<span class="cc cc-'+col+'" style="font-size:.7rem;padding:2px 8px">'+ct+'</span>'+
+      '<span style="font-weight:600;font-size:.82rem">'+v.ini+'</span>'+
+      '<span style="color:var(--muted);font-size:.65rem">\u2192</span>'+
+      '<span style="font-weight:700;font-size:.82rem;color:var(--'+col+')">'+v.fi+'</span>'+
+      '<span style="font-size:.6rem;color:'+dc+';font-weight:600">('+((d2>0)?'+'+d2:d2)+')</span>'+
+      '<span style="font-size:.55rem;color:var(--muted);margin-left:2px">\u2191'+v.totEnt+'</span>'+
+      '</div>';
   }).join('');
 
-  const resumPanel=`<div style="background:var(--card);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow);margin-bottom:14px;border-left:5px solid ${g==='fig'?'var(--eco)':'var(--costa)'}">
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px">
-      <div style="font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">\ud83c\udfe1 Total ${gNomResum}</div>
-      <div style="font-size:.65rem;color:var(--muted)">${MESOS_CA[mes]} ${any}</div>
-    </div>
-    <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:10px">
-      <span style="font-family:'Playfair Display',serif;font-size:1.8rem;line-height:1">${totalIni}</span>
-      <span style="color:var(--muted);font-size:1rem">\u2192</span>
-      <span style="font-family:'Playfair Display',serif;font-size:1.8rem;line-height:1;color:${diffColor}">${totalFi}</span>
-      <span style="font-size:.82rem;font-weight:700;color:${diffColor};background:${diff>0?'#d4edda':diff<0?'#f8d7da':'var(--bg)'};padding:2px 8px;border-radius:6px">${diffText}</span>
-    </div>
-    <div style="display:flex;flex-wrap:wrap;gap:8px 16px">${cartsResumHTML}</div>
-  </div>`;
+  const resumPanel='<div style="background:var(--card);border-radius:14px;padding:14px 18px;box-shadow:0 2px 12px rgba(0,0,0,.08);margin-bottom:14px;border-top:4px solid '+gBorderColor+'">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'+
+    '<div style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">'+gIcon+' Total '+gNomResum+'</div>'+
+    '<div style="font-size:.62rem;color:var(--muted)">'+MESOS_CA[mes]+' '+any+' \u00b7 '+lotsDelMes.length+' lots actius</div>'+
+    '</div>'+
+    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap">'+
+    '<div style="display:flex;align-items:baseline;gap:8px">'+
+    '<span style="font-family:Playfair Display,serif;font-size:2rem;line-height:1">'+totalIni+'</span>'+
+    '<span style="color:var(--muted);font-size:.9rem">\u2192</span>'+
+    '<span style="font-family:Playfair Display,serif;font-size:2rem;line-height:1;color:'+diffColor+'">'+totalFi+'</span>'+
+    '</div>'+
+    '<span style="font-size:.78rem;font-weight:700;color:'+diffColor+';background:'+(diff>0?'#d4edda':diff<0?'#f8d7da':'var(--bg)')+';padding:3px 10px;border-radius:6px">'+diffText+'</span>'+
+    '<span style="font-size:.65rem;color:var(--muted)">animals a granja</span>'+
+    '</div>'+
+    '<div style="display:flex;flex-wrap:wrap;gap:6px">'+cartsResumHTML+'</div>'+
+    '</div>';
 
   el.innerHTML=resumPanel+lotsVisibles.map(l=>{
     const ec=ecls(l.emp);
@@ -4527,7 +4549,7 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
-document.getElementById('build-ver').textContent='v20 · 29/03 16:58';
+document.getElementById('build-ver').textContent='v20 · 29/03 17:02';
 renderG('fig');renderG('costa');
 loadNotes();
 // Init historial
