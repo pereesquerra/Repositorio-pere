@@ -1598,6 +1598,23 @@ function guardarAnimalFitxa(){
   try{
     sv();renderG(g);
     document.getElementById('m-animal').classList.remove('open');
+    // Refrescar el detall "maco" si estava obert
+    var detailModal=document.getElementById('m-detail');
+    if(detailModal&&detailModal.classList.contains('open')){
+      // Trobar el moviment que conté aquest aid i reobrir-lo
+      var found=false;
+      Object.entries(S[g].movs||{}).forEach(function(entry){
+        if(found) return;
+        var mk2=entry[0],ms2=entry[1];
+        ms2.forEach(function(mv2,mi2){
+          if(found) return;
+          if(mv2.aids&&mv2.aids.indexOf(_fitxaAid)>=0){
+            found=true;
+            setTimeout(function(){openHistMov(g,mk2,mi2);},50);
+          }
+        });
+      });
+    }
     // Feedback visible
     var fb=document.createElement('div');
     fb.style.cssText='position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#2a7a4b;color:#fff;padding:10px 20px;border-radius:10px;z-index:999;font-weight:700;font-size:.85rem;box-shadow:0 4px 15px rgba(0,0,0,.3)';
@@ -4304,7 +4321,7 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
-document.getElementById('build-ver').textContent='v20 · 29/03 15:18';
+document.getElementById('build-ver').textContent='v20 · 29/03 15:22';
 renderG('fig');renderG('costa');
 loadNotes();
 // Init historial
