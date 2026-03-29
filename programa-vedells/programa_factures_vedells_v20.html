@@ -1903,7 +1903,53 @@ function rLots(g){
     return;
   }
 
-  el.innerHTML=lotsVisibles.map(l=>{
+  // ---- PANELL RESUM GRANJA ----
+  let totalIni=0, totalFi=0;
+  const cartTotals={};
+  lotsDelMes.forEach(l=>{
+    const vIni2=vLotIniMes(g,l.num,mes,any);
+    const vFi2=esMesActual?l.v:vLotAlMes(g,l.num,mes,any);
+    totalIni+=vIni2; totalFi+=vFi2;
+    // Per cartilla
+    const allMvLot2=Object.values(S[g].movs||{}).flat().filter(mv=>mv.lot===l.num);
+    const carts2=[...new Set([...Object.keys(l.carts||{}),...allMvLot2.filter(mv=>mv.cart&&mv.cart!=='-').map(mv=>mv.cart)])];
+    carts2.forEach(ct=>{
+      const ci=vCartIniMes(g,l.num,ct,mes,any);
+      const cf=vCartAlMes(g,l.num,ct,mes,any);
+      if(!cartTotals[ct]) cartTotals[ct]={ini:0,fi:0};
+      cartTotals[ct].ini+=ci; cartTotals[ct].fi+=cf;
+    });
+  });
+  const diff=totalFi-totalIni;
+  const diffColor=diff>0?'var(--eco)':diff<0?'var(--pe)':'var(--muted)';
+  const diffText=diff>0?'+'+diff:diff===0?'=':''+diff;
+  const gNomResum=g==='fig'?'Figuera':'La Costa';
+  let cartsResumHTML=Object.entries(cartTotals).filter(([c,v])=>v.ini>0||v.fi>0).map(([ct,v])=>{
+    const col=ccls(ct);const d2=v.fi-v.ini;const dc=d2>0?'var(--eco)':d2<0?'var(--pe)':'var(--muted)';
+    return `<div style="display:flex;align-items:center;gap:6px">
+      <span class="cc cc-${col}" style="font-size:.7rem;padding:2px 8px">${ct}</span>
+      <span style="font-weight:600;font-size:.85rem">${v.ini}</span>
+      <span style="color:var(--muted);font-size:.7rem">\u2192</span>
+      <span style="font-weight:700;font-size:.85rem;color:var(--${col})">${v.fi}</span>
+      <span style="font-size:.65rem;color:${dc};font-weight:600">(${d2>0?'+'+d2:d2})</span>
+    </div>`;
+  }).join('');
+
+  const resumPanel=`<div style="background:var(--card);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow);margin-bottom:14px;border-left:5px solid ${g==='fig'?'var(--eco)':'var(--costa)'}">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+      <div style="font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">\ud83c\udfe1 Total ${gNomResum}</div>
+      <div style="font-size:.65rem;color:var(--muted)">${MESOS_CA[mes]} ${any}</div>
+    </div>
+    <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:10px">
+      <span style="font-family:'Playfair Display',serif;font-size:1.8rem;line-height:1">${totalIni}</span>
+      <span style="color:var(--muted);font-size:1rem">\u2192</span>
+      <span style="font-family:'Playfair Display',serif;font-size:1.8rem;line-height:1;color:${diffColor}">${totalFi}</span>
+      <span style="font-size:.82rem;font-weight:700;color:${diffColor};background:${diff>0?'#d4edda':diff<0?'#f8d7da':'var(--bg)'};padding:2px 8px;border-radius:6px">${diffText}</span>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px 16px">${cartsResumHTML}</div>
+  </div>`;
+
+  el.innerHTML=resumPanel+lotsVisibles.map(l=>{
     const ec=ecls(l.emp);
     const colorVar=ec==='eco'?'eco':ec==='pe'?'pe':ec==='sat'?'sat':'costa';
     const total=totalEntrats(g,l.num);
@@ -4481,7 +4527,7 @@ function calcDiesTotals(g,lotNum,allMovs,lot){
 }
 
 document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
-document.getElementById('build-ver').textContent='v20 · 29/03 16:54';
+document.getElementById('build-ver').textContent='v20 · 29/03 16:58';
 renderG('fig');renderG('costa');
 loadNotes();
 // Init historial
