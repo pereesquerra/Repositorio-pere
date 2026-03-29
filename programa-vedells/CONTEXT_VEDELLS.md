@@ -1,170 +1,90 @@
-# Programa Vedells — Context Complet
-## Actualitzat: 29 març 2026 (sessió 3 — v20 avançada)
+# CONTEXT VEDELLS — Actualitzat 29/03/2026
 
-**Fitxer v19 (FINAL):** factures_vedells_19.html
-**Fitxer v20 (WIP):** factures_vedells_20.html
-**Carpeta:** /Users/pereesquerra24/Desktop/claude/Webs/programa vedells/
-**GitHub:** pereesquerra/Repositorio-pere branca claude/add-claude-documentation-KINri
-**Repo:** /Users/pereesquerra24/Desktop/Repositorio-pere
-**localStorage:** vd29
+## FITXERS
+- **v20 (ACTUAL):** `factures_vedells_20.html` (265KB) — amb La Coma
+- **v19:** `factures_vedells_19.html` (185KB) — última sense La Coma
+- **v18:** `factures_vedells_18.html` (74KB)
+- **v17:** `factures_vedells_17.html` (73KB)
+- **GitHub:** `pereesquerra/Repositorio-pere` branca `claude/add-claude-documentation-KINri`
+- **Carpeta local:** `/Users/pereesquerra24/Desktop/claude/Webs/programa vedells/`
+- **localStorage key:** `vd29`
 
----
+## TRES GRANGES
 
-## REGLA D'OR
-El programa MAI esborra animals automàticament. Zero `delete S[g].animals`. Només el granger pot esborrar.
+### Figuera (fig)
+- Cartilles: ECO, SATF, PE
+- Gestió per VOLUM (sense DIBs individuals)
+- Animals: `????-????` (placeholders)
+- NO té: mare, fills, dataNaix, raça, morfotip
 
----
+### La Costa (costa)
+- Cartilla: RAM
+- Gestió per VOLUM
+- Animals: `????-????` (placeholders)
+- NO té: mare, fills, dataNaix, raça, morfotip
 
-## v20 — IMPLEMENTAT
-
-### Sistema IDs interns
-- S[g].animals = registre central, S[g]._aidCounter
-- nextAid(g), findOrCreateAid(g, dib, data)
-- Migració progressiva: crea aids quan s'obre detall/historial/cartilla
-- NOMES per entrades (mai sortides)
-- Completar si falten (mai resetejar aids existents)
-
-### Fitxa animal (modal z-index:400)
-- Clicable des de: detall moviment, historial lots, animals per cartilla, buscador
-- Mostra: DIB editable, sexe editable, cartilla, lot, guia, data entrada
-- Moviments associats clicables amb fletxa ➤ (fitxaGoMovIdx + lookup table)
-- Guardar propaga canvis a TOTS els moviments (crea mv.sexes si falta)
-- Refresca detall + cartilla després de guardar
-
-### Buscador d'animals
-- Cerca per últims 4 dígits o número complet
-- Resultats separats: "A granja" (verd) vs "Sortits" (vermell, amagats per defecte)
-- Progressiu: mostra 20 + botó "Mostrar més"
-- Separat per granja (seen key: g+'_'+aid)
-- estaAGranja() comprova si l'animal ha sortit
-
-### Lots clicables
-- "LOT 9 ➤" obre historial (openLotHist)
-- CSS: .lc-num amb fons, vora, font gran
-
-### Panell resum granja
-- Sobre els lots, grid-column:1/-1
-- Total inici→fi + diferència + entrades/sortides mes
-- Per cartilla: inici→fi + moviments mes + total entrades lots actius
-- Cal millorar disseny mòbil
-
-### 5 dígits
-- {1,4} en lloc de {1,5} a TOTES les instàncies
-- 5+ dígits: prefix + últims 4
-
-### Sexe
-- NOMES editable a entrades (no sortides)
-- guardarAnimalFitxa crea mv.sexes si no existeix
-- Propaga per aid (no per dib)
-
----
-
-## PRÒXIMA TASCA: GRANJA "LA COMA"
-
-### Dades
-- Nom: ECOFUTUR AGRÍCOLA RAMADER - LA COMA
-- Cartilla: 712:AX (abreviatura: COM)
+### La Coma (coma) — NOU v20
+- Cartilla: COM (COM 712:AX)
 - REGA: ES082290036967
-- Color suggerit: marró terra #8B6914
+- Color: #8B6914 (marró terra)
+- Gestió per ANIMAL INDIVIDUAL amb DIBs reals
+- **69 animals** importats del GTR (25 FR + 44 ES)
+- Lot 100 (únic lot actiu)
+- Migració flag: `_v3` (s'executa una sola vegada)
+- `syncComaLot()` sincronitza lot.v amb animals reals
 
-### Requisits
-- Pestanya nova independent al costat de Figuera i La Costa
-- ~50 vaques + 2 toros + vedells fills
-- Lot 100 per defecte
-- Entrades, sortides, baixes (igual que Figuera)
-- DATA DE NAIXEMENT per animal → edat calculada (anys i mesos)
-- GENEALOGIA: camp "Mare" a la fitxa (DIB mare, clicable)
-- Facturació desactivada per defecte (opció d'activar)
-- Càrrega inicial des d'Excel
-- Buscador separat (no barrejar amb Figuera/Costa)
-- Molt pocs moviments anuals
+#### Dades per animal (NOMÉS La Coma)
+- DIB, sexe, dataNaix, morfotip/raça
+- Mare (NOMÉS per ES, no per FR — les mares FR són a França)
+- Fills: historial de parts complet (99 parts de 36 vaques, des de 2021)
+- Tipus: Vaca (♀ ≥2 anys), Toro (♂ ≥2 anys), Vedell/a (<2 anys)
 
-### Implementació
-1. Afegir 'coma' a defState amb lots, movs, sexes, animals, etc.
-2. Afegir pestanya HTML
-3. Adaptar renderG, rLots, etc. per 3 granges
-4. Camp dataNaix a S[g].animals → edat a fitxa i llistats
-5. Camp mare a S[g].animals → link clicable
-6. Importador Excel
+#### Fitxa animal
+- Mode CONSULTA per defecte (res editable)
+- Botó "✏️ Editar" per entrar en mode edició
+- Mode edició: DIB, dataNaix, mare, sexe (♀/♂/—), + botó 🗑 Eliminar
+- Eliminar: confirmació amb info lot/sexe/dib + avís botó ↩ Desfer
+- Mare fora explotació: badge vermell "Fora explotació" (no clicable)
 
----
+#### Layout La Coma (ordre visual)
+1. Header + Lots actius (Lot 100) + botons
+2. Moviments del mes (calendari `<input type="date">`)
+3. Comptadors (Vaques/Toros/Vedells/Total)
+4. Llistat d'animals (desplegables per categoria)
+5. Notes, Historial lots, Animals per cartilla, Importar CSV
 
-## DADES TÈCNIQUES
-- localStorage: vd29
-- PDF.js: v3.11.174
-- REGA Figuera: ES082290033519
-- REGA La Costa: ES081920008093
-- REGA La Coma: ES082290036967
-- Colors: ECO=#4a7c59, PE=#e06a00, SATF=#7b5ea7, RAM=#3d6b8c, COM=#8B6914
-- Preus: pre-2025=0.30, 2025=0.35, 2026+=0.40
+## FUNCIONALITATS IMPLEMENTADES v20
 
+- Tres pestanyes: Figuera, La Costa, La Coma
+- Panell resum granja amb nom+color correcte per cada granja
+- DIBs clicables als moviments (busca per DIB al registre)
+- Modal dades extra per nous animals La Coma (raça, dataNaix, sexe, tipus, mare)
+- Modal confirmació es tanca ABANS de renderG (no duplica animals)
+- Mare/fills/raça/naixement EXCLUSIUS de La Coma (eliminat de Figuera/Costa)
+- Adjuntar PDF per entrades La Coma
+- Lot 100 sempre visible (condició `g==='coma'&&l.actiu&&l.v>0`)
 
----
+## BUGS RESOLTS v20
+- `_hist` temporal dead zone: migracions usen `localStorage.setItem()` directe
+- `_hiddenLots` sense entrada `coma`: afegit `coma:new Set()`
+- Modal confirmació no es tancava: `closeMD()` cridat abans de `renderG()`
+- Panell "La Costa" a La Coma: afegit `g==='coma'?'La Coma':...`
+- Animals nous no apareixien: `rComaResum` ara inclou animals sense dataNaix
 
-## BUGS CONEGUTS / PENDENTS (29 març 2026)
+## PENDENTS
+- Calendari per data d'incorporació al formulari entrada
+- Adjuntar PDF per entrades vedells (parse DIBs del PDF)
+- Preguntar raça + tipus al fer entrada manual
+- Login + multi-granja (Supabase Auth)
+- PWA instal·lable
+- Deploy a gesclic.com
 
-### Buscador
-- 1.652 animals al Mac quan haurien de ser ~707: duplicats de migracions anteriors bugades
-- Fix aplicat: migració ara completa en lloc de resetejar, però els duplicats antics segueixen al localStorage
-- Per netejar: localStorage.removeItem('vd29') al Mac i GitHub Pages
-- A l'iPhone: esborrar dades de github.io a Safari
-- Buscar "????" funciona però mostra massa resultats per duplicats antics
+## DADES LA COMA (origen)
+- `ImpressioDIBsXLS-4.xls` — DIBs, sexe, morfotip, dataNaix
+- `Document_DIBs-7.pdf` — Mare de cada animal, data incorporació
+- `LlistatNaixementsXLS 20260329082048.xlsx` — 129 naixements (2021-2026), historial parts
+- Carpeta: `/Users/pereesquerra24/Desktop/LA COMA/`
 
-### Panell resum granja
-- Al mòbil (iPhone) no es veu bé — massa gran, no s'adapta
-- Els números de cartilla poden ser incorrectes si hi ha lots amb vIni sense cartilla assignada
-- Cal fer-lo més prim/horitzontal i responsive
-
-### Fitxa animal al mòbil
-- Moviments clicables: FUNCIONA amb fitxaGoMovIdx + lookup table (botó natiu)
-- Guardar canvis: FUNCIONA des de tots els llocs
-
-### Migracions
-- La migració progressiva NOMES crea animals per ENTRADES (no sortides)
-- Si m.aids ja existeix, completa els que falten sense resetejar
-- findOrCreateAid NO deduplicà ????-???? (cada un és únic)
-
----
-
-## FLUX DE TREBALL
-
-### Editar fitxer al Mac
-1. Desktop Commander: read_file, edit_block, write_file, start_process
-2. Filesystem: edit_file (alternativa per edicions exactes)
-3. Python scripts via start_process per substitucions complexes
-
-### Verificar JS
-```
-python3 -c "import re,subprocess;..." (veure CONTEXT anterior)
-```
-Alternativa: `cd /tmp && node -c check_js.js`
-
-### Pujar a GitHub
-```
-cd /Users/pereesquerra24/Desktop/Repositorio-pere
-cp "...factures_vedells_20.html" programa-vedells/programa_factures_vedells_v20.html
-git add -A && git commit -m "msg" && git push origin claude/add-claude-documentation-KINri
-```
-
-### Obrir Chrome
-```
-open -a 'Google Chrome' '/Users/.../factures_vedells_20.html'
-```
-
-### iPad/iPhone
-```
-https://pereesquerra.github.io/Repositorio-pere/programa-vedells/programa_factures_vedells_v20.html?v=N
-```
-Incrementar ?v=N per forçar refresc caché
-
----
-
-## DECISIONS D'ARQUITECTURA IMPORTANTS
-
-1. **Un sol fitxer HTML** — tot el CSS, JS i dades en un sol fitxer
-2. **localStorage** — les dades es guarden al navegador, no al servidor
-3. **defState()** — dades inicials hardcodejades al codi (fallback si localStorage buit)
-4. **No esborrar mai** — el programa MAI esborra animals, només el granger
-5. **Migració progressiva** — els IDs es creen quan l'usuari consulta vistes, no al carregar
-6. **Granges independents** — cada granja té el seu S[g] completament separat
-7. **findOrCreateAid** — per DIBs reals busca si existeix; per ????-???? crea sempre un de nou
+## COM CONTINUAR
+Frase per iniciar nova sessió:
+> Llegeix CONTEXT_VEDELLS.md i factures_vedells_20.html. Continuem amb la v20.
