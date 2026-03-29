@@ -1,0 +1,4033 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestió Animals Boví</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f1ec;--card:#fff;--ink:#1c1b18;--muted:#8a8478;--border:#e2ddd5;
+  --fig:#4a7c59;--fig-lt:#eaf3ed;
+  --costa:#3d6b8c;--costa-lt:#e4eff7;
+  --eco:#4a7c59;--eco-lt:#eaf3ed;
+  --pe:#e06a00;--pe-lt:#fff0e0;
+  --sat:#7b5ea7;--sat-lt:#f0ebf8;
+  --ram:#3d6b8c;--ram-lt:#e4eff7;
+  --shadow:0 2px 14px rgba(0,0,0,.07);
+  --baixa:#8c3d6b;--baixa-lt:#f5e4ef;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--ink);min-height:100vh}
+
+header{background:var(--ink);color:#fff;padding:13px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+header h1{font-family:'Playfair Display',serif;font-size:1.1rem}
+header .sub{font-family:'DM Mono',monospace;font-size:.7rem;color:#999}
+
+.tabs{display:flex;background:var(--ink);padding:0 20px;gap:3px}
+.tab{padding:9px 18px;font-size:.83rem;font-weight:500;cursor:pointer;border-radius:8px 8px 0 0;border:none;background:none;color:#888;font-family:'DM Sans',sans-serif;transition:all .2s}
+.tab.active{background:var(--bg);color:var(--ink)}
+
+.page{display:none;padding:16px 20px}
+.page.active{display:block}
+
+.g-header{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.g-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.g-header h2{font-family:'Playfair Display',serif;font-size:1.25rem}
+.g-header .gsub{font-size:.73rem;color:var(--muted);font-family:'DM Mono',monospace}
+
+.mes-bar{display:flex;align-items:center;gap:8px;background:var(--card);border-radius:10px;padding:10px 14px;box-shadow:var(--shadow);margin-bottom:16px;flex-wrap:wrap}
+.mes-bar label{font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.mes-bar select{padding:6px 9px;border-radius:6px;border:1.5px solid var(--border);font-size:.84rem;background:#fff;font-family:'DM Sans',sans-serif;color:var(--ink)}
+.preu-pill{margin-left:auto;background:var(--ink);color:#fff;padding:6px 14px;border-radius:20px;font-family:'DM Mono',monospace;font-size:.76rem;cursor:pointer;border:none;min-height:32px;-webkit-tap-highlight-color:rgba(0,0,0,.1)}
+.preu-pill:hover,.preu-pill:active{background:#444}
+
+.stitle{font-size:.67rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:18px 0 9px}
+
+/* LOTS */
+.lots-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:8px}
+.lot-card{background:var(--card);border-radius:12px;padding:14px 14px 12px;box-shadow:var(--shadow);border-left:5px solid var(--border);position:relative;overflow:hidden}
+.lc-num{font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:700;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.lc-count{font-family:'Playfair Display',serif;font-size:2.2rem;line-height:1;margin:4px 0 0}
+.lc-label{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.lc-main{display:flex;align-items:baseline;gap:8px;margin:0 0 4px}
+.lc-main-n{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:700;line-height:1}
+.lc-main-arrow{font-size:1.1rem;color:var(--muted);line-height:1;padding:0 1px}
+.lc-total-badge{font-size:.63rem;color:var(--muted);margin-bottom:10px;letter-spacing:.03em}
+.lc-total-badge b{color:var(--ink);font-weight:700}
+.lc-stats{display:none}
+.lc-stat{display:flex;flex-direction:column;align-items:center;gap:2px}
+.lc-stat-n{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;line-height:1}
+.lc-stat-l{font-size:.5rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.lc-arrow{font-size:1rem;color:var(--muted);text-align:center}
+.lc-carts{display:flex;flex-direction:column;gap:7px;border-top:1px solid var(--border);padding-top:10px;margin-top:6px}
+.cart-row{display:grid;grid-template-columns:auto 1fr auto 18px auto;align-items:center;gap:6px;padding:2px 0}
+.cart-ini{font-family:'DM Mono',monospace;font-size:.78rem;color:var(--muted);text-align:right;min-width:24px}
+.cart-arr{font-size:.75rem;text-align:center}
+.cart-fi{font-family:'DM Mono',monospace;font-size:1rem;font-weight:700;text-align:left;min-width:28px}
+.lc-movs{margin-top:8px;border-top:1px solid var(--border);padding-top:7px;display:flex;flex-direction:column;gap:4px}
+.lc-mov{display:flex;align-items:center;gap:5px;font-size:.74rem;padding:3px 4px;border-radius:6px;background:var(--bg)}
+.lc-mov-dia{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--muted);min-width:40px}
+.lc-mov-badge{padding:2px 6px;border-radius:8px;font-size:.63rem;font-weight:700;min-width:18px;text-align:center}
+.lc-mov-in{background:#d4edda;color:#155724}
+.lc-mov-out{background:#f8d7da;color:#721c24}
+.lc-mov-baixa{background:var(--baixa-lt);color:var(--baixa);border:1px solid #d4a0c4}
+.notes-section{margin:0 0 18px 0;border-radius:10px;overflow:hidden;box-shadow:var(--shadow)}
+.notes-toggle{list-style:none;cursor:pointer;padding:10px 16px;font-size:.85rem;font-weight:700;background:var(--card);color:var(--muted);display:flex;align-items:center;gap:8px;user-select:none}
+.notes-toggle::-webkit-details-marker{display:none}
+.notes-section[open] .notes-toggle{border-bottom:1px solid var(--border)}
+.notes-body{background:var(--card);padding:10px}
+.notes-ta{width:100%;min-height:90px;border:1px solid var(--border);border-radius:8px;padding:10px;font-size:.82rem;font-family:inherit;resize:vertical;background:var(--bg);color:var(--text);box-sizing:border-box}
+.notes-ta:focus{outline:none;border-color:var(--eco)}
+.lc-mov-q{font-family:'DM Mono',monospace;font-weight:700;min-width:28px;text-align:right}
+.cart-row-label{font-size:.62rem;color:var(--muted);flex:1;text-align:right}
+.cart-n{font-family:'DM Mono',monospace;font-size:.85rem;font-weight:700;color:var(--ink);min-width:28px;text-align:right}
+.cc{padding:2px 6px;border-radius:8px;font-size:.65rem;font-weight:700}
+.cc-eco{background:var(--eco-lt);color:var(--eco)}
+.cc-pe{background:var(--pe-lt);color:var(--pe)}
+.cc-sat{background:var(--sat-lt);color:var(--sat)}
+.cc-ram{background:var(--ram-lt);color:var(--ram)}
+.cc-unknown{background:#f0f0f0;color:#bbb}
+.lot-card .xbtn{position:absolute;top:8px;right:8px;width:20px;height:20px;background:none;border:1px solid var(--border);border-radius:50%;cursor:pointer;font-size:.6rem;color:var(--muted);display:flex;align-items:center;justify-content:center}
+.lot-card .xbtn:hover{background:#fee;color:#c44;border-color:#f99}
+.bl-eco{border-left-color:var(--eco)}
+.bl-pe{border-left-color:var(--pe)}
+.bl-sat{border-left-color:var(--sat)}
+.bl-ram{border-left-color:var(--ram)}
+.bl-eco-sat{border-left:5px solid transparent;border-image:linear-gradient(to bottom,var(--eco) 50%,var(--sat) 50%) 1}
+.bl-eco-pe{border-left:5px solid transparent;border-image:linear-gradient(to bottom,var(--eco) 50%,var(--pe) 50%) 1}
+.bl-sat-pe{border-left:5px solid transparent;border-image:linear-gradient(to bottom,var(--sat) 50%,var(--pe) 50%) 1}
+.bl-eco-mix{border-left:5px solid transparent;border-image:linear-gradient(to bottom,var(--eco) 33%,var(--sat) 33%,var(--sat) 66%,var(--pe) 66%) 1}
+.lot-tancat{font-size:.65rem;font-weight:800;color:#1a6b3a;background:#d0f2e0;border-radius:20px;padding:3px 10px;margin-top:7px;display:inline-flex;align-items:center;gap:4px;letter-spacing:.03em;white-space:nowrap}
+.lot-card-closed{border:2px dashed #2a7a4b!important;border-left:5px solid #2a7a4b!important}
+.lot-tancat{font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:4px}
+.cc-unk{background:#fff;color:#aaa;border:1.5px solid #ddd}
+
+.hist-table tfoot td{font-weight:700;border-top:2px solid var(--border);padding:9px 12px;background:#faf9f6}
+.hist-table tfoot td.r{font-family:'DM Mono',monospace}
+.hist-print{margin-top:10px}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:8px;font-size:.82rem;font-weight:500;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .15s}
+.b-ink{background:var(--ink);color:#fff}.b-ink:hover{background:#333}
+.b-fig{background:var(--fig);color:#fff}.b-fig:hover{background:#3a6347}
+.b-costa{background:var(--costa);color:#fff}.b-costa:hover{background:#2f5470}
+.b-out{background:#fff;color:var(--ink);border:1.5px solid var(--border)}.b-out:hover{border-color:var(--ink)}
+.b-sm{padding:5px 10px;font-size:.76rem}
+.btn-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:7px}
+
+/* FORM MOVIMENTS */
+.mov-box{background:var(--card);border-radius:12px;box-shadow:var(--shadow);padding:15px;margin-top:6px}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:9px;margin-bottom:10px}
+.fg{display:flex;flex-direction:column;gap:3px}
+.fg label{font-size:.67rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.fg input,.fg select{padding:7px 9px;border-radius:7px;border:1.5px solid var(--border);font-size:.84rem;background:#fff;font-family:'DM Sans',sans-serif;color:var(--ink)}
+.fg input:focus,.fg select:focus{outline:none;border-color:var(--ink)}
+
+/* MOV LIST */
+.mov-list{display:flex;flex-direction:column;gap:4px;margin-top:10px}
+.mov-item{display:flex;align-items:center;gap:7px;padding:6px 10px;border-radius:8px;background:var(--bg);font-size:.82rem;border:1px solid var(--border)}
+.md{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--muted);min-width:38px;font-weight:500}
+.mb{padding:2px 7px;border-radius:12px;font-size:.67rem;font-weight:700;white-space:nowrap}
+.mb-in{background:#d4f0dc;color:#145a2e}
+.mb-out{background:#fde8d8;color:#7a2d0a}
+.mb-baixa{background:var(--baixa-lt);color:var(--baixa)}
+.mq{font-weight:700}
+.ml{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--muted)}
+.mc{margin-left:auto}
+.mdel{background:none;border:none;cursor:pointer;color:#ccc;font-size:.73rem;padding:2px 5px;border-radius:4px;margin-left:2px}
+.mdel:hover{color:#c44;background:#fee}
+.empty{text-align:center;padding:22px;color:var(--muted);font-size:.82rem}
+
+/* DIBS */
+.dibs-zone{margin-top:8px;border-top:1px solid var(--border);padding-top:10px}
+.dibs-zone.hidden{display:none}
+.dibs-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.dibs-head label{font-size:.67rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.dibs-count{font-size:.72rem;font-weight:700;color:var(--fig)}
+.dibs-ta{width:100%;min-height:70px;border:1.5px solid var(--border);border-radius:8px;padding:8px;font-size:.78rem;font-family:'DM Mono',monospace;resize:vertical;background:var(--bg);color:var(--ink);line-height:1.5}
+.dibs-ta:focus{outline:none;border-color:var(--ink)}
+.dibs-ta::placeholder{color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.75rem}
+.dibs-pills{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;max-height:120px;overflow-y:auto;padding:4px 0}
+.dib-pill{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:8px;font-size:.7rem;font-family:'DM Mono',monospace;font-weight:500;cursor:default}
+.dib-pill .dib-last4{font-weight:800;font-size:.75rem}
+.dib-pill-eco{background:var(--eco-lt);color:var(--eco)}
+.dib-pill-pe{background:var(--pe-lt);color:var(--pe)}
+.dib-pill-sat{background:var(--sat-lt);color:var(--sat)}
+.dib-pill-ram{background:var(--ram-lt);color:var(--ram)}
+.dib-pill-dup{background:#FAEEDA;color:#854F0B}
+.dib-pill-err{background:#FCEBEB;color:#791F1F}
+.dib-pill .dx{cursor:pointer;opacity:.5;font-size:.6rem;margin-left:2px}
+.dib-pill .dx:hover{opacity:1;color:#c44}
+.dibs-warn{font-size:.7rem;color:#854F0B;margin-top:4px;max-height:60px;overflow-y:auto}
+.dibs-actions{display:flex;gap:6px;margin-top:6px}
+.dibs-actions button{flex:1;padding:5px;border-radius:6px;border:1px solid var(--border);background:var(--card);font-size:.72rem;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif}
+.dibs-actions button:hover{border-color:var(--ink);color:var(--ink)}
+
+/* CONFIRM MODAL */
+.confirm-body{max-height:50vh;overflow-y:auto;margin:10px 0}
+.confirm-pills{display:flex;flex-wrap:wrap;gap:4px}
+.confirm-info{font-size:.78rem;color:var(--muted);margin-bottom:10px}
+
+/* DETALL MOVIMENT */
+.mov-item{cursor:pointer}
+.mov-item:hover{background:var(--card);border-color:var(--ink)}
+.detail-dibs{display:flex;flex-direction:column;gap:3px;margin:10px 0;max-height:40vh;overflow-y:auto}
+.detail-dib-row{display:flex;align-items:center;gap:8px;padding:4px 8px;border-radius:6px;background:var(--bg);font-family:'DM Mono',monospace;font-size:.78rem}
+.detail-dib-row .dib-idx{color:var(--muted);font-size:.65rem;min-width:20px}
+.detail-dib-row .dib-prefix{opacity:.45}
+.detail-dib-row .dib-last4{font-weight:800}
+.detail-total{font-size:.82rem;font-weight:700;margin:6px 0;padding:6px 10px;border-radius:8px;background:var(--bg)}
+.detail-edit-ta{width:100%;min-height:60px;border:1.5px solid var(--border);border-radius:8px;padding:8px;font-size:.78rem;font-family:'DM Mono',monospace;resize:vertical;background:var(--bg);color:var(--ink);line-height:1.5;margin:8px 0}
+.detail-edit-ta:focus{outline:none;border-color:var(--ink)}
+.detail-guia{font-family:'DM Mono',monospace;font-size:.78rem;color:var(--muted);margin:6px 0}
+.detail-meta{font-size:.8rem;color:var(--muted);margin-bottom:8px}
+.detail-attach{margin-top:8px}
+.detail-attach input[type=file]{display:none}
+
+/* FACTURA */
+.fra-card{background:var(--card);border-radius:12px;box-shadow:var(--shadow);padding:17px;margin-bottom:11px;border-top:4px solid var(--border)}
+.fra-eco{border-top-color:var(--eco)}
+.fra-pe{border-top-color:var(--pe)}
+.fra-sat{border-top-color:var(--sat)}
+.fra-ram{border-top-color:var(--ram)}
+.fra-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:13px;flex-wrap:wrap;gap:6px}
+.fra-head h3{font-family:'Playfair Display',serif;font-size:.98rem}
+.fra-meta{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--muted)}
+.ftable{width:100%;border-collapse:collapse;font-size:.82rem}
+.ftable th{text-align:left;padding:5px 7px;font-size:.63rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);border-bottom:1px solid var(--border)}
+.ftable td{padding:6px 7px;border-bottom:1px solid #f5f2ed}
+.ftable th.r,.ftable td.r{text-align:right}
+.ftable .fbase td,.ftable .fiva td{color:var(--muted);font-size:.77rem;border-bottom:none;padding-top:8px}
+.ftable .ftot td{font-weight:700;font-size:.93rem;border-top:2px solid var(--border);padding-top:9px;border-bottom:none}
+.lchip{display:inline-block;padding:1px 6px;border-radius:8px;font-size:.67rem;font-weight:700}
+
+/* MODAL */
+.mbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:300;align-items:center;justify-content:center;padding:20px}
+.mbg.open{display:flex}
+.mbox{background:#fff;border-radius:14px;padding:20px;width:100%;max-width:380px;box-shadow:0 20px 50px rgba(0,0,0,.22);max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.mbox h3{font-family:'Playfair Display',serif;font-size:1rem;margin-bottom:14px}
+.mact{display:flex;gap:7px;justify-content:flex-end;margin-top:15px}
+
+/* HISTORIAL LOTS */
+.hist-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.hist-bar label{font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.hist-bar select{padding:6px 10px;border-radius:7px;border:1.5px solid var(--border);font-size:.84rem;background:#fff;font-family:'DM Sans',sans-serif;color:var(--ink)}
+.hist-card{background:var(--card);border-radius:12px;box-shadow:var(--shadow);overflow:hidden}
+.hist-summary{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:1px;background:var(--border);border-bottom:1px solid var(--border)}
+.hist-stat{background:var(--card);padding:12px 14px}
+.hist-stat .hs-val{font-family:'Playfair Display',serif;font-size:1.5rem;line-height:1}
+.hist-stat .hs-lbl{font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:2px}
+.hist-table{width:100%;border-collapse:collapse;font-size:.82rem}
+.hist-table th{text-align:left;padding:8px 12px;font-size:.63rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);border-bottom:2px solid var(--border);background:#faf9f6}
+.hist-table th.r{text-align:right}
+.hist-table td{padding:7px 12px;border-bottom:1px solid #f5f2ed}
+.hist-table td.r{text-align:right;font-family:'DM Mono',monospace;font-size:.78rem}
+.hist-table tr.in-row{background:#f8fdf9}
+.hist-table tr.out-row{background:#fff}
+.hist-table tr.baixa-row{background:#fdf8fc}
+
+@media print{
+  header,.tabs,.mes-bar,.stitle,.lots-grid,.btn-row,.mov-box,#fig-fras,#costa-fras,.hist-bar,.hist-print,
+  button,.mbg{display:none!important}
+  .page{display:block!important;padding:0}
+  .hist-card{box-shadow:none;border:1px solid #ccc}
+  body{background:white}
+}
+
+@media(max-width:560px){
+  .lots-grid{grid-template-columns:repeat(2,1fr)}
+  .fgrid{grid-template-columns:repeat(2,1fr)}
+  .page{padding:12px 13px}
+  .mbg{padding:10px}
+  .mbox{max-height:90vh;padding:16px;border-radius:10px;max-width:100%}
+  .preu-pill{padding:8px 16px;font-size:.78rem;min-height:36px}
+  .btn{min-height:38px;padding:8px 14px}
+  .btn.b-sm{min-height:32px;padding:6px 12px}
+  .mes-bar{gap:6px;padding:8px 10px}
+  .mes-bar select{padding:8px 10px;font-size:.88rem;min-height:36px}
+  .hist-table td,.hist-table th{padding:6px 8px;font-size:.74rem}
+  .lc-mov{padding:6px 8px;min-height:36px}
+  .section-close{min-height:32px;padding:4px 12px}
+  .detail-dib-row{padding:6px 10px!important;min-height:36px}
+}
+
+.sortable{cursor:pointer;user-select:none}
+.sortable:hover{color:var(--ink)}
+.sortable::after{content:' ↕';font-size:.55rem;opacity:.4}
+.sortable.asc::after{content:' ↑';opacity:.7}
+.sortable.desc::after{content:' ↓';opacity:.7}
+.section-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px}
+.section-close{background:none;border:1px solid var(--border);border-radius:6px;padding:3px 10px;font-size:.72rem;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif}
+.section-close:hover{border-color:var(--ink);color:var(--ink)}
+</style>
+</head>
+<body>
+
+<header>
+  <div><h1>🐄 Gestió Animals Boví</h1></div>
+  <div class="sub" id="avui"></div>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="showPage('fig',this)">🌿 Figuera</button>
+  <button class="tab" onclick="showPage('costa',this)">🏔 La Costa</button>
+</div>
+
+<!-- FIGUERA -->
+<div class="page active" id="page-fig">
+  <div class="g-header">
+    <div class="g-dot" style="background:var(--fig)"></div>
+    <div><h2>Granja Figuera</h2><div class="gsub">Sant Mateu de Bages</div></div>
+  </div>
+  <div class="mes-bar">
+    <label>Mes</label>
+    <select id="fig-mes" onchange="renderG('fig')">
+      <option value="1">Gen</option><option value="2">Feb</option><option value="3" selected>Mar</option>
+      <option value="4">Abr</option><option value="5">Mai</option><option value="6">Jun</option>
+      <option value="7">Jul</option><option value="8">Ago</option><option value="9">Set</option>
+      <option value="10">Oct</option><option value="11">Nov</option><option value="12">Des</option>
+    </select>
+    <select id="fig-any" onchange="renderG('fig')">
+      <option value="2025">2025</option><option value="2026" selected>2026</option>
+    </select>
+  </div>
+
+  <div class="stitle">Lots actius</div>
+  <div class="lots-grid" id="fig-lots"></div>
+  <div class="btn-row"><button class="btn b-fig b-sm" onclick="openMLot('fig')">+ Nou lot</button><button class="btn b-out b-sm" onclick="openGestio('fig')">Gestió</button><button class="btn b-out b-sm" id="fig-undo" onclick="undo('fig')" disabled title="Desfer (Cmd+Z)">↩ Desfer</button><button class="btn b-out b-sm" id="fig-redo" onclick="redo('fig')" disabled title="Refer (Cmd+Shift+Z)">↪ Refer</button></div>
+
+  <div class="stitle">Moviments del mes</div>
+  <div class="mov-box">
+    <div class="fgrid">
+      <div class="fg"><label>Dia</label><input type="number" id="fig-dia" min="1" max="31" placeholder="1–31"></div>
+      <div class="fg"><label>Mes</label>
+        <select id="fig-mov-mes">
+          <option value="1">Gen</option><option value="2">Feb</option><option value="3">Mar</option>
+          <option value="4">Abr</option><option value="5">Mai</option><option value="6">Jun</option>
+          <option value="7">Jul</option><option value="8">Ago</option><option value="9">Set</option>
+          <option value="10">Oct</option><option value="11">Nov</option><option value="12">Des</option>
+        </select>
+      </div>
+      <div class="fg"><label>Any</label>
+        <select id="fig-mov-any">
+          <option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option>
+        </select>
+      </div>
+      <div class="fg"><label>Tipus</label>
+        <select id="fig-tipus" onchange="onTipusC('fig')"><option value="entrada">Entrada</option><option value="sortida">Sortida</option><option value="baixa">Baixa</option></select>
+      </div>
+      <div class="fg"><label>Lot</label><select id="fig-lot" onchange="onLotC('fig')"></select></div>
+      <div class="fg"><label>Cartilla</label>
+        <select id="fig-cart">
+          <option value="ECO">ECO</option>
+          <option value="SATF">SATF</option>
+          <option value="PE">PE</option>
+          <option value="-">—</option>
+        </select>
+      </div>
+      <div class="fg" id="fig-nlg" style="display:none"><label>Nº lot nou</label><input type="number" id="fig-nl" placeholder="ex:11"></div>
+      <div class="fg"><label>Nº Guia sanitària</label><input type="text" id="fig-guia" placeholder="925070..." style="font-family:'DM Mono',monospace;font-size:.78rem"></div>
+    </div>
+    <div class="dibs-zone" id="fig-dibs-zone">
+      <div class="dibs-head">
+        <label>Crotals (DIBs)</label>
+        <span class="dibs-count" id="fig-dibs-count"></span>
+      </div>
+      <textarea class="dibs-ta" id="fig-dibs" oninput="previewDibs('fig')" placeholder="Enganxa números sencers separats per comes/espais, o escriu els 4 últims dígits per sortides"></textarea>
+      <div class="dibs-pills" id="fig-dibs-pills"></div>
+      <div class="dibs-warn" id="fig-dibs-warn"></div>
+      <div class="dibs-actions">
+        <input type="file" id="fig-dibs-file" accept=".pdf" onchange="onFormFile(event,'fig')" style="display:none">
+        <button onclick="document.getElementById('fig-dibs-file').click()">📎 Adjuntar guia PDF</button>
+        <button onclick="toggleManual('fig')">Entrada manual (sense crotals)</button>
+      </div>
+      <div id="fig-manual" style="display:none">
+        <div class="fg" style="margin-top:6px"><label>Nº Vedells</label><input type="number" id="fig-qty-manual" min="1" placeholder="Nº animals"></div>
+      </div>
+    </div>
+    <div class="btn-row"><button class="btn b-fig b-sm" onclick="prepMov('fig')">Revisar i confirmar</button></div>
+    <div class="mov-list" id="fig-movlist"></div>
+  </div>
+
+  
+  <details class="notes-section">
+    <summary class="notes-toggle">📝 Notes</summary>
+    <div class="notes-body">
+      <textarea class="notes-ta" id="fig-notes" oninput="saveNotes('fig')" placeholder="Escriu les teves anotacions aquí..."></textarea>
+    </div>
+  </details>
+
+  <div class="stitle">📋 Historial de lots</div>
+  <div class="hist-bar" id="fig-hist-bar">
+    <label>Lot</label>
+    <select id="fig-hist-lot" onchange="rHist('fig')">
+      <option value="">— Selecciona lot —</option>
+    </select>
+    </div>
+  <div id="fig-hist-cont"></div>
+
+  <div class="stitle" style="margin-top:28px">🏷 Animals per cartilla</div>
+  <div class="hist-bar">
+    <label>Data</label>
+    <input type="date" id="fig-cart-date" onchange="rCartLlista('fig')" style="padding:6px 10px;border-radius:7px;border:1.5px solid var(--border);font-size:.84rem;font-family:'DM Sans',sans-serif;color:var(--ink)">
+    <button class="btn b-out b-sm" onclick="document.getElementById('fig-cart-date').valueAsDate=new Date();rCartLlista('fig')">Avui</button>
+  </div>
+  <div id="fig-cart-cont"></div>
+
+  <div class="stitle" style="margin-top:28px">Factures del mes</div>
+  <div id="fig-fras"></div>
+
+</div>
+
+<!-- LA COSTA -->
+<div class="page" id="page-costa">
+  <div class="g-header">
+    <div class="g-dot" style="background:var(--costa)"></div>
+    <div><h2>Granja La Costa</h2><div class="gsub">Santpedor · Ramaders Comarcals</div></div>
+  </div>
+  <div class="mes-bar">
+    <label>Mes</label>
+    <select id="costa-mes" onchange="renderG('costa')">
+      <option value="1">Gen</option><option value="2">Feb</option><option value="3" selected>Mar</option>
+      <option value="4">Abr</option><option value="5">Mai</option><option value="6">Jun</option>
+      <option value="7">Jul</option><option value="8">Ago</option><option value="9">Set</option>
+      <option value="10">Oct</option><option value="11">Nov</option><option value="12">Des</option>
+    </select>
+    <select id="costa-any" onchange="renderG('costa')">
+      <option value="2025">2025</option><option value="2026" selected>2026</option>
+    </select>
+  </div>
+
+  <div class="stitle">Lots actius</div>
+  <div class="lots-grid" id="costa-lots"></div>
+  <div class="btn-row"><button class="btn b-costa b-sm" onclick="openMLot('costa')">+ Nou lot</button><button class="btn b-out b-sm" onclick="openGestio('costa')">Gestió</button><button class="btn b-out b-sm" id="costa-undo" onclick="undo('costa')" disabled title="Desfer (Cmd+Z)">↩ Desfer</button><button class="btn b-out b-sm" id="costa-redo" onclick="redo('costa')" disabled title="Refer (Cmd+Shift+Z)">↪ Refer</button></div>
+
+  <div class="stitle">Moviments del mes</div>
+  <div class="mov-box">
+    <div class="fgrid">
+      <div class="fg"><label>Dia</label><input type="number" id="costa-dia" min="1" max="31" placeholder="1–31"></div>
+      <div class="fg"><label>Mes</label>
+        <select id="costa-mov-mes">
+          <option value="1">Gen</option><option value="2">Feb</option><option value="3">Mar</option>
+          <option value="4">Abr</option><option value="5">Mai</option><option value="6">Jun</option>
+          <option value="7">Jul</option><option value="8">Ago</option><option value="9">Set</option>
+          <option value="10">Oct</option><option value="11">Nov</option><option value="12">Des</option>
+        </select>
+      </div>
+      <div class="fg"><label>Any</label>
+        <select id="costa-mov-any">
+          <option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option>
+        </select>
+      </div>
+      <div class="fg"><label>Tipus</label>
+        <select id="costa-tipus" onchange="onTipusC('costa')"><option value="entrada">Entrada</option><option value="sortida">Sortida</option><option value="baixa">Baixa</option></select>
+      </div>
+      <div class="fg"><label>Lot</label><select id="costa-lot" onchange="onLotC('costa')"></select></div>
+      <div class="fg" id="costa-nlg" style="display:none"><label>Nº lot nou</label><input type="number" id="costa-nl" placeholder="ex:29"></div>
+      <div class="fg"><label>Nº Guia sanitària</label><input type="text" id="costa-guia" placeholder="925070..." style="font-family:'DM Mono',monospace;font-size:.78rem"></div>
+    </div>
+    <div class="dibs-zone" id="costa-dibs-zone">
+      <div class="dibs-head">
+        <label>Crotals (DIBs)</label>
+        <span class="dibs-count" id="costa-dibs-count"></span>
+      </div>
+      <textarea class="dibs-ta" id="costa-dibs" oninput="previewDibs('costa')" placeholder="Enganxa números sencers separats per comes/espais, o escriu els 4 últims dígits per sortides"></textarea>
+      <div class="dibs-pills" id="costa-dibs-pills"></div>
+      <div class="dibs-warn" id="costa-dibs-warn"></div>
+      <div class="dibs-actions">
+        <input type="file" id="costa-dibs-file" accept=".pdf" onchange="onFormFile(event,'costa')" style="display:none">
+        <button onclick="document.getElementById('costa-dibs-file').click()">📎 Adjuntar guia PDF</button>
+        <button onclick="toggleManual('costa')">Entrada manual (sense crotals)</button>
+      </div>
+      <div id="costa-manual" style="display:none">
+        <div class="fg" style="margin-top:6px"><label>Nº Vedells</label><input type="number" id="costa-qty-manual" min="1" placeholder="Nº animals"></div>
+      </div>
+    </div>
+    <div class="btn-row"><button class="btn b-costa b-sm" onclick="prepMov('costa')">Revisar i confirmar</button></div>
+    <div class="mov-list" id="costa-movlist"></div>
+  </div>
+
+  
+  <details class="notes-section">
+    <summary class="notes-toggle">📝 Notes</summary>
+    <div class="notes-body">
+      <textarea class="notes-ta" id="costa-notes" oninput="saveNotes('costa')" placeholder="Escriu les teves anotacions aquí..."></textarea>
+    </div>
+  </details>
+
+  <div class="stitle">📋 Historial de lots</div>
+  <div class="hist-bar" id="fig-hist-bar">
+    <label>Lot</label>
+    <select id="costa-hist-lot" onchange="rHist('costa')">
+      <option value="">— Selecciona lot —</option>
+    </select>
+    </div>
+  <div id="costa-hist-cont"></div>
+
+  <div class="stitle" style="margin-top:28px">🏷 Animals per cartilla</div>
+  <div class="hist-bar">
+    <label>Data</label>
+    <input type="date" id="costa-cart-date" onchange="rCartLlista('costa')" style="padding:6px 10px;border-radius:7px;border:1.5px solid var(--border);font-size:.84rem;font-family:'DM Sans',sans-serif;color:var(--ink)">
+    <button class="btn b-out b-sm" onclick="document.getElementById('costa-cart-date').valueAsDate=new Date();rCartLlista('costa')">Avui</button>
+  </div>
+  <div id="costa-cart-cont"></div>
+
+  <div class="stitle" style="margin-top:28px">Factura del mes</div>
+  <div id="costa-fras"></div>
+
+</div>
+
+<!-- MODAL NOU LOT -->
+<div class="mbg" id="m-lot">
+  <div class="mbox">
+    <h3 id="m-lot-title">Nou lot</h3>
+    <div class="fgrid" style="grid-template-columns:1fr 1fr">
+      <div class="fg" style="grid-column:1/-1"><label>Número de lot</label><input type="number" id="ml-num" placeholder="ex: 11"></div>
+      <div class="fg"><label>Vedells inicials</label><input type="number" id="ml-ved" placeholder="0"></div>
+      <div class="fg" id="ml-eg"><label>Empresa</label>
+        <select id="ml-emp">
+          <option value="Ecofutur">Ecofutur</option>
+          <option value="Pere Esquerrà">Pere Esquerrà</option>
+          <option value="SAT Figuera">SAT Figuera</option>
+        </select>
+      </div>
+    </div>
+    <div class="mact">
+      <button class="btn b-out" onclick="closeML()">Cancel·lar</button>
+      <button class="btn b-ink" onclick="confirML()">Crear</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ASSIGNAR EMPRESA -->
+<div class="mbg" id="m-fra">
+  <div class="mbox">
+    <h3 id="m-fra-title">Assignar empresa</h3>
+    <p style="font-size:.8rem;color:var(--muted);margin-bottom:12px">A quina empresa factures aquest lot aquest mes?</p>
+    <div id="m-fra-carts" style="margin-bottom:12px;display:flex;gap:5px;flex-wrap:wrap"></div>
+    <div class="fg"><label>Empresa facturació</label>
+      <select id="m-fra-emp">
+        <option value="Ecofutur">Ecofutur</option>
+        <option value="Pere Esquerrà">Pere Esquerrà</option>
+        <option value="SAT Figuera">SAT Figuera</option>
+      </select>
+    </div>
+    <div class="mact">
+      <button class="btn b-out" onclick="closeMF()">Cancel·lar</button>
+      <button class="btn b-ink" onclick="confirMF()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONFIRMAR DIBS -->
+<div class="mbg" id="m-dibs">
+  <div class="mbox" style="max-width:450px;max-height:85vh;overflow-y:auto">
+    <h3 id="m-dibs-title">Confirmar moviment</h3>
+    <div class="confirm-info" id="m-dibs-info"></div>
+    <div class="confirm-body">
+      <div class="confirm-pills" id="m-dibs-pills"></div>
+    </div>
+    <div id="m-dibs-sex" style="margin:10px 0;display:none">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap">
+        <span style="font-size:.67rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">Sexe</span>
+        <button class="btn b-sm" style="background:#d4508b;color:#fff;border:none;font-size:.72rem;padding:4px 12px;border-radius:20px;font-weight:700" onclick="setSexeAll('F')">Tots ♀ Femella</button>
+        <button class="btn b-sm" style="background:#3d7bc8;color:#fff;border:none;font-size:.72rem;padding:4px 12px;border-radius:20px;font-weight:700" onclick="setSexeAll('M')">Tots ♂ Mascle</button>
+        <button class="btn b-sm" style="background:var(--ink);color:#fff;border:none;font-size:.72rem;padding:4px 12px;border-radius:20px;font-weight:700" onclick="setSexeAll('')">Tots — Sense</button>
+      </div>
+      <div id="m-dibs-sex-summary" style="font-size:.72rem;color:var(--muted);margin-bottom:6px"></div>
+      <div id="m-dibs-sex-list" style="max-height:250px;overflow-y:auto;display:flex;flex-direction:column;gap:2px;border:1px solid var(--border);border-radius:8px;padding:4px"></div>
+    </div>
+    <div class="dibs-warn" id="m-dibs-warn" style="margin:8px 0"></div>
+    <div class="mact">
+      <button class="btn b-out" onclick="closeMD()">Cancel·lar</button>
+      <button class="btn b-ink" id="m-dibs-ok" onclick="confirMD()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETALL MOVIMENT -->
+
+<!-- MODAL GESTIÓ DE LOTS -->
+<div class="mbg" id="m-gestio">
+  <div class="mbox" style="max-width:550px;max-height:85vh;overflow-y:auto">
+    <h3 id="m-gestio-title">Gestió de lots</h3>
+    <div id="m-gestio-body"></div>
+    <div class="mact">
+      <button class="btn b-out" onclick="document.getElementById('m-gestio').classList.remove('open')">Tancar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR MOVIMENT -->
+<div class="mbg" id="m-edit-mov">
+  <div class="mbox" style="max-width:420px;max-height:85vh;overflow-y:auto">
+    <h3 id="m-edit-mov-title">Editar moviment</h3>
+    <div id="m-edit-mov-warn" style="color:#c44;font-size:.72rem;margin-bottom:6px"></div>
+    <div class="fgrid" style="grid-template-columns:1fr 1fr;gap:8px">
+      <div class="fg"><label>Dia</label><input type="number" id="em-dia" min="1" max="31"></div>
+      <div class="fg"><label>Mes</label>
+        <select id="em-mes"><option value="1">Gen</option><option value="2">Feb</option><option value="3">Mar</option><option value="4">Abr</option><option value="5">Mai</option><option value="6">Jun</option><option value="7">Jul</option><option value="8">Ago</option><option value="9">Set</option><option value="10">Oct</option><option value="11">Nov</option><option value="12">Des</option></select>
+      </div>
+      <div class="fg"><label>Any</label>
+        <select id="em-any"><option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option></select>
+      </div>
+      <div class="fg"><label>Tipus</label>
+        <select id="em-tipus"><option value="entrada">Entrada</option><option value="sortida">Sortida</option><option value="baixa">Baixa</option></select>
+      </div>
+      <div class="fg"><label>Animals</label><input type="number" id="em-qty" min="1"></div>
+      <div class="fg"><label>Lot</label><select id="em-lot"></select></div>
+      <div class="fg"><label>Cartilla</label>
+        <select id="em-cart"><option value="ECO">ECO</option><option value="SATF">SATF</option><option value="PE">PE</option><option value="RAM">RAM</option><option value="-">—</option></select>
+      </div>
+      <div class="fg"><label>Guia sanitària</label><input type="text" id="em-guia" placeholder="Nº guia" style="font-family:'DM Mono',monospace;font-size:.78rem"></div>
+    </div>
+    <div style="margin-top:8px">
+      <div class="fg"><label>Crotals (DIBs)</label>
+        <textarea id="em-dibs" class="dibs-ta" style="min-height:50px" placeholder="Números separats per comes"></textarea>
+      </div>
+      <div class="dibs-pills" id="em-dibs-preview" style="max-height:80px;overflow-y:auto"></div>
+      <div class="dibs-warn" id="em-dibs-warn"></div>
+      <div style="margin-top:6px">
+        <input type="file" id="em-dibs-file" accept=".pdf" onchange="onEditMovFile(event)" style="display:none">
+        <button class="btn b-out b-sm" onclick="document.getElementById('em-dibs-file').click()">📎 Adjuntar guia PDF</button>
+      </div>
+    </div>
+    <div id="em-sex-section" style="margin-top:10px">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap">
+        <span style="font-size:.67rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">Sexe</span>
+        <button class="btn b-sm" style="background:#d4508b;color:#fff;border:none;font-size:.7rem;padding:3px 10px;border-radius:20px;font-weight:700" onclick="setEditSexeAll('F')">Tots ♀</button>
+        <button class="btn b-sm" style="background:#3d7bc8;color:#fff;border:none;font-size:.7rem;padding:3px 10px;border-radius:20px;font-weight:700" onclick="setEditSexeAll('M')">Tots ♂</button>
+        <button class="btn b-sm" style="background:var(--ink);color:#fff;border:none;font-size:.7rem;padding:3px 10px;border-radius:20px;font-weight:700" onclick="setEditSexeAll('')">Tots —</button>
+      </div>
+      <div id="em-sex-summary" style="font-size:.72rem;color:var(--muted);margin-bottom:4px"></div>
+      <div id="em-sex-list" style="max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:2px;border:1px solid var(--border);border-radius:8px;padding:4px"></div>
+    </div>
+    <div class="mact" style="margin-top:10px">
+      <button class="btn b-out" onclick="cancelEditMov()">Cancel·lar</button>
+      <button class="btn b-ink" onclick="guardarEditMov()">Guardar canvis</button>
+    </div>
+  </div>
+</div>
+
+<div class="mbg" id="m-detail">
+  <div class="mbox" style="max-width:480px;max-height:85vh;overflow-y:auto">
+    <h3 id="m-detail-title">Detall moviment</h3>
+    <div class="detail-meta" id="m-detail-meta"></div>
+    <div class="detail-guia" id="m-detail-guia"></div>
+    <div class="detail-total" id="m-detail-total"></div>
+    <div class="stitle" style="margin-top:8px">Llista de crotals</div>
+    <div class="detail-dibs" id="m-detail-dibs"></div>
+    <div class="mact">
+      <button class="btn b-out" onclick="closeDetail()">Tancar</button>
+      <button class="btn b-ink" id="m-detail-fullEdit" onclick="fullEditFromDetail()">Editar moviment</button>
+    </div>
+  </div>
+</div>
+
+<script>
+if(typeof pdfjsLib!=='undefined') pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+const DM=[0,31,28,31,30,31,30,31,31,30,31,30,31];
+function dm(m,y){if(m===2&&((y%4===0&&y%100!==0)||(y%400===0)))return 29;return DM[m];}
+
+function defState(){
+  return {
+    fig:{
+      "preu":0.4,
+      "lots":[
+        {
+          "num":4,
+          "v":0,
+          "vIni":205,
+          "actiu":false,
+          "carts":{
+            "ECO":0
+          },
+          "emp":"Ecofutur"
+        },
+        {
+          "num":5,
+          "v":0,
+          "vIni":200,
+          "actiu":false,
+          "carts":{
+            "ECO":0,
+            "PE":0
+          },
+          "emp":"Ecofutur"
+        },
+        {
+          "num":6,
+          "v":0,
+          "vIni":0,
+          "actiu":false,
+          "carts":{"ECO":0,"SATF":0},
+          "emp":"Ecofutur"
+        },
+        {
+          "num":7,
+          "v":0,
+          "vIni":0,
+          "actiu":false,
+          "carts":{"MIX":0},
+          "emp":"Ecofutur"
+        },
+        {
+          "num":8,
+          "v":0,
+          "vIni":0,
+          "actiu":false,
+          "carts":{"ECO":0,"SATF":0},
+          "emp":"Ecofutur"
+        },
+        {
+          "num":9,
+          "v":257,
+          "vIni":0,
+          "actiu":true,
+          "carts":{"ECO":0,"PE":0},
+          "emp":"Ecofutur"
+        },
+        {
+          "num":10,
+          "v":54,
+          "vIni":0,
+          "actiu":true,
+          "carts":{
+            "SATF":54
+          },
+          "emp":"SAT Figuera"
+        }
+      ],
+      "movs":{
+        "7-2024":[
+          {
+            "dia":8,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":4,
+            "cart":"ECO"
+          },
+          {
+            "dia":20,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":4,
+            "cart":"ECO"
+          },
+          {
+            "dia":30,
+            "tipus":"sortida",
+            "qty":18,
+            "lot":4,
+            "cart":"ECO"
+          }
+        ],
+        "8-2024":[
+          {
+            "dia":2,
+            "tipus":"sortida",
+            "qty":20,
+            "lot":4,
+            "cart":"ECO"
+          },
+          {
+            "dia":6,
+            "tipus":"sortida",
+            "qty":20,
+            "lot":4,
+            "cart":"ECO"
+          },
+          {
+            "dia":9,
+            "tipus":"sortida",
+            "qty":23,
+            "lot":4,
+            "cart":"ECO"
+          },
+          {
+            "dia":16,
+            "tipus":"sortida",
+            "qty":60,
+            "lot":4,
+            "cart":"ECO"
+          },
+          {
+            "dia":20,
+            "tipus":"sortida",
+            "qty":20,
+            "lot":4,
+            "cart":"ECO"
+          },
+          {
+            "dia":26,
+            "tipus":"sortida",
+            "qty":10,
+            "lot":4,
+            "cart":"ECO"
+          },
+          {
+            "dia":27,
+            "tipus":"sortida",
+            "qty":10,
+            "lot":4,
+            "cart":"ECO"
+          }
+        ],
+        "9-2024":[
+          {
+            "dia":3,
+            "tipus":"sortida",
+            "qty":4,
+            "lot":4,
+            "cart":"ECO"
+          },
+          {
+            "dia":6,
+            "tipus":"sortida",
+            "qty":5,
+            "lot":4,
+            "cart":"ECO"
+          },
+          {
+            "dia":6,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":5,
+            "cart":"PE"
+          },
+          {
+            "dia":12,
+            "tipus":"sortida",
+            "qty":8,
+            "lot":4,
+            "cart":"ECO"
+          },
+          {
+            "dia":4,
+            "tipus":"entrada",
+            "qty":79,
+            "lot":6,
+            "cart":"SATF"
+          },
+          {
+            "dia":23,
+            "tipus":"entrada",
+            "qty":95,
+            "lot":6,
+            "cart":"ECO"
+          },
+          {
+            "dia":23,
+            "tipus":"entrada",
+            "qty":26,
+            "lot":6,
+            "cart":"SATF"
+          },
+          {
+            "dia":27,
+            "tipus":"entrada",
+            "qty":6,
+            "lot":6,
+            "cart":"ECO"
+          }
+        ],
+        "10-2024":[
+          {
+            "dia":15,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":4,
+            "cart":"ECO"
+          },
+          {
+            "dia":17,
+            "tipus":"sortida",
+            "qty":4,
+            "lot":4,
+            "cart":"ECO"
+          },
+          {
+            "dia":17,
+            "tipus":"sortida",
+            "qty":13,
+            "lot":5,
+            "cart":"ECO"
+          },
+          {
+            "dia":18,
+            "tipus":"sortida",
+            "qty":23,
+            "lot":5,
+            "cart":"ECO"
+          },
+          {
+            "dia":21,
+            "tipus":"sortida",
+            "qty":24,
+            "lot":5,
+            "cart":"ECO"
+          },
+          {
+            "dia":22,
+            "tipus":"sortida",
+            "qty":20,
+            "lot":5,
+            "cart":"ECO"
+          },
+          {
+            "dia":24,
+            "tipus":"sortida",
+            "qty":20,
+            "lot":5,
+            "cart":"ECO"
+          },
+          {
+            "dia":29,
+            "tipus":"sortida",
+            "qty":12,
+            "lot":5,
+            "cart":"ECO"
+          },
+          {
+            "dia":31,
+            "tipus":"sortida",
+            "qty":9,
+            "lot":5,
+            "cart":"ECO"
+          }
+        ],
+        "11-2024":[
+          {
+            "dia":1,
+            "tipus":"sortida",
+            "qty":2,
+            "lot":5,
+            "cart":"ECO"
+          },
+          {
+            "dia":7,
+            "tipus":"sortida",
+            "qty":20,
+            "lot":5,
+            "cart":"ECO"
+          },
+          {
+            "dia":8,
+            "tipus":"sortida",
+            "qty":13,
+            "lot":5,
+            "cart":"ECO"
+          },
+          {
+            "dia":15,
+            "tipus":"sortida",
+            "qty":5,
+            "lot":5,
+            "cart":"ECO"
+          },
+          {
+            "dia":16,
+            "tipus":"sortida",
+            "qty":16,
+            "lot":5,
+            "cart":"ECO"
+          },
+          {
+            "dia":18,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":5,
+            "cart":"ECO"
+          },
+          {
+            "dia":21,
+            "tipus":"sortida",
+            "qty":13,
+            "lot":5,
+            "cart":"ECO"
+          },
+          {
+            "dia":22,
+            "tipus":"entrada",
+            "qty":54,
+            "lot":7,
+            "cart":"MIX"
+          },
+          {
+            "dia":27,
+            "tipus":"entrada",
+            "qty":71,
+            "lot":7,
+            "cart":"MIX"
+          },
+          {
+            "dia":27,
+            "tipus":"entrada",
+            "qty":30,
+            "lot":7,
+            "cart":"MIX"
+          },
+          {
+            "dia":29,
+            "tipus":"entrada",
+            "qty":22,
+            "lot":7,
+            "cart":"MIX"
+          },
+          {
+            "dia":29,
+            "tipus":"sortida",
+            "qty":4,
+            "lot":5,
+            "cart":"ECO"
+          },
+          {
+            "dia":30,
+            "tipus":"sortida",
+            "qty":4,
+            "lot":5,
+            "cart":"ECO"
+          },
+          {
+            "dia":30,
+            "tipus":"sortida",
+            "qty":199,
+            "lot":5,
+            "cart":"PE"
+          }
+        ],
+        "4-2025":[
+          {
+            "dia":4,
+            "tipus":"sortida",
+            "qty":12,
+            "lot":6,
+            "cart":"SATF"
+          },
+          {
+            "dia":8,
+            "tipus":"sortida",
+            "qty":23,
+            "lot":6,
+            "cart":"SATF"
+          },
+          {
+            "dia":11,
+            "tipus":"sortida",
+            "qty":12,
+            "lot":6,
+            "cart":"SATF"
+          },
+          {
+            "dia":15,
+            "tipus":"sortida",
+            "qty":11,
+            "lot":6,
+            "cart":"SATF"
+          },
+          {
+            "dia":17,
+            "tipus":"sortida",
+            "qty":12,
+            "lot":6,
+            "cart":"SATF"
+          },
+          {
+            "dia":25,
+            "tipus":"sortida",
+            "qty":10,
+            "lot":6,
+            "cart":"SATF"
+          },
+          {
+            "dia":28,
+            "tipus":"sortida",
+            "qty":13,
+            "lot":6,
+            "cart":"SATF"
+          },
+          {
+            "dia":30,
+            "tipus":"sortida",
+            "qty":112,
+            "lot":6,
+            "cart":"SATF"
+          },
+          {
+            "dia":30,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":6,
+            "cart":"SATF",
+            "baixa":true
+          }
+        ],
+        "5-2025":[
+          {
+            "dia":8,
+            "tipus":"entrada",
+            "qty":25,
+            "lot":8,
+            "cart":"ECO"
+          },
+          {
+            "dia":14,
+            "tipus":"entrada",
+            "qty":62,
+            "lot":8,
+            "cart":"SATF"
+          },
+          {
+            "dia":21,
+            "tipus":"entrada",
+            "qty":20,
+            "lot":8,
+            "cart":"ECO"
+          },
+          {
+            "dia":21,
+            "tipus":"entrada",
+            "qty":42,
+            "lot":8,
+            "cart":"SATF"
+          },
+          {
+            "dia":28,
+            "tipus":"entrada",
+            "qty":59,
+            "lot":8,
+            "cart":"ECO"
+          },
+          {
+            "dia":31,
+            "tipus":"sortida",
+            "qty":176,
+            "lot":7,
+            "cart":"MIX"
+          }
+        ],
+        "6-2025":[
+          {
+            "dia":15,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":8,
+            "cart":"ECO"
+          }
+        ],
+        "7-2025":[
+          {
+            "dia":18,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":8,
+            "cart":"ECO"
+          },
+          {
+            "dia":29,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":8,
+            "cart":"ECO"
+          }
+        ],
+        "12-2024":[
+          {
+            "dia":18,
+            "tipus":"entrada",
+            "qty":32,
+            "lot":7,
+            "cart":"MIX"
+          },
+          {
+            "dia":9,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":7,
+            "cart":"MIX"
+          },
+          {
+            "dia":10,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":7,
+            "cart":"MIX"
+          },
+          {
+            "dia":14,
+            "tipus":"sortida",
+            "qty":30,
+            "lot":7,
+            "cart":"MIX"
+          }
+        ],
+        "3-2025":[
+          {
+            "dia":20,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":7,
+            "cart":"MIX"
+          }
+        ],
+        "8-2025":[
+          {
+            "dia":20,
+            "tipus":"entrada",
+            "qty":54,
+            "lot":9,
+            "cart":"PE"
+          },
+          {
+            "dia":20,
+            "tipus":"entrada",
+            "qty":66,
+            "lot":9,
+            "cart":"ECO"
+          },
+          {
+            "dia":26,
+            "tipus":"entrada",
+            "qty":123,
+            "lot":9,
+            "cart":"ECO"
+          },
+          {
+            "dia":28,
+            "tipus":"entrada",
+            "qty":19,
+            "lot":9,
+            "cart":"ECO"
+          }
+        ],
+        "9-2025":[
+          {
+            "dia":2,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":9,
+            "cart":"ECO"
+          },
+          {
+            "dia":4,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":8,
+            "cart":"ECO"
+          },
+          {
+            "dia":27,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":9,
+            "cart":"ECO"
+          }
+        ],
+        "12-2025":[
+          {
+            "dia":24,
+            "tipus":"sortida",
+            "qty":72,
+            "lot":8,
+            "cart":"SATF"
+          }
+        ],
+        "1-2026":[
+          {
+            "dia":2,
+            "tipus":"sortida",
+            "qty":10,
+            "lot":8,
+            "cart":"SATF"
+          },
+          {
+            "dia":5,
+            "tipus":"sortida",
+            "qty":16,
+            "lot":8,
+            "cart":"SATF"
+          },
+          {
+            "dia":13,
+            "tipus":"sortida",
+            "qty":6,
+            "lot":8,
+            "cart":"SATF"
+          },
+          {
+            "dia":13,
+            "tipus":"sortida",
+            "qty":27,
+            "lot":8,
+            "cart":"ECO"
+          },
+          {
+            "dia":13,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":9,
+            "cart":"ECO"
+          },
+          {
+            "dia":19,
+            "tipus":"sortida",
+            "qty":10,
+            "lot":8,
+            "cart":"ECO"
+          },
+          {
+            "dia":23,
+            "tipus":"sortida",
+            "qty":15,
+            "lot":8,
+            "cart":"ECO"
+          },
+          {
+            "dia":27,
+            "tipus":"sortida",
+            "qty":15,
+            "lot":8,
+            "cart":"ECO"
+          },
+          {
+            "dia":30,
+            "tipus":"sortida",
+            "qty":5,
+            "lot":8,
+            "cart":"ECO"
+          }
+        ],
+        "2-2026":[
+          {
+            "dia":2,
+            "tipus":"sortida",
+            "qty":6,
+            "lot":8,
+            "cart":"ECO"
+          },
+          {
+            "dia":22,
+            "tipus":"sortida",
+            "qty":12,
+            "lot":8,
+            "cart":"ECO"
+          },
+          {
+            "dia":26,
+            "tipus":"entrada",
+            "qty":54,
+            "lot":10,
+            "cart":"SATF"
+          }
+        ],
+        "3-2026":[
+          {
+            "dia":2,
+            "tipus":"sortida",
+            "qty":10,
+            "lot":8,
+            "cart":"ECO"
+          }
+        ],
+        "10-2025":[
+          {
+            "dia":10,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":9,
+            "cart":"ECO"
+          },
+          {
+            "dia":27,
+            "tipus":"sortida",
+            "qty":1,
+            "lot":9,
+            "cart":"ECO"
+          }
+        ]
+      },
+      "assig":{
+      },
+      "preuEmp":{
+      }
+    },
+    costa:{"preu":0.4,"lots":[{"num":18,"v":0,"vIni":4,"actiu":false,"carts":{"RAM":4},"emp":"Ramaders"},{"num":20,"v":0,"vIni":40,"actiu":false,"carts":{"RAM":0},"emp":"Ramaders"},{"num":21,"v":0,"vIni":141,"actiu":false,"carts":{"RAM":141},"emp":"Ramaders"},{"num":23,"v":0,"vIni":144,"actiu":false,"carts":{"RAM":144},"emp":"Ramaders"},{"num":24,"v":0,"vIni":40,"actiu":false,"carts":{"RAM":0},"emp":"Ramaders"},{"num":25,"v":3,"vIni":0,"actiu":true,"carts":{"RAM":3},"emp":"Ramaders"},{"num":26,"v":159,"vIni":0,"actiu":true,"carts":{"RAM":159},"emp":"Ramaders"},{"num":27,"v":163,"vIni":0,"actiu":true,"carts":{"RAM":163},"emp":"Ramaders"},{"num":28,"v":149,"vIni":0,"actiu":true,"carts":{"RAM":149},"emp":"Ramaders"}],"movs":{"2-2025":[{"dia":11,"tipus":"sortida","qty":1,"lot":18,"cart":"RAM"},{"dia":11,"tipus":"sortida","qty":19,"lot":20,"cart":"RAM"},{"dia":14,"tipus":"sortida","qty":20,"lot":20,"cart":"RAM"},{"dia":17,"tipus":"sortida","qty":22,"lot":20,"cart":"RAM"},{"dia":18,"tipus":"sortida","qty":20,"lot":20,"cart":"RAM"},{"dia":21,"tipus":"sortida","qty":9,"lot":20,"cart":"RAM"},{"dia":24,"tipus":"sortida","qty":10,"lot":20,"cart":"RAM"},{"dia":25,"tipus":"sortida","qty":14,"lot":20,"cart":"RAM"},{"dia":20,"tipus":"sortida","qty":39,"lot":24,"cart":"RAM"},{"dia":19,"tipus":"entrada","qty":48,"lot":25,"cart":"RAM"},{"dia":23,"tipus":"entrada","qty":51,"lot":25,"cart":"RAM"}],"3-2025":[{"dia":31,"tipus":"sortida","qty":3,"lot":18,"cart":"RAM"},{"dia":3,"tipus":"sortida","qty":8,"lot":20,"cart":"RAM"},{"dia":6,"tipus":"sortida","qty":6,"lot":20,"cart":"RAM"},{"dia":13,"tipus":"sortida","qty":2,"lot":20,"cart":"RAM"},{"dia":14,"tipus":"sortida","qty":3,"lot":20,"cart":"RAM"},{"dia":31,"tipus":"sortida","qty":5,"lot":20,"cart":"RAM"},{"dia":1,"tipus":"entrada","qty":45,"lot":25,"cart":"RAM"},{"dia":2,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"},{"dia":20,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"},
+          {
+            "dia":31,
+            "tipus":"sortida",
+            "qty":40,
+            "lot":24,
+            "cart":"RAM"
+          }],"1-2025":[{"dia":16,"tipus":"entrada","qty":40,"lot":20,"cart":"RAM"},{"dia":17,"tipus":"sortida","qty":1,"lot":20,"cart":"RAM"},{"dia":31,"tipus":"sortida","qty":1,"lot":23,"cart":"RAM"},{"dia":16,"tipus":"entrada","qty":40,"lot":24,"cart":"RAM"},{"dia":17,"tipus":"sortida","qty":1,"lot":24,"cart":"RAM"}],"5-2025":[{"dia":26,"tipus":"sortida","qty":15,"lot":21,"cart":"RAM"},{"dia":28,"tipus":"sortida","qty":16,"lot":21,"cart":"RAM"},{"dia":29,"tipus":"sortida","qty":13,"lot":21,"cart":"RAM"}],"6-2025":[{"dia":2,"tipus":"sortida","qty":10,"lot":21,"cart":"RAM"},{"dia":3,"tipus":"sortida","qty":25,"lot":21,"cart":"RAM"},{"dia":5,"tipus":"sortida","qty":19,"lot":21,"cart":"RAM"},{"dia":9,"tipus":"sortida","qty":15,"lot":21,"cart":"RAM"},{"dia":16,"tipus":"sortida","qty":14,"lot":21,"cart":"RAM"},{"dia":1,"tipus":"entrada","qty":1,"lot":25,"cart":"RAM"},{"dia":1,"tipus":"entrada","qty":162,"lot":26,"cart":"RAM"},{"dia":3,"tipus":"entrada","qty":1,"lot":26,"cart":"RAM"},{"dia":4,"tipus":"entrada","qty":1,"lot":26,"cart":"RAM"},{"dia":5,"tipus":"entrada","qty":1,"lot":26,"cart":"RAM"},{"dia":18,"tipus":"sortida","qty":3,"lot":26,"cart":"RAM"}],"7-2025":[{"dia":3,"tipus":"sortida","qty":4,"lot":21,"cart":"RAM"},{"dia":31,"tipus":"sortida","qty":10,"lot":21,"cart":"RAM"},{"dia":1,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"},{"dia":3,"tipus":"sortida","qty":1,"lot":26,"cart":"RAM"},{"dia":21,"tipus":"sortida","qty":1,"lot":26,"cart":"RAM"}],"4-2025":[{"dia":30,"tipus":"sortida","qty":1,"lot":23,"cart":"RAM"},{"dia":1,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"}],"8-2025":[{"dia":29,"tipus":"sortida","qty":25,"lot":23,"cart":"RAM"},{"dia":1,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"},{"dia":23,"tipus":"entrada","qty":99,"lot":27,"cart":"RAM"},{"dia":30,"tipus":"entrada","qty":67,"lot":27,"cart":"RAM"}],"9-2025":[{"dia":2,"tipus":"sortida","qty":34,"lot":23,"cart":"RAM"},{"dia":4,"tipus":"sortida","qty":18,"lot":23,"cart":"RAM"},{"dia":5,"tipus":"sortida","qty":25,"lot":23,"cart":"RAM"},{"dia":12,"tipus":"sortida","qty":6,"lot":23,"cart":"RAM"},{"dia":22,"tipus":"sortida","qty":12,"lot":23,"cart":"RAM"},{"dia":23,"tipus":"sortida","qty":14,"lot":23,"cart":"RAM"},{"dia":13,"tipus":"sortida","qty":1,"lot":27,"cart":"RAM"}],"10-2025":[{"dia":2,"tipus":"sortida","qty":2,"lot":23,"cart":"RAM"},{"dia":7,"tipus":"sortida","qty":5,"lot":23,"cart":"RAM"},{"dia":14,"tipus":"sortida","qty":1,"lot":23,"cart":"RAM"},{"dia":20,"tipus":"sortida","qty":1,"lot":27,"cart":"RAM"}],"12-2025":[{"dia":9,"tipus":"sortida","qty":45,"lot":25,"cart":"RAM"},{"dia":12,"tipus":"sortida","qty":29,"lot":25,"cart":"RAM"},{"dia":15,"tipus":"sortida","qty":28,"lot":25,"cart":"RAM"},{"dia":16,"tipus":"sortida","qty":26,"lot":25,"cart":"RAM"},{"dia":18,"tipus":"sortida","qty":7,"lot":25,"cart":"RAM"},{"dia":22,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"},{"dia":30,"tipus":"sortida","qty":1,"lot":25,"cart":"RAM"},{"dia":30,"tipus":"sortida","qty":1,"lot":27,"cart":"RAM"}],"11-2025":[{"dia":5,"tipus":"sortida","qty":1,"lot":26,"cart":"RAM"},{"dia":1,"tipus":"entrada","qty":1,"lot":27,"cart":"RAM"},{"dia":18,"tipus":"sortida","qty":1,"lot":27,"cart":"RAM"},{"dia":22,"tipus":"entrada","qty":112,"lot":28,"cart":"RAM"},{"dia":29,"tipus":"entrada","qty":38,"lot":28,"cart":"RAM"}],"1-2026":[{"dia":2,"tipus":"sortida","qty":1,"lot":28,"cart":"RAM"}]},"assig":{},"preuEmp":{}}
+    };
+}
+
+// v4: historial complet Ramaders + correccions lot26/27
+const VER='vd29';
+let S=JSON.parse(localStorage.getItem(VER)||'null')||defState();
+if(!S.fig.preuEmp) S.fig.preuEmp={};
+if(!S.costa.preuEmp) S.costa.preuEmp={};
+if(!S.fig.sexes) S.fig.sexes={};
+if(!S.costa.sexes) S.costa.sexes={};
+// Migració: afegir ????-???? als moviments antics sense crotals
+let _migrated=false;
+['fig','costa'].forEach(g=>{
+  Object.values(S[g].movs||{}).forEach(ms=>{
+    ms.forEach(m=>{
+      if(m.qty>0 && (!m.dibs || m.dibs.length===0)){
+        m.dibs=Array.from({length:m.qty},()=>'????-????');
+        _migrated=true;
+      }
+    });
+  });
+});
+if(_migrated) sv();let _mg=null,_mfl=null,_mfg=null;
+let _pendingSexes={};
+let _editSexes=[];
+let _hist=[], _histIdx=-1;
+function saveNotes(g){
+  try{localStorage.setItem('notes-'+g,document.getElementById(g+'-notes').value);}catch(e){}
+}
+function loadNotes(){
+  ['fig','costa'].forEach(g=>{
+    const ta=document.getElementById(g+'-notes');
+    if(ta) try{ta.value=localStorage.getItem('notes-'+g)||'';}catch(e){}
+  });
+}
+function sv(){
+  localStorage.setItem(VER,JSON.stringify(S));
+  _hist=_hist.slice(0,_histIdx+1);
+  _hist.push(JSON.stringify(S));
+  if(_hist.length>30) _hist.shift();
+  _histIdx=_hist.length-1;
+  updUndoBtn();
+}
+function updUndoBtn(){
+  ['fig','costa'].forEach(g=>{
+    const u=document.getElementById(g+'-undo');
+    const r=document.getElementById(g+'-redo');
+    if(u) u.disabled=_histIdx<=0;
+    if(r) r.disabled=_histIdx>=_hist.length-1;
+  });
+}
+function undo(g){
+  if(_histIdx<=0) return;
+  _histIdx--;
+  S=JSON.parse(_hist[_histIdx]);
+  localStorage.setItem(VER,JSON.stringify(S));
+  updUndoBtn(); renderG(g);
+}
+function redo(g){
+  if(_histIdx>=_hist.length-1) return;
+  _histIdx++;
+  S=JSON.parse(_hist[_histIdx]);
+  localStorage.setItem(VER,JSON.stringify(S));
+  updUndoBtn(); renderG(g);
+}
+
+function showPage(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  btn.classList.add('active');
+  renderG(id);
+}
+
+function ma(g){return{mes:parseInt(document.getElementById(g+'-mes').value),any:parseInt(document.getElementById(g+'-any').value)};}
+function mk(m,y){return m+'-'+y;}
+function gmovs(g,m,y){return S[g].movs[mk(m,y)]||[];}
+function ak(l,m,y){return l+'-'+m+'-'+y;}
+function gassig(g,l,m,y){return S[g].assig[ak(l,m,y)]||(S[g].lots.find(x=>x.num===l)||{}).emp||'Ecofutur';}
+
+function ccls(c){
+  if(c==='ECO') return 'eco';
+  if(c==='PE') return 'pe';
+  if(c==='SATF') return 'sat';
+  return 'ram';
+}
+// Helper: baixa funciona com sortida (resta animals) però es mostra diferent
+function esSortida(t){return t==='sortida'||t==='baixa';}
+function nomTipus(t){return t==='entrada'?'Entrada':t==='baixa'?'Baixa':'Sortida';}
+function nomTipusCaps(t){return t==='entrada'?'ENTRADA':t==='baixa'?'BAIXA':'SORTIDA';}
+function tipusBadge(t){
+  if(t==='entrada') return '<span class="mb mb-in">↑ Entrada</span>';
+  if(t==='baixa') return '<span class="mb mb-baixa">✕ Baixa</span>';
+  return '<span class="mb mb-out">↓ Sortida</span>';
+}
+function tipusLcCls(t){return t==='entrada'?'lc-mov-in':t==='baixa'?'lc-mov-baixa':'lc-mov-out';}
+// Un DIB és "complet" si té prefix país (FR/ES) + dígits o és numèric llarg (10+)
+function dibComplet(d){
+  if(!d||d==='????-????') return false;
+  if(d.startsWith('BORR-')) return false;
+  if(d.startsWith('-')) return false;
+  if(/^\d{1,5}$/.test(d)) return false;
+  return /^[A-Z]{2}\d{8,}$/.test(d)||/^\d{10,}$/.test(d);
+}
+function fmtSexe(g,dib){
+  if(!dib||dib==='????-????'||dib.startsWith('BORR-')) return '<span style="color:var(--muted)">—</span>';
+  const s=(S[g]&&S[g].sexes)?S[g].sexes[dib]:null;
+  if(s==='F') return '<span style="color:#d4508b;font-weight:700" title="Femella">♀</span>';
+  if(s==='M') return '<span style="color:#3d7bc8;font-weight:700" title="Mascle">♂</span>';
+  return '<span style="color:var(--muted)">—</span>';
+}
+function ecls(e){
+  if(e==='Ecofutur') return 'eco';
+  if(e==='Pere Esquerrà') return 'pe';
+  if(e==='SAT Figuera') return 'sat';
+  return 'ram';
+}
+
+// ---- RENDER ----
+function renderG(g){
+  rLots(g); rLotSel(g); rMovList(g); rFras(g); rHistSel(g); rHist(g);
+  // Sincronitza mes/any del formulari amb la vista
+  const {mes,any}=ma(g);
+  const movMes=document.getElementById(g+'-mov-mes');
+  const movAny=document.getElementById(g+'-mov-any');
+  if(movMes) movMes.value=mes;
+  if(movAny) movAny.value=any;
+}
+
+function cartsActuals(g, lotNum){
+  // Partim de les cartilles base del lot i apliquem TOTS els moviments de tots els mesos
+  const lot = S[g].lots.find(l=>l.num===lotNum);
+  if(!lot) return {};
+  // Copiem cartilles inicials (les que van entrar originalment)
+  // Les cartilles actuals les calculem restant els moviments que tinguin cartilla assignada
+  const base = {...(lot.carts||{})};
+  // Recollim tots els moviments de tots els mesos per aquest lot
+  Object.values(S[g].movs||{}).forEach(ms=>{
+    ms.filter(m=>m.lot===lotNum).forEach(m=>{
+      const c = m.cart && m.cart!=='-' ? m.cart : null;
+      if(!c) return;
+      if(!base[c]) base[c]=0;
+      if(m.tipus==='entrada') base[c]+=m.qty;
+      else { base[c]-=m.qty; if(base[c]<0) base[c]=0; }
+    });
+  });
+  return base;
+}
+
+function totalEntrats(g, lotNum){
+  // Suma totes les entrades de tots els mesos per aquest lot
+  let total = 0;
+  Object.values(S[g].movs||{}).forEach(ms=>{
+    ms.filter(m=>m.lot===lotNum && m.tipus==='entrada').forEach(m=>{ total+=m.qty; });
+  });
+  // Afegim el valor inicial del lot (les que ja hi eren en crear-lo)
+  const lot=S[g].lots.find(l=>l.num===lotNum);
+  if(lot) total+=(lot.vIni!==undefined?lot.vIni:lot.v); // vIni pot ser 0
+  return total;
+}
+
+function primeraEntrada(g, lotNum){
+  // Troba el mes/any més antic amb moviment d'entrada per aquest lot
+  let primer=null;
+  Object.entries(S[g].movs||{}).forEach(([k,ms])=>{
+    const entrades=ms.filter(m=>m.lot===lotNum && m.tipus==='entrada');
+    if(!entrades.length) return;
+    const [m,y]=k.split('-').map(Number);
+    const minDia=Math.min(...entrades.map(e=>e.dia));
+    const d=new Date(y,m-1,minDia);
+    if(!primer||d<primer) primer=d;
+  });
+  if(!primer) return null;
+  return primer.toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
+}
+
+// Vedells d'un lot al final d'un mes/any (acumulant tots els moviments fins aquell mes)
+function vLotAlMes(g, lotNum, mes, any){
+  const lot=S[g].lots.find(l=>l.num===lotNum);
+  if(!lot) return 0;
+  const ym=any*100+mes;
+  let v=lot.vIni||0;
+  Object.entries(S[g].movs||{}).forEach(([k,llista])=>{
+    const parts=k.split('-');
+    const km=parseInt(parts[0]), ky=parseInt(parts[1]);
+    if(ky*100+km>ym) return;
+    llista.filter(mv=>mv.lot===lotNum).forEach(mv=>{
+      if(mv.tipus==='entrada') v+=mv.qty; else v-=mv.qty;
+    });
+  });
+  return Math.max(0,v);
+}
+
+// Vedells a inici del mes (= fi del mes anterior)
+function vLotIniMes(g,lotNum,mes,any){
+  let pm=mes-1, py=any;
+  if(pm===0){pm=12; py--;}
+  return vLotAlMes(g,lotNum,pm,py);
+}
+
+// Vedells d'una cartilla concreta al final del mes
+function vCartAlMes(g,lotNum,cart,mes,any){
+  const lot=S[g].lots.find(l=>l.num===lotNum);
+  if(!lot) return 0;
+  const ym=any*100+mes;
+  // Determina quina cartilla porta el vIni (la que NO té entrades registrades)
+  const carts=Object.keys(lot.carts||{});
+  const allMovsLot=Object.values(S[g].movs||{}).flat().filter(mv=>mv.lot===lotNum);
+  const cartsNoEntrada=carts.filter(ct=>!allMovsLot.some(mv=>mv.cart===ct&&mv.tipus==='entrada'));
+  const cartVIni=cartsNoEntrada.length>=1?cartsNoEntrada[0]:null;
+  let v=(cartVIni===cart)?(lot.vIni||0):0;
+  Object.entries(S[g].movs||{}).forEach(([k,llista])=>{
+    const pts=k.split('-');
+    const km=parseInt(pts[0]),ky=parseInt(pts[1]);
+    if(ky*100+km>ym) return;
+    llista.filter(mv=>mv.lot===lotNum&&mv.cart===cart).forEach(mv=>{
+      if(mv.tipus==='entrada') v+=mv.qty; else v-=mv.qty;
+    });
+  });
+  return Math.max(0,v);
+}
+
+function vCartIniMes(g,lotNum,cart,mes,any){
+  let pm=mes-1, py=any;
+  if(pm===0){pm=12; py--;}
+  return vCartAlMes(g,lotNum,cart,pm,py);
+}
+
+function rLots(g){
+  const el=document.getElementById(g+'-lots');
+  const {mes,any}=ma(g);
+  const ara=new Date();
+  const esMesActual=(mes===ara.getMonth()+1 && any===ara.getFullYear());
+
+  const lotsDelMes=S[g].lots.filter(l=>{
+    const vIni=vLotIniMes(g,l.num,mes,any);
+    const teMoviments=(S[g].movs[mes+'-'+any]||[]).some(mv=>mv.lot===l.num);
+    return vIni>0||teMoviments;
+  });
+
+  if(!lotsDelMes.length){el.innerHTML='<div class="empty">Cap lot actiu aquest mes</div>';return;}
+
+  // Filtra lots amagats per la vista
+  const lotsVisibles=lotsDelMes.filter(l=>!_hiddenLots[g].has(l.num));
+  const hiHaAmagats=_hiddenLots[g].size>0;
+
+  // Botó refer vista si hi ha lots amagats
+  const referBtn=hiHaAmagats?'<div style="text-align:center;margin-top:8px"><button class="btn b-out b-sm" onclick="mostrarTots(\''+g+'\')">Veure tots els lots ('+lotsDelMes.length+')</button></div>':'';
+
+  if(!lotsVisibles.length && hiHaAmagats){
+    el.innerHTML='<div class="empty">Tots els lots amagats</div>'+referBtn;
+    return;
+  }
+
+  el.innerHTML=lotsVisibles.map(l=>{
+    const ec=ecls(l.emp);
+    const colorVar=ec==='eco'?'eco':ec==='pe'?'pe':ec==='sat'?'sat':'costa';
+    const total=totalEntrats(g,l.num);
+    const vIniReal=vLotIniMes(g,l.num,mes,any);
+    const vFi=esMesActual?l.v:vLotAlMes(g,l.num,mes,any);
+    const tancaAquestMes=(vIniReal>0&&vFi===0);
+
+    // Moviments del mes per aquest lot
+    const movsLot=(S[g].movs[mes+'-'+any]||[]).filter(mv=>mv.lot===l.num).sort((a,b)=>a.dia-b.dia);
+    const movsHTML=movsLot.length?`<div class="lc-movs">${movsLot.map(mv=>{
+      const isIn=mv.tipus==='entrada';
+      const isBaixa=mv.tipus==='baixa';
+      return `<div class="lc-mov">
+        <span class="lc-mov-dia">dia ${String(mv.dia).padStart(2,'0')}</span>
+        <span class="lc-mov-badge ${tipusLcCls(mv.tipus)}">${isIn?'↑':isBaixa?'✕':'↓'}</span>
+        <span class="lc-mov-q" style="${isBaixa?'color:var(--baixa)':''}">${mv.qty}</span>
+        <span class="cc cc-${ccls(mv.cart||'-')}" style="font-size:.6rem;padding:1px 4px">${mv.cart||'-'}</span>
+        ${isBaixa?'<span style="font-size:.58rem;color:var(--baixa);margin-left:2px">baixa</span>':''}
+      </div>`;
+    }).join('')}</div>`:'';;
+
+    // Cartilles: inici de mes → fi de mes per cada cartilla
+    const allMovsLot=Object.values(S[g].movs||{}).flat().filter(mv=>mv.lot===l.num);
+    // Combina cartilles del lot + cartilles dels moviments
+    const carts=[...new Set([
+      ...Object.keys(l.carts||{}),
+      ...allMovsLot.filter(mv=>mv.cart&&mv.cart!=='-').map(mv=>mv.cart)
+    ])];
+    // Determina quina cartilla porta el vIni
+    const cartsNoEntrada=carts.filter(ct=>!allMovsLot.some(mv=>mv.cart===ct&&mv.tipus==='entrada'));
+    const cartVIni=cartsNoEntrada.length>=1?cartsNoEntrada[0]:null;
+
+    const cartsHTML=carts.map(ct=>{
+      const cinici=vCartIniMes(g,l.num,ct,mes,any);
+      const cfi=vCartAlMes(g,l.num,ct,mes,any);
+      // Sap si la cartilla té activitat fins a aquest mes
+      const ym=any*100+mes;
+      const teActivitat=allMovsLot.some(mv=>{
+        const pts=mv._ym||0; return mv.cart===ct;
+      });
+      // Cartilla coneguda si té moviments o és la vIni cart
+      const coneguda=(ct===cartVIni)||(allMovsLot.some(mv=>mv.cart===ct));
+      const cls=coneguda?`cc-${ccls(ct)}`:'cc-unknown';
+      // Mostra la fila si tenia animals en algun moment fins a aquest mes
+      if(cinici===0&&cfi===0){
+        // Potser ja va tancar en mesos anteriors, comprova si va tenir animals algun cop
+        const hasTingut=allMovsLot.some(mv=>mv.cart===ct)||(ct===cartVIni&&(l.vIni||0)>0);
+        if(!hasTingut) return '';
+      }
+      const flechaColor=cfi<cinici?'var(--pe)':cfi>cinici?'var(--eco)':'var(--muted)';
+      const ctColor='var(--'+ccls(ct)+')';
+      const ctMuted='var(--muted)';
+      return `<div class="cart-row">
+        <span class="cc ${cls}">${ct}</span>
+        <span class="cart-ini" style="color:${cinici===0?ctMuted:ctColor}">${cinici}</span>
+        <span class="cart-arr" style="color:${flechaColor}">→</span>
+        <span class="cart-fi" style="color:${cfi===0?ctMuted:ctColor}">${cfi}</span>
+      </div>`;
+    }).filter(Boolean).join('');
+
+    const xbtn=`<button class="xbtn" onclick="event.stopPropagation();amagaLot('${g}',${l.num})" title="Amagar de la vista">✕</button>`;    const tancat=tancaAquestMes?`<div class="lot-tancat">✓ Tanca aquest mes</div>`:'';
+
+    // Border class: si hi ha >1 cartilla activa, usa gradient
+    const cartsActives=carts.filter(ct=>{
+      const ci=vCartIniMes(g,l.num,ct,mes,any);
+      const cf=vCartAlMes(g,l.num,ct,mes,any);
+      const hasMov=allMovsLot.some(mv=>mv.cart===ct);
+      return ci>0||cf>0||hasMov;
+    });
+    let blClass;
+    if(cartsActives.length>=3) blClass='bl-eco-mix';
+    else if(cartsActives.length===2){
+      const [c1,c2]=cartsActives.map(x=>ccls(x));
+      blClass='bl-'+[c1,c2].sort().join('-');
+    } else blClass='bl-'+ec;
+
+    return `<div class="lot-card ${blClass}${tancaAquestMes?' lot-card-closed':''}">
+      ${xbtn}
+      <div class="lc-num">Lot ${l.num}</div>
+      <div class="lc-main">
+        <span class="lc-main-n">${vIniReal}</span>
+        <span class="lc-main-arrow">→</span>
+        <span class="lc-main-n" style="color:var(--${colorVar})">${vFi}</span>
+      </div>
+      <div class="lc-total-badge">total entrada <b>${total}</b></div>
+      <div class="lc-carts">${cartsHTML}</div>
+      ${movsHTML}
+      ${tancat}
+    </div>`;
+  }).join('')+referBtn;
+}
+function rLotSel(g){
+  const sel=document.getElementById(g+'-lot');
+  const prev=sel.value;
+  sel.innerHTML='<option value="">— Selecciona lot —</option>';
+  sel.innerHTML+=S[g].lots.filter(l=>l.actiu||l.v>0).map(l=>`<option value="${l.num}">Lot ${l.num} (${l.v})</option>`).join('');
+  sel.innerHTML+=`<option value="__nou__">+ Lot nou</option>`;
+  if(prev) sel.value=prev;
+}
+
+function onLotC(g){
+  const v=document.getElementById(g+'-lot').value;
+  document.getElementById(g+'-nlg').style.display=v==='__nou__'?'block':'none';
+  if(v==='__nou__') document.getElementById(g+'-tipus').value='entrada';
+}
+
+function rMovList(g){
+  const {mes,any}=ma(g);
+  const msAll=gmovs(g,mes,any).slice().sort((a,b)=>a.dia-b.dia);
+  // Filtra moviments de lots amagats
+  const ms=msAll.filter(m=>!_hiddenLots[g].has(m.lot));
+  const el=document.getElementById(g+'-movlist');
+  if(!ms.length){el.innerHTML=msAll.length?'<div class="empty">Moviments amagats (lots filtrats)</div>':'<div class="empty">Cap moviment registrat</div>';return;}
+  el.innerHTML=ms.map((m,i)=>{
+    const bc=m.tipus==='entrada'?'mb-in':m.tipus==='baixa'?'mb-baixa':'mb-out';
+    const bt=m.tipus==='entrada'?'↑ Entrada':m.tipus==='baixa'?'✕ Baixa':'↓ Sortida';
+    const cartBadge=m.cart&&m.cart!=='-'?`<span class="cc cc-${ccls(m.cart)} mc">${m.cart}</span>`:'<span class="mc"></span>';
+    const guiaBadge=m.guia?`<span class="ml" title="Guia ${m.guia}" style="cursor:help">📋</span>`:'';
+    const nId=m.dibs?m.dibs.filter(dibComplet).length:0;
+    const dibsBadge=nId>0?`<span class="ml" style="color:var(--${ccls(m.cart||'-')})" title="${nId} de ${m.qty} identificats">🏷${nId}/${m.qty}</span>`:'';
+    return `<div class="mov-item" onclick="openDetail('${g}',${i})">
+      <span class="md">${String(m.dia).padStart(2,'0')}/${String(mes).padStart(2,'0')}</span>
+      <span class="mb ${bc}">${bt}</span>
+      <span class="mq">${m.qty}</span>
+      <span class="ml">lot ${m.lot}</span>
+      ${guiaBadge}${dibsBadge}
+      ${cartBadge}
+      <button class="mdel" onclick="event.stopPropagation();delMov('${g}',${i})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// ---- TRAMS ----
+// Preu correcte per un mes/any
+function preuPerMes(any,mes){
+  if(any<2025||(any===2025&&mes===1)) return 0.30;
+  if(any===2025) return 0.35;
+  return 0.40;
+}
+
+function getPreuEmp(g,key,mes,any){
+  const k=key+'-'+mes+'-'+any;
+  if(S[g].preuEmp&&S[g].preuEmp[k]!==undefined) return S[g].preuEmp[k];
+  return preuPerMes(any,mes);
+}
+function setPreuEmp(g,key,mes,any,preu){
+  if(!S[g].preuEmp) S[g].preuEmp={};
+  S[g].preuEmp[key+'-'+mes+'-'+any]=preu;
+  sv(); renderG(g);
+}
+function editPreuEmp(g,key,mes,any){
+  const actual=getPreuEmp(g,key,mes,any);
+  const n=parseFloat(prompt('Preu €/dia per '+key+':',actual));
+  if(!isNaN(n)&&n>0) setPreuEmp(g,key,mes,any,n);
+}
+
+function calcTrams(g,lotNum,mes,any,preuOverride){
+  const lot=S[g].lots.find(l=>l.num===lotNum);
+  if(!lot) return [];
+  const ms=gmovs(g,mes,any).filter(m=>m.lot===lotNum).sort((a,b)=>a.dia-b.dia);
+  const dies=dm(mes,any);
+  const preu=preuOverride!==undefined?preuOverride:preuPerMes(any,mes);
+  let ini=vLotIniMes(g,lotNum,mes,any);
+  // Si ini=0 i la primera entrada és al dia X, comencem a comptar des del dia X
+  let dIni=ini>0?1:(ms.length&&ms[0].tipus==='entrada'?ms[0].dia:1);
+  let trams=[],actual=ini;
+  ms.forEach(ev=>{
+    if(ev.dia>dIni&&actual>0){
+      // El dia de la sortida/entrada inclou el dia anterior (la sortida es cobra el dia que surten)
+      const d=esSortida(ev.tipus)?ev.dia-dIni+1:ev.dia-dIni;
+      trams.push({v:actual,d,imp:Math.round(actual*d*preu*100)/100,lot:lotNum,preu});
+      dIni=esSortida(ev.tipus)?ev.dia+1:ev.dia;
+    } else if(ev.dia===dIni&&actual>0&&esSortida(ev.tipus)){
+      // Sortida el mateix dia que dIni: 1 dia
+      trams.push({v:actual,d:1,imp:Math.round(actual*1*preu*100)/100,lot:lotNum,preu});
+      dIni=ev.dia+1;
+    }
+    if(ev.tipus==='entrada') actual+=ev.qty; else actual-=ev.qty;
+    if(actual<0) actual=0;
+  });
+  if(dIni<=dies&&actual>0){
+    const d=dies-dIni+1;
+    trams.push({v:actual,d,imp:Math.round(actual*d*preu*100)/100,lot:lotNum,preu});
+  }
+  return trams;
+}
+
+// ---- FACTURES ----
+function calcTramsByCart(g,lotNum,cart,mes,any,preuOverride){
+  // Com calcTrams però per a una cartilla específica
+  const lot=S[g].lots.find(l=>l.num===lotNum);
+  if(!lot) return [];
+  const ms=gmovs(g,mes,any).filter(m=>m.lot===lotNum&&m.cart===cart).sort((a,b)=>a.dia-b.dia);
+  const dies_mes=dm(mes,any);
+  const preu=preuOverride!==undefined?preuOverride:preuPerMes(any,mes);
+  let ini=vCartIniMes(g,lotNum,cart,mes,any);
+  // Si ini=0 i la primera entrada és al dia X, comencem a comptar des del dia X
+  let dIni=ini>0?1:(ms.length&&ms[0].tipus==='entrada'?ms[0].dia:1);
+  let trams=[],actual=ini;
+  ms.forEach(ev=>{
+    if(ev.dia>dIni&&actual>0){
+      // El dia de sortida es cobra (inclusiu)
+      const d=esSortida(ev.tipus)?ev.dia-dIni+1:ev.dia-dIni;
+      trams.push({v:actual,d,imp:Math.round(actual*d*preu*100)/100,lot:lotNum,cart,preu});
+      dIni=esSortida(ev.tipus)?ev.dia+1:ev.dia;
+    } else if(ev.dia===dIni&&actual>0&&esSortida(ev.tipus)){
+      // Sortida el mateix dia que dIni: 1 dia
+      trams.push({v:actual,d:1,imp:Math.round(actual*1*preu*100)/100,lot:lotNum,cart,preu});
+      dIni=ev.dia+1;
+    }
+    if(ev.tipus==='entrada') actual+=ev.qty; else actual-=ev.qty;
+    if(actual<0) actual=0;
+  });
+  if(dIni<=dies_mes&&actual>0){
+    const d=dies_mes-dIni+1;
+    trams.push({v:actual,d,imp:Math.round(actual*d*preu*100)/100,lot:lotNum,cart,preu});
+  }
+  return trams;
+}
+
+function rFras(g){
+  const {mes,any}=ma(g);
+  const preu=preuPerMes(any,mes);
+  const dies=dm(mes,any);
+  const ara=new Date(); const mesAra=ara.getMonth()+1; const anyAra=ara.getFullYear();
+  const esMesActual=(mes===mesAra&&any===anyAra);
+  const cont=document.getElementById(g+'-fras');
+
+  // Lots actius aquest mes
+  const lotsDelMes=S[g].lots.filter(l=>{
+    const vIni=vLotIniMes(g,l.num,mes,any);
+    const teMoviments=(S[g].movs[mes+'-'+any]||[]).some(mv=>mv.lot===l.num);
+    return vIni>0||teMoviments;
+  });
+
+  // === FIGUERA >= 2026: factures per cartilla ===
+  if(g==='fig' && any>=2026){
+    const cartilles=[
+      {cart:'ECO', emp:'Ecofutur', nFra:`IC${mes}/${String(any).slice(2)}`},
+      {cart:'SATF', emp:'SAT Figuera', nFra:`SAT${mes}/${String(any).slice(2)}`},
+      {cart:'PE', emp:'Pere Esquerrà', nFra:`PE${mes}/${String(any).slice(2)}`},
+    ];
+    let html='';
+    cartilles.forEach(({cart,emp,nFra})=>{
+      const preuEmp=getPreuEmp(g,cart,mes,any);
+      const trams=[];
+      lotsDelMes.forEach(lot=>{
+        const cartIni=vCartIniMes(g,lot.num,cart,mes,any);
+        const cartFi=vCartAlMes(g,lot.num,cart,mes,any);
+        const teActivitat=(S[g].movs[mes+'-'+any]||[]).some(mv=>mv.lot===lot.num&&mv.cart===cart);
+        if(cartIni>0||cartFi>0||teActivitat){
+          const t=calcTramsByCart(g,lot.num,cart,mes,any,preuEmp);
+          trams.push(...t);
+        }
+      });
+      if(!trams.length) return;
+      const base=Math.round(trams.reduce((s,t)=>s+t.imp,0)*100)/100;
+      if(base<=0) return;
+      const iva=Math.round(base*.10*100)/100;
+      const total=Math.round((base+iva)*100)/100;
+      const ec=cart==='ECO'?'eco':cart==='SATF'?'sat':'pe';
+      const preuStr=preuEmp.toFixed(2).replace('.',',');
+      const onclkFig="editPreuEmp('"+g+"','"+cart+"',"+mes+","+any+")";
+      html+=`<div class="fra-card fra-${ec}">
+        <div class="fra-head">
+          <div>
+            <h3>${emp}</h3>
+            <div class="fra-meta">${nFra} \u00b7 ${dies}/${mes}/${any}</div>
+          </div>
+          <button class="preu-pill" onclick="${onclkFig}">${preuStr} \u20ac/dia</button>
+        </div>
+        <table class="ftable">
+          <thead><tr><th>Lot</th><th>Vedells</th><th>Dies</th><th>Preu</th><th class="r">Import</th></tr></thead>
+          <tbody>${trams.map(t=>`<tr>
+            <td><span class="lchip cc-${ec}">lot ${t.lot}</span></td>
+            <td>${t.v}</td><td>${t.d}</td>
+            <td>${preuEmp.toFixed(2)} €</td>
+            <td class="r">${t.imp.toFixed(2)} €</td>
+          </tr>`).join('')}</tbody>
+          <tfoot>
+            <tr class="fbase"><td colspan="4">Base Imponible</td><td class="r">${base.toFixed(2)} €</td></tr>
+            <tr class="fiva"><td colspan="4">IVA 10%</td><td class="r">${iva.toFixed(2)} €</td></tr>
+            <tr class="ftot"><td colspan="4">Total</td><td class="r">${total.toFixed(2)} €</td></tr>
+          </tfoot>
+        </table>
+      </div>`;
+    });
+    cont.innerHTML=html||'<div class="empty">Cap lot actiu aquest mes</div>';
+    return;
+  }
+
+  // === FIGUERA <2026 i COSTA: factures per empresa (comportament original) ===
+  const perEmp={};
+  lotsDelMes.forEach(lot=>{
+    const emp=gassig(g,lot.num,mes,any);
+    if(!perEmp[emp]) perEmp[emp]=[];
+    const preuEmp=getPreuEmp(g,emp,mes,any);
+    let trams=calcTrams(g,lot.num,mes,any,preuEmp);
+    if(!trams.length){
+      const vIni=vLotIniMes(g,lot.num,mes,any);
+      if(vIni>0) trams=[{v:vIni,d:dies,imp:Math.round(vIni*dies*preuEmp*100)/100,lot:lot.num,preu:preuEmp}];
+    }
+    perEmp[emp].push(...trams);
+  });
+
+  if(!Object.keys(perEmp).length){cont.innerHTML='<div class="empty">Cap lot actiu aquest mes</div>';return;}
+
+  let html='';
+  Object.entries(perEmp).forEach(([emp,trams])=>{
+    if(!trams.length) return;
+    const ec=ecls(emp);
+    const preuEmp=getPreuEmp(g,emp,mes,any);
+    const base=Math.round(trams.reduce((s,t)=>s+t.imp,0)*100)/100;
+    const iva=Math.round(base*.10*100)/100;
+    const total=Math.round((base+iva)*100)/100;
+    let nFra='';
+    if(g==='fig'){
+      if(emp==='Ecofutur') nFra=`IC${mes}/${String(any).slice(2)}`;
+      else if(emp==='Pere Esquerrà') nFra=`C${mes}/${any}`;
+      else nFra=`SAT${mes}/${any}`;
+    } else nFra=`${mes}/${any}`;
+
+    const lotNums=[...new Set(trams.map(t=>t.lot))];
+    const canviarBtn=g==='fig'&&esMesActual?`<button class="btn b-out b-sm" onclick="openMF('${g}',${lotNums[0]})">Canviar empresa</button>`:'';
+
+    html+=`<div class="fra-card fra-${ec}">
+      <div class="fra-head">
+        <div>
+          <h3>${emp}</h3>
+          <div class="fra-meta">${nFra} · ${dies}/${mes}/${any}</div>
+        </div>
+        <button class="preu-pill" onclick="editPreuEmp('${g}','${emp.replace(/'/g,"\\'")}',${mes},${any})">${preuEmp.toFixed(2).replace('.',',')} €/dia</button>
+        ${canviarBtn}
+      </div>
+      <table class="ftable">
+        <thead><tr><th>Lot</th><th>Vedells</th><th>Dies</th><th>Preu</th><th class="r">Import</th></tr></thead>
+        <tbody>${trams.map(t=>`<tr>
+          <td><span class="lchip cc-${ec}">lot ${t.lot}</span></td>
+          <td>${t.v}</td><td>${t.d}</td>
+          <td>${preuEmp.toFixed(2)} €</td>
+          <td class="r">${t.imp.toFixed(2)} €</td>
+        </tr>`).join('')}</tbody>
+        <tfoot>
+          <tr class="fbase"><td colspan="4">Base Imponible</td><td class="r">${base.toFixed(2)} €</td></tr>
+          <tr class="fiva"><td colspan="4">IVA 10%</td><td class="r">${iva.toFixed(2)} €</td></tr>
+          <tr class="ftot"><td colspan="4">Total</td><td class="r">${total.toFixed(2)} €</td></tr>
+        </tfoot>
+      </table>
+    </div>`;
+  });
+  cont.innerHTML=html||'<div class="empty">Cap lot actiu aquest mes</div>';
+}
+
+// ---- DIBS: Parsing i entrada massiva ----
+let _pendingMov=null; // moviment pendent de confirmar
+
+// Obté mes/any del formulari de moviment (no de la vista)
+function maForm(g){
+  return{
+    mes:parseInt(document.getElementById(g+'-mov-mes').value),
+    any:parseInt(document.getElementById(g+'-mov-any').value)
+  };
+}
+
+// ---- BORRADOR: codis provisionals per animals sense número ----
+function nextBorrador(g){
+  // Genera el pròxim codi BORR-001, BORR-002...
+  let max=0;
+  Object.values(S[g].movs).forEach(ms=>{
+    ms.forEach(m=>{
+      if(m.dibs) m.dibs.forEach(d=>{
+        const bm=d.match(/^BORR-(\d+)/);
+        if(bm) max=Math.max(max,parseInt(bm[1]));
+      });
+    });
+  });
+  // També busca a l'altra granja
+  const other=g==='fig'?'costa':'fig';
+  Object.values(S[other].movs).forEach(ms=>{
+    ms.forEach(m=>{
+      if(m.dibs) m.dibs.forEach(d=>{
+        const bm=d.match(/^BORR-(\d+)/);
+        if(bm) max=Math.max(max,parseInt(bm[1]));
+      });
+    });
+  });
+  return max+1;
+}
+function generaBorradors(g, qty, cart, dia, mes){
+  const dibs=[];
+  let next=nextBorrador(g);
+  const mesos=['','GEN','FEB','MAR','ABR','MAI','JUN','JUL','AGO','SET','OCT','NOV','DES'];
+  const mesStr=mesos[mes||1]||'???';
+  const cartStr=(cart&&cart!=='-')?cart:'?';
+  const diaStr=dia?String(dia).padStart(2,'0'):'??';
+  for(let i=0;i<qty;i++){
+    dibs.push('BORR-'+String(next).padStart(3,'0')+'-'+cartStr+'-'+diaStr+mesStr);
+    next++;
+  }
+  return dibs;
+}
+
+function onTipusC(g){
+  // Placeholder canvia segons entrada o sortida
+  const ta=document.getElementById(g+'-dibs');
+  const tipus=document.getElementById(g+'-tipus').value;
+  if(tipus==='entrada') ta.placeholder='Enganxa números sencers o escriu els 4 últims dígits separats per espais';
+  else ta.placeholder='Escriu els 4 últims dígits separats per espais (ex: 4803 6171) o números sencers';
+}
+
+function toggleManual(g){
+  const div=document.getElementById(g+'-manual');
+  const ta=document.getElementById(g+'-dibs');
+  if(div.style.display==='none'){
+    div.style.display='block';
+    ta.style.display='none';
+    document.getElementById(g+'-dibs-pills').style.display='none';
+  } else {
+    div.style.display='none';
+    ta.style.display='';
+    document.getElementById(g+'-dibs-pills').style.display='';
+  }
+}
+
+// Renderitza un DIB amb últims 4 ressaltats i color de cartilla
+function dibPillHtml(d, cart, showX, idx){
+  // Estils inline directes per garantir colors
+  const cartCls=ccls(cart||'ECO');
+  let bg='',col='',extra='';
+  if(d.status==='partial'||d.status==='error'){
+    bg='#FCEBEB';col='#a02020';extra='border:1.5px solid #e08080;';
+  } else if(d.status==='dup-system'||d.status==='dup-self'||d.status==='dup-choice'){
+    bg='#FAEEDA';col='#854F0B';extra='border:1.5px solid #e0c080;';
+  } else {
+    bg='var(--'+cartCls+'-lt)';col='var(--'+cartCls+')';extra='';
+  }
+  const full=d.dib||'';
+  const isPending=full==='????-????';
+  const isBorr=full.startsWith('BORR-');
+  const isIncomplete=(full.startsWith('-')&&!isBorr)||(/^\d{1,5}$/.test(full));
+  if(isBorr||isIncomplete||isPending){bg='#FAEEDA';col='#854F0B';extra='border:1.5px solid #e0c080;';}
+  const cleanFull=full.replace(/^-/,'');
+  const last4=d.last4||full.slice(-4);
+  const prefix=full.length>4&&!isBorr?full.slice(0,-4):'';
+  const isErr=d.status==='partial'||d.status==='error';
+  const xBtn=showX?'<span class="dx" onclick="rmPending('+idx+')">x</span>':'';
+  let label;
+  if(isPending) label='<span style="font-weight:700">????-????</span>';
+  else if(isBorr) label='<span style="font-weight:700">'+full+'</span>';
+  else if(isIncomplete) label='<span style="opacity:.4">????</span><span style="opacity:.3">-</span><span style="font-weight:800;font-size:.75rem">'+cleanFull+'</span>';
+  else label=(prefix?'<span style="opacity:.4">'+prefix+'</span>':'')+
+    '<span style="opacity:.3">-</span><span style="font-weight:800;font-size:.75rem">'+last4+'</span>';
+  return '<span style="display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:8px;font-size:.7rem;font-family:DM Mono,monospace;cursor:default;background:'+bg+';color:'+col+';'+extra+'" title="'+full+'">'+
+    label+(isErr&&!isBorr&&!isIncomplete?' !':'')+xBtn+'</span>';
+}
+
+// Format DIB amb últims 4 ressaltats (per llistes de moviments, historial, etc)
+function fmtDib(dib, cart){
+  if(dib==='????-????') return '<span style="font-family:DM Mono,monospace;font-size:.7rem;color:#854F0B;font-weight:700;background:#FAEEDA;padding:1px 5px;border-radius:4px">????-????</span>';
+  if(dib.startsWith('BORR-')) return '<span style="font-family:DM Mono,monospace;font-size:.7rem;color:#854F0B;font-weight:700;background:#FAEEDA;padding:1px 5px;border-radius:4px">'+dib+'</span>';
+  // Incomplet: prefix - o número curt (≤5 dígits sols)
+  const isShort=dib.startsWith('-')||(/^\d{1,5}$/.test(dib));
+  if(isShort){const nums=dib.replace(/^-/,'');return '<span style="font-family:DM Mono,monospace;font-size:.7rem;background:#FAEEDA;padding:1px 5px;border-radius:4px"><span style="opacity:.4;color:#854F0B">????</span><span style="opacity:.3">-</span><span style="font-weight:800;color:#854F0B">'+nums+'</span></span>';}
+  const last4=dib.slice(-4);
+  const prefix=dib.length>4?dib.slice(0,-4):'';
+  const col='var(--'+ccls(cart||'ECO')+')';
+  return '<span style="font-family:DM Mono,monospace;font-size:.7rem">'+
+    (prefix?'<span style="opacity:.4">'+prefix+'</span>':'')+
+    '<span style="opacity:.3">-</span><span style="font-weight:800;color:'+col+'">'+last4+'</span></span>';
+}
+
+// Recull TOTS els DIBs existents al sistema (de tots els moviments de totes les granges)
+function getAllDibs(g){
+  const dibs=[];
+  ['fig','costa'].forEach(gr=>{
+    Object.values(S[gr].movs||{}).forEach(ms=>{
+      ms.forEach(m=>{
+        if(m.dibs&&m.dibs.length){
+          m.dibs.forEach(d=>{
+            if(d==='????-????') return; // Ignora placeholders pendents
+            dibs.push({dib:d, granja:gr, lot:m.lot, tipus:m.tipus, cart:m.cart||'-'});
+          });
+        }
+      });
+    });
+  });
+  return dibs;
+}
+
+// Busca DIBs complets que acabin amb last4 dins d'un lot/granja
+function findDibByLast4(g, lotNum, last4){
+  const matches=[];
+  const allDibs=getAllDibs(g);
+  // Busca als DIBs que van ENTRAR al lot (no als que van sortir)
+  allDibs.forEach(d=>{
+    if(d.dib.slice(-4)===last4 && d.tipus==='entrada'){
+      matches.push(d);
+    }
+  });
+  return matches;
+}
+
+// Parseja text d'entrada en array de DIBs
+function parseDibs(text, g, lotNum, tipus){
+  if(!text.trim()) return {dibs:[], warnings:[]};
+  const warnings=[];
+  let dibs=[];
+
+  // Neteja i separa per comes, espais, salts de línia, tabuladors
+  const raw=text.trim().replace(/[,;\t\n\r]+/g,' ').replace(/\s+/g,' ').split(' ').filter(Boolean);
+
+  // Cada element: si comença amb #! → parcial directe
+  // Si és curt (1-5 dígits) → mode curt
+  // Si és llarg → mode llarg normal
+  raw.forEach(chunk=>{
+    // Detecta prefix #! de parcial (des de PDF)
+    if(chunk.startsWith('#!')){
+      const d=chunk.slice(1);
+      dibs.push({dib:d, status:'partial', last4:d.replace(/[^0-9]/g,'').slice(-4)||'????'});
+      return;
+    }
+    const d=chunk.toUpperCase().trim();
+    if(!d) return;
+
+    // Placeholder pendent → vàlid
+    if(d==='????-????'||d==='????'||chunk==='????-????'||chunk==='????'){
+      dibs.push({dib:'????-????', status:'ok', last4:'????'});
+      return;
+    }
+
+    // Número curt (1-5 dígits) → entrada: guardar com -XXXX, sortida: buscar
+    if(/^\d{1,5}$/.test(d)){
+      if(esSortida(tipus)){
+        const matches=findDibByLast4(g, lotNum, d);
+        if(matches.length===1) dibs.push({dib:matches[0].dib, status:'ok', last4:d});
+        else if(matches.length>1){
+          warnings.push(d+': '+matches.length+' coincidències');
+          matches.forEach(m=>dibs.push({dib:m.dib, status:'dup-choice', last4:d, lot:m.lot}));
+        } else dibs.push({dib:'-'+d, status:'ok', last4:d, incomplete:true});
+      } else {
+        dibs.push({dib:'-'+d, status:'ok', last4:d, incomplete:true});
+      }
+      return;
+    }
+
+    // Números llargs concatenats (FR...FR...)
+    const pattern=/([A-Z]{2}\d{8,14})/gi;
+    const found=d.match(pattern);
+    if(found && found.length>=1){
+      found.forEach(f=>{
+        const fu=f.toUpperCase();
+        dibs.push({dib:fu, status:'ok', last4:fu.slice(-4)});
+      });
+      return;
+    }
+
+    // Número solt de 10+ dígits sense prefix
+    if(/^\d{10,14}$/.test(d)){
+      dibs.push({dib:d, status:'ok', last4:d.slice(-4)});
+      return;
+    }
+
+    // Intent de netejar
+    const cleaned=d.replace(/[^A-Z0-9]/g,'');
+    if(/^[A-Z]{2}\d{8,14}$/.test(cleaned)){
+      dibs.push({dib:cleaned, status:'ok', last4:cleaned.slice(-4)});
+    } else if(/^\d{4,14}$/.test(cleaned)){
+      dibs.push({dib:cleaned, status:'ok', last4:cleaned.slice(-4)});
+    } else {
+      dibs.push({dib:d, status:'partial', last4:d.replace(/[^0-9]/g,'').slice(-4)||'????'});
+    }
+  });
+
+  // Detecta duplicats dins la mateixa entrada (????-???? exempt)
+  const seen={};
+  dibs.forEach(d=>{
+    if(d.status==='error'||d.dib==='????-????') return;
+    if(seen[d.dib]){
+      d.status='dup-self';
+      if(!warnings.includes(d.last4+': duplicat en aquesta entrada'))
+        warnings.push(d.last4+': duplicat en aquesta entrada');
+    }
+    seen[d.dib]=true;
+  });
+
+  // Detecta duplicats amb el sistema existent
+  const existing=getAllDibs();
+  dibs.forEach(d=>{
+    if(d.status!=='ok') return;
+    const found=existing.find(e=>e.dib===d.dib);
+    if(found && tipus==='entrada'){
+      // Si estem editant un moviment, ignora els DIBs del propi moviment
+      if(_detailG!==null && _detailIdx!==null){
+        const {mes:dm,any:da}=ma(_detailG);
+        const dms=gmovs(_detailG,dm,da).slice().sort((a,b)=>a.dia-b.dia);
+        const editMov=dms[_detailIdx];
+        if(editMov && editMov.dibs && editMov.dibs.includes(d.dib)) return;
+      }
+      d.status='dup-system';
+      d.dupInfo=found;
+      warnings.push(d.last4+': ja existeix (lot '+found.lot+' '+found.granja+')');
+    }
+  });
+
+  return {dibs, warnings};
+}
+
+// Preview en temps real quan s'escriu al textarea
+function previewDibs(g){
+  const text=document.getElementById(g+'-dibs').value;
+  const lotSel=document.getElementById(g+'-lot').value;
+  const lotNum=lotSel==='__nou__'?0:parseInt(lotSel);
+  const tipus=document.getElementById(g+'-tipus').value;
+  const {dibs, warnings}=parseDibs(text, g, lotNum, tipus);
+
+  // Comptador
+  const okCount=dibs.filter(d=>d.status==='ok'||d.status==='dup-system'||d.status==='partial').length;
+  const countEl=document.getElementById(g+'-dibs-count');
+  countEl.textContent=dibs.length?okCount+' animal'+(okCount!==1?'s':''):'';
+
+  // Color de cartilla actual
+  const cart=g==='fig'?document.getElementById('fig-cart').value:'RAM';
+
+  // TOTES les pills en ordre, dins un contenidor amb scroll
+  const pillsEl=document.getElementById(g+'-dibs-pills');
+  let html=dibs.map((d,i)=>dibPillHtml(d, cart, false, i)).join('');
+  const errCount=dibs.filter(d=>d.status==='partial'||d.status==='error').length;
+  if(errCount>0) html='<div style="color:#a02020;font-size:.68rem;font-weight:700;margin-bottom:4px">'+errCount+' amb errors (vermell) — corregeix-los al textarea</div>'+html;
+  pillsEl.innerHTML=html;
+
+  // Warnings
+  const warnEl=document.getElementById(g+'-dibs-warn');
+  warnEl.innerHTML=warnings.map(w=>'<div>'+w+'</div>').join('');
+}
+
+// ---- SEXE TOGGLE al modal de confirmació ----
+function setSexeAll(val){
+  if(!_pendingMov||!_pendingMov.sexes) return;
+  _pendingMov.dibs.forEach((d,i)=>{_pendingMov.sexes[i]=val;});
+  renderSexeList();
+}
+function toggleSexe(idx){
+  if(!_pendingMov||!_pendingMov.sexes) return;
+  const cur=_pendingMov.sexes[idx]||'';
+  if(cur==='') _pendingMov.sexes[idx]='F';
+  else if(cur==='F') _pendingMov.sexes[idx]='M';
+  else _pendingMov.sexes[idx]='';
+  renderSexeList();
+}
+function renderSexeList(){
+  if(!_pendingMov||!_pendingMov.sexes) return;
+  const list=document.getElementById('m-dibs-sex-list');
+  const summary=document.getElementById('m-dibs-sex-summary');
+  const cart=_pendingMov.cart||'-';
+  const col=ccls(cart);
+  // Resum
+  let nF=0,nM=0,nX=0;
+  _pendingMov.sexes.forEach(s=>{if(s==='F')nF++;else if(s==='M')nM++;else nX++;});
+  const parts=[];
+  if(nF>0) parts.push('<span style="color:#d4508b;font-weight:700">'+nF+' ♀</span>');
+  if(nM>0) parts.push('<span style="color:#3d7bc8;font-weight:700">'+nM+' ♂</span>');
+  if(nX>0) parts.push('<span style="color:var(--muted);font-weight:600">'+nX+' sense sexe</span>');
+  summary.innerHTML=parts.join(' · ');
+  // Llista
+  list.innerHTML=_pendingMov.dibs.map((d,i)=>{
+    const sex=_pendingMov.sexes[i]||'';
+    const isPend=d==='????-????';
+    const isBorr=d.startsWith('BORR-');
+    const last4=d.slice(-4);
+    const prefix=d.length>4&&!isPend&&!isBorr?d.slice(0,-4):'';
+    let dibLabel;
+    if(isPend) dibLabel='<span style="color:#854F0B;font-family:DM Mono,monospace;font-size:.72rem">????-????</span>';
+    else if(isBorr) dibLabel='<span style="color:#854F0B;font-family:DM Mono,monospace;font-size:.72rem">'+d+'</span>';
+    else dibLabel='<span style="font-family:DM Mono,monospace;font-size:.72rem">'+(prefix?'<span style="opacity:.4">'+prefix+'</span>':'')+'-<span style="font-weight:800;color:var(--'+col+')">'+last4+'</span></span>';
+    // Botons amb 3 estats clars: seleccionat = fons ple + blanc, no seleccionat = transparent + atenuat
+    const fSel=sex==='F', mSel=sex==='M', xSel=sex==='';
+    const btnFst=fSel?'background:#d4508b;color:#fff;border:2px solid #d4508b;transform:scale(1.05)':'background:transparent;color:#d4508b;border:1.5px solid #e8b0cc;opacity:.45';
+    const btnMst=mSel?'background:#3d7bc8;color:#fff;border:2px solid #3d7bc8;transform:scale(1.05)':'background:transparent;color:#3d7bc8;border:1.5px solid #a0bfe0;opacity:.45';
+    const btnXst=xSel?'background:var(--ink);color:#fff;border:2px solid var(--ink);transform:scale(1.05)':'background:transparent;color:var(--muted);border:1.5px solid var(--border);opacity:.45';
+    // Fila
+    const rowBg=i%2===0?'#faf9f6':'#fff';
+    return '<div style="display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:6px;background:'+rowBg+'">'+
+      '<span style="font-size:.6rem;color:var(--muted);min-width:18px;text-align:right">'+(i+1)+'</span>'+
+      '<span style="flex:1;min-width:0;overflow:hidden">'+dibLabel+'</span>'+
+      '<div style="display:flex;gap:3px;flex-shrink:0">'+
+      '<button onclick="toggleSexeDirect('+i+',\'F\')" style="border-radius:6px;padding:2px 9px;font-size:.82rem;cursor:pointer;font-weight:700;transition:all .15s;'+btnFst+'">♀</button>'+
+      '<button onclick="toggleSexeDirect('+i+',\'M\')" style="border-radius:6px;padding:2px 9px;font-size:.82rem;cursor:pointer;font-weight:700;transition:all .15s;'+btnMst+'">♂</button>'+
+      '<button onclick="toggleSexeDirect('+i+',\'\')" style="border-radius:6px;padding:2px 7px;font-size:.72rem;cursor:pointer;font-weight:700;transition:all .15s;'+btnXst+'">—</button>'+
+      '</div></div>';
+  }).join('');
+}
+function toggleSexeDirect(idx,val){
+  if(!_pendingMov||!_pendingMov.sexes) return;
+  _pendingMov.sexes[idx]=val;
+  renderSexeList();
+}
+
+// Prepara el moviment i obre modal de confirmació
+function prepMov(g){
+  const dia=parseInt(document.getElementById(g+'-dia').value);
+  const tipus=document.getElementById(g+'-tipus').value;
+  const lotSel=document.getElementById(g+'-lot').value;
+  const cart=g==='fig'?document.getElementById('fig-cart').value:'-';
+  const guia=document.getElementById(g+'-guia').value.trim();
+  const dibsText=document.getElementById(g+'-dibs').value;
+  const {mes,any}=maForm(g);
+
+  if(!dia){alert('Introdueix el dia');return;}
+
+  let lotNum;
+  if(lotSel==='__nou__'){
+    const nN=parseInt(document.getElementById(g+'-nl').value);
+    if(!nN){alert('Introdueix el número del nou lot');return;}
+    lotNum=nN;
+  } else if(!lotSel || lotSel===''){
+    alert('Selecciona un lot');return;
+  } else lotNum=parseInt(lotSel);
+
+  // Parse DIBs
+  const {dibs, warnings}=parseDibs(dibsText, g, lotNum, tipus);
+  const validDibs=dibs.filter(d=>d.status==='ok'||d.status==='dup-system'||d.status==='partial'||d.status==='missing');
+
+  if(validDibs.length===0 && dibsText.trim()){
+    alert('Cap DIB vàlid detectat. Revisa els números.');
+    return;
+  }
+
+  const qty=validDibs.length || parseInt(document.getElementById(g+'-dibs').value)||0;
+  if(qty===0){
+    // Comprova si hi ha entrada manual
+    const manualEl=document.getElementById(g+'-qty-manual');
+    const qtyManual=manualEl?parseInt(manualEl.value):0;
+    if(qtyManual>0){
+      _pendingMov={g, dia, tipus, qty:qtyManual, lot:lotNum, cart, guia, dibs:[], mes, any, isNew:lotSel==='__nou__', dibsFull:[]};
+      confirMD();
+      return;
+    }
+    const qtyPrompt=parseInt(prompt('No has introduït crotals ni número manual. Quants vedells?',''));
+    if(!qtyPrompt || isNaN(qtyPrompt)) return;
+    _pendingMov={g, dia, tipus, qty:qtyPrompt, lot:lotNum, cart, guia, dibs:[], mes, any, isNew:lotSel==='__nou__', dibsFull:[]};
+    confirMD();
+    return;
+  }
+
+  // Guarda moviment pendent amb sexes pre-omplerts
+  const sexesArr=validDibs.map(d=>{
+    if(_pendingSexes[d.dib]) return _pendingSexes[d.dib];
+    return '';
+  });
+  _pendingMov={g, dia, tipus, qty:validDibs.length, lot:lotNum, cart, guia, dibs:validDibs.map(d=>d.dib), dibsFull:dibs, mes, any, isNew:lotSel==='__nou__', sexes:sexesArr};
+
+  // Obre modal de confirmació
+  const tipusText=nomTipusCaps(tipus);
+  document.getElementById('m-dibs-title').textContent='Confirmar '+tipusText+' — Lot '+lotNum;
+
+  let info='<strong>'+validDibs.length+' animals</strong> · Dia '+dia+'/'+mes+'/'+any;
+  if(guia) info+=' · Guia '+guia;
+  if(cart!=='-') info+=' · '+cart;
+  document.getElementById('m-dibs-info').innerHTML=info;
+
+  // Mostrar pills editables
+  const pillsHtml=dibs.map((d,i)=>dibPillHtml(d, cart, true, i)).join('');
+  document.getElementById('m-dibs-pills').innerHTML=pillsHtml;
+
+  // Mostrar secció sexe
+  const sexDiv=document.getElementById('m-dibs-sex');
+  sexDiv.style.display='block';
+  renderSexeList();
+
+  // Warnings
+  document.getElementById('m-dibs-warn').innerHTML=warnings.map(w=>'<div>'+w+'</div>').join('');
+
+  document.getElementById('m-dibs-ok').textContent='Confirmar '+tipusText+' ('+validDibs.length+')';
+  document.getElementById('m-dibs').classList.add('open');
+}
+
+function rmPending(idx){
+  if(!_pendingMov) return;
+  _pendingMov.dibsFull.splice(idx,1);
+  const valid=_pendingMov.dibsFull.filter(d=>d.status==='ok'||d.status==='dup-system'||d.status==='partial'||d.status==='missing');
+  _pendingMov.dibs=valid.map(d=>d.dib);
+  _pendingMov.qty=valid.length;
+  // Reconstruir sexes per als DIBs vàlids
+  if(_pendingMov.sexes){
+    const newSexes=valid.map(d=>{
+      if(_pendingSexes[d.dib]) return _pendingSexes[d.dib];
+      return '';
+    });
+    _pendingMov.sexes=newSexes;
+  }
+  const cart=_pendingMov.cart||'-';
+  const pillsHtml=_pendingMov.dibsFull.map((d,i)=>dibPillHtml(d, cart, true, i)).join('');
+  document.getElementById('m-dibs-pills').innerHTML=pillsHtml;
+  renderSexeList();
+  const tipus=nomTipusCaps(_pendingMov.tipus);
+  document.getElementById('m-dibs-ok').textContent='Confirmar '+tipus+' ('+_pendingMov.qty+')';
+}
+
+function closeMD(){document.getElementById('m-dibs').classList.remove('open');document.getElementById('m-dibs-sex').style.display='none';_pendingMov=null;_pendingSexes={};}
+
+function confirMD(){
+  if(!_pendingMov) return;
+  const p=_pendingMov;
+  const g=p.g;
+
+  // Si és lot nou, crear-lo
+  if(p.isNew){
+    S[g].lots.push({num:p.lot,v:0,vIni:0,actiu:true,carts:{},emp:g==='costa'?'Ramaders':'Ecofutur'});
+  }
+
+  // Validació sortida — avisa però deixa continuar
+  if(esSortida(p.tipus)){
+    const lot=S[g].lots.find(l=>l.num===p.lot);
+    if(lot){
+      let vActual=lot.v;
+      if(vActual<=0){
+        if(!confirm('⚠️ El lot '+p.lot+' mostra 0 vedells. Vols continuar igualment?')) return;
+      } else if(p.qty>vActual){
+        if(!confirm('⚠️ Treus '+p.qty+' vedells però el lot '+p.lot+' en mostra '+vActual+'. Vols continuar?')) return;
+      }
+    }
+  }
+
+  // Guardar moviment amb DIBs i guia
+  const k=mk(p.mes,p.any);
+  if(!S[g].movs[k]) S[g].movs[k]=[];
+  const mov={dia:p.dia, tipus:p.tipus, qty:p.qty, lot:p.lot, cart:p.cart};
+  if(p.guia) mov.guia=p.guia;
+  if(p.dibs.length) mov.dibs=p.dibs;
+  else if(p.qty>0) mov.dibs=Array.from({length:p.qty},()=>'????-????');
+  S[g].movs[k].push(mov);
+
+  const lot=S[g].lots.find(l=>l.num===p.lot);
+  if(lot){if(p.tipus==='entrada') lot.v+=p.qty; else{lot.v-=p.qty;if(lot.v<0)lot.v=0;}}
+
+  // Guardar sexes dels animals (del modal de confirmació o del PDF)
+  if(!S[g].sexes) S[g].sexes={};
+  if(_pendingMov.sexes && _pendingMov.dibs.length){
+    _pendingMov.dibs.forEach((dib,i)=>{
+      if(!dib || dib==='????-????' || dib.startsWith('BORR-')) return;
+      const sex=_pendingMov.sexes[i]||'';
+      if(sex==='F'||sex==='M'){
+        S[g].sexes[dib]=sex;
+      } else {
+        // Explícitament sense sexe → esborra si existia
+        delete S[g].sexes[dib];
+      }
+    });
+  }
+  _pendingSexes={};
+
+  // Amagar secció sexe del modal
+  const sexDiv=document.getElementById('m-dibs-sex');
+  if(sexDiv) sexDiv.style.display='none';
+
+  sv(); renderG(g);
+  // Neteja formulari
+  document.getElementById(g+'-dia').value='';
+  document.getElementById(g+'-dibs').value='';
+  document.getElementById(g+'-guia').value='';
+  document.getElementById(g+'-dibs-pills').innerHTML='';
+  document.getElementById(g+'-dibs-count').textContent='';
+  document.getElementById(g+'-dibs-warn').innerHTML='';
+  const manEl=document.getElementById(g+'-qty-manual');
+  if(manEl) manEl.value='';
+  const manDiv=document.getElementById(g+'-manual');
+  if(manDiv) manDiv.style.display='none';
+  const taEl=document.getElementById(g+'-dibs');
+  if(taEl) taEl.style.display='';
+  closeMD();
+}
+
+// ---- PDF EXTRACT ----
+async function onDetailFile(ev){
+  const file=ev.target.files[0];
+  if(!file) return;
+  try{
+    const buf=await file.arrayBuffer();
+    const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+    let allText='';
+    for(let i=1;i<=pdf.numPages;i++){
+      const page=await pdf.getPage(i);
+      const tc=await page.getTextContent();
+      allText+=tc.items.map(it=>it.str).join(' ')+' ';
+    }
+    // Extreu DIBs: patró 2 lletres + 8-14 dígits
+    const dibPattern=/\b([A-Z]{2}\d{8,14})\b/gi;
+    const found=[...new Set(allText.match(dibPattern)||[])].map(d=>d.toUpperCase());
+    if(found.length){
+      const ta=document.getElementById('m-detail-ta');
+      ta.value=found.join(', ');
+      // Renderitza pills directament
+      const {mes:dm,any:da}=ma(_detailG);
+      const dms=gmovs(_detailG,dm,da).slice().sort((a,b)=>a.dia-b.dia);
+      const editMov=dms[_detailIdx];
+      const editCart=editMov?editMov.cart:'-';
+      const cc2=ccls(editCart);
+      const detailPills=document.getElementById('m-detail-preview');
+      detailPills.innerHTML=found.map((dib,i)=>{
+        const last4=dib.replace(/[^0-9]/g,'').slice(-4)||'????';
+        const prefix=dib.length>4?dib.slice(0,-4):'';
+        return '<span style="display:inline-flex;align-items:center;gap:2px;padding:2px 7px;border-radius:8px;font-size:.7rem;font-family:DM Mono,monospace;background:var(--'+cc2+'-lt);color:var(--'+cc2+')" title="'+dib+'">'+
+          '<span style="opacity:.35;font-size:.6rem">'+(i+1)+'</span>'+
+          (prefix?'<span style="opacity:.4">'+prefix+'</span>':'')+
+          '<span style="font-weight:800;font-size:.75rem">'+last4+'</span></span>';
+      }).join('');
+      // Comprova total declarat vs trobat
+      const normalText=allText.replace(/\s+/g,' ');
+      const totalMatch=normalText.match(/Nombre d.animals\s+(\d+)/i) || normalText.match(/(\d+)\s+animals/i) || normalText.match(/(\d+)\s+Relació annexa/i);
+      const totalDeclarat=totalMatch?parseInt(totalMatch[1]):0;
+      let msg='<div style="color:var(--eco)">Extrets '+found.length+' crotals del PDF</div>';
+      if(totalDeclarat>0 && found.length<totalDeclarat){
+        const falten=totalDeclarat-found.length;
+        msg='<div style="color:#c44;font-weight:700">#!️ La guia declara '+totalDeclarat+' animals però només s\'han llegit '+found.length+'. Falten '+falten+'!</div>';
+        msg+='<div style="color:#854F0B">Revisa la guia manualment i afegeix els que falten.</div>';
+      } else if(totalDeclarat>0 && found.length===totalDeclarat){
+        msg='<div style="color:var(--eco)"><strong>✓ '+found.length+'/'+totalDeclarat+' crotals llegits correctament</strong></div>';
+      }
+      document.getElementById('m-detail-warn').innerHTML=msg;
+    } else {
+      document.getElementById('m-detail-warn').innerHTML='<div>No s\'han trobat crotals al PDF. Pots enganxar-los manualment.</div>';
+    }
+  }catch(e){
+    document.getElementById('m-detail-warn').innerHTML='<div style="color:#c44">Error llegint PDF: '+e.message+'</div>';
+  }
+  ev.target.value='';
+}
+
+async function onFormFile(ev,g){
+  const file=ev.target.files[0];
+  if(!file) return;
+  try{
+    const buf=await file.arrayBuffer();
+    const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+    let allText='';
+    for(let i=1;i<=pdf.numPages;i++){
+      const page=await pdf.getPage(i);
+      const tc=await page.getTextContent();
+      allText+=tc.items.map(it=>it.str).join(' ')+' ';
+    }
+    const upper=allText.toUpperCase();
+
+    // === EXTRACCIÓ POSICIONAL DE DIBS ===
+    const fixes={'S':'5','I':'1','O':'0','B':'8','G':'6','Z':'2','T':'7'};
+    const allItems=[];
+    for(let pi=1;pi<=pdf.numPages;pi++){
+      const pg=await pdf.getPage(pi);
+      const tc2=await pg.getTextContent();
+      tc2.items.forEach(it=>{
+        const s=it.str.trim();
+        if(!s)return;
+        allItems.push({str:s,y:Math.round(it.transform[5]),x:Math.round(it.transform[4]),page:pi});
+      });
+    }
+    // Agrupa per files (items a mateixa Y ±15px, mateixa pàgina)
+    allItems.sort((a,b)=>a.page!==b.page?a.page-b.page:b.y-a.y);
+    const rows=[];let curY=null,curRow=[];
+    allItems.forEach(it=>{
+      if(curY===null||Math.abs(it.y-curY)>15||it.page!==(curRow[0]||{}).page){
+        if(curRow.length)rows.push(curRow);curRow=[it];curY=it.y;
+      } else curRow.push(it);
+    });
+    if(curRow.length)rows.push(curRow);
+    // Per cada fila busca POS (1-60) i DIB i SEXE
+    const rawResults=[];
+    rows.forEach(row=>{
+      let pos=null,dib=null,dibRaw=null,status='ok',sex=null;
+      row.forEach(it=>{
+        if(/^\d{1,2}$/.test(it.str)&&parseInt(it.str)>=1&&parseInt(it.str)<=99&&it.x<100) pos=parseInt(it.str);
+        // Detecta sexe (flexible per OCR: conté femella/mascle/hembra/macho)
+        const sl=it.str.trim().toLowerCase().replace(/\s+/g,'');
+        if(/^femell/i.test(sl)||/^hembra/i.test(sl)||/^female/i.test(sl)||sl==='f'&&it.x>150&&it.x<400) sex='F';
+        else if(/^mascle/i.test(sl)||/^macho/i.test(sl)||/^male/i.test(sl)||sl==='m'&&it.x>150&&it.x<400) sex='M';
+        const s=it.str.toUpperCase();
+        if(/^[A-Z]{1,4}\d{5,14}$/.test(s)||/^\d{10,14}$/.test(s)){
+          if(s.startsWith('926')||s.startsWith('925')||s.startsWith('ES08')||s.startsWith('ES25')||/^0908/.test(s)||s.startsWith('ESO'))return;
+          if(/^[ABCDFGHJKNPQRSUVW]\d{7,8}$/.test(s))return;
+          dibRaw=s;let d=s;
+          if(/^FR[A-Z]\d+$/.test(d)){const l=d[2];if(fixes[l])d='FR'+fixes[l]+d.slice(3);else{d='FR?'+d.slice(3);status='partial';}}
+          else if(/^FR[A-Z]{2}\d+$/.test(d)){let f='FR';for(let ci=2;ci<4;ci++){if(fixes[d[ci]])f+=fixes[d[ci]];else{f+='?';status='partial';}}f+=d.slice(4);d=f;}
+          else if(/^R\d{10,}$/.test(d)){d='F'+d;}
+          const digs=d.replace(/^[A-Z]+/,'');
+          if(/^(FR|ES)/.test(d)&&digs.length>0&&digs.length<8){d=d+'?'.repeat(10-digs.length);status='partial';}
+          if(/^ES\d+$/.test(d)&&digs.length>=3&&digs.length<12){d=d+'?'.repeat(12-digs.length);status='partial';}
+          dib=d;
+        }
+      });
+      if(dib)rawResults.push({pos,dib,raw:dibRaw,status,sex});
+    });
+    // === SEGON PAS: Extracció de sexe per posició (pot estar en pàgines separades) ===
+    const sexByPos={};
+    rows.forEach(row=>{
+      let rowPos=null, rowSex=null;
+      row.forEach(it=>{
+        if(/^\d{1,2}$/.test(it.str.trim())&&parseInt(it.str)>=1&&parseInt(it.str)<=99&&it.x<100) rowPos=parseInt(it.str);
+        const sl=it.str.trim().toLowerCase().replace(/\s+/g,'');
+        if(/^femell/i.test(sl)||/^hembra/i.test(sl)||/^female/i.test(sl)) rowSex='F';
+        else if(/^mascle/i.test(sl)||/^macho/i.test(sl)||/^male/i.test(sl)) rowSex='M';
+      });
+      if(rowPos && rowSex) sexByPos[rowPos]=rowSex;
+    });
+    // Fusiona: si un rawResult no té sexe però sexByPos sí, l'agafa
+    rawResults.forEach(r=>{
+      if(!r.sex && r.pos && sexByPos[r.pos]) r.sex=sexByPos[r.pos];
+    });
+    // Assigna posicions sense duplicats
+    const usedPos=new Set();let nextP=1;
+    rawResults.forEach(r=>{
+      if(r.pos&&!usedPos.has(r.pos)){usedPos.add(r.pos);nextP=r.pos+1;}
+      else{while(usedPos.has(nextP))nextP++;r.pos=nextP;usedPos.add(nextP);nextP++;}
+    });
+    // Últim pas: fusiona sexe per posició final (després de reassignació)
+    rawResults.forEach(r=>{
+      if(!r.sex && r.pos && sexByPos[r.pos]) r.sex=sexByPos[r.pos];
+    });
+    // === AUTO-OMPLIR FORMULARI (ABANS dels BORRs) ===
+    const guiaPattern=/\b(9[23]\d{15,18})\b/g;
+    const guies=allText.match(guiaPattern)||[];
+    if(guies.length){
+      const guiaEl=document.getElementById(g+'-guia');
+      if(guiaEl) guiaEl.value=guies[0];
+    }
+    const esFiguera=g==='fig';
+    const granjaREGA=esFiguera?'082290':'081920';
+    const granjaNames=esFiguera?['FIGUERA','SANT MATEU']:['LA COSTA','SANTPEDOR'];
+    const cartNames=esFiguera?['ECOFUTUR','SAT FIGUERA','GRANJA CAN FIGUERA','PERE ESQUER']:['RAMADERS COMARCALS'];
+    // Normalitza espais múltiples de l'OCR
+    const upperNorm=upper.replace(/\s+/g,' ');
+    const idxDesti=upperNorm.indexOf('DESTINACI');
+    if(idxDesti>0){
+      const textOrigen=upperNorm.substring(0, idxDesti);
+      const textDesti=upperNorm.substring(idxDesti);
+      const allKeys=[...granjaNames, granjaREGA, ...cartNames];
+      const alOrigen=allKeys.some(k=>textOrigen.includes(k));
+      const alDesti=allKeys.some(k=>textDesti.includes(k));
+      if(alOrigen && !alDesti) document.getElementById(g+'-tipus').value='sortida';
+      else if(alDesti) document.getElementById(g+'-tipus').value='entrada';
+    } else {
+      if(upperNorm.includes('ESCORXADOR')||upperNorm.includes('SACRIFICI')) document.getElementById(g+'-tipus').value='sortida';
+    }
+    onTipusC(g);
+    if(esFiguera){
+      if(upperNorm.includes('ECOFUTUR')) document.getElementById('fig-cart').value='ECO';
+      else if(upperNorm.includes('S.A.T.')||upperNorm.includes('SAT FIGUERA')||upperNorm.includes('GRANJA CAN FIGUERA')) document.getElementById('fig-cart').value='SATF';
+      else if(upperNorm.includes('PERE ESQUER')) document.getElementById('fig-cart').value='PE';
+    }
+    const dataMatch=allText.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+    if(dataMatch){
+      const dia=parseInt(dataMatch[1]);
+      const mes=parseInt(dataMatch[2]);
+      const any=parseInt(dataMatch[3]);
+      if(dia>=1&&dia<=31) document.getElementById(g+'-dia').value=dia;
+      if(mes>=1&&mes<=12) document.getElementById(g+'-mov-mes').value=mes;
+      if(any>=2024&&any<=2030) document.getElementById(g+'-mov-any').value=any;
+    }
+    document.getElementById(g+'-lot').value='';
+
+    // Total declarat i BORRs
+    const normTxt=allText.replace(/\s+/g,' ');
+    const totalMatch=normTxt.match(/Nombre d.animals\s+(\d+)/i)||normTxt.match(/(\d+)\s+animals/i);
+    const totalDeclarat=totalMatch?parseInt(totalMatch[1]):0;
+    // Detecta posicions buides i inserta BORRs
+    const maxP=Math.max(...rawResults.map(r=>r.pos),totalDeclarat);
+    const filledP=new Set(rawResults.map(r=>r.pos));
+    const cartF=g==='fig'?document.getElementById('fig-cart').value:'-';
+    const diaF=parseInt(document.getElementById(g+'-dia').value)||0;
+    const mesF=parseInt(document.getElementById(g+'-mov-mes').value)||0;
+    const mesos2=['','GEN','FEB','MAR','ABR','MAI','JUN','JUL','AGO','SET','OCT','NOV','DES'];
+    let borrNext=nextBorrador(g);
+    const finalResults=[...rawResults];
+    // Parcials: afegeix codi BORR preservant la info parcial
+    finalResults.forEach(r=>{
+      if(r.status==='partial'){
+        const bCode='BORR-'+String(borrNext).padStart(3,'0')+'-'+(cartF||'?')+'-'+(diaF?String(diaF).padStart(2,'0'):'??')+(mesos2[mesF]||'???');
+        r.borrCode=bCode;
+        r.dibOriginal=r.dib; // Guarda el parcial original
+        r.dib=bCode+'('+r.dib+')'; // BORR-002-ECO-23MAR(FR503021????)
+        borrNext++;
+      }
+    });
+    // Posicions buides: BORR complet sense info parcial
+    for(let p=1;p<=maxP;p++){
+      if(!filledP.has(p)){
+        const bCode='BORR-'+String(borrNext).padStart(3,'0')+'-'+(cartF||'?')+'-'+(diaF?String(diaF).padStart(2,'0'):'??')+(mesos2[mesF]||'???');
+        finalResults.push({pos:p,dib:bCode,raw:null,status:'missing'});
+        borrNext++;
+      }
+    }
+    finalResults.sort((a,b)=>a.pos-b.pos);
+    // Construeix finalList amb marcadors
+    let finalList=finalResults.map(r=>{
+      if(r.status==='missing'||r.status==='partial')return '#!'+r.dib;
+      return r.dib;
+    });
+
+    // Posa els DIBs al textarea (sense marcadors, text net per editar)
+    const ta=document.getElementById(g+'-dibs');
+    const existing=ta.value.trim();
+    const dibsTextClean=finalList.map(d=>d.startsWith('#!')?d.slice(2):d).join(', ');
+    ta.value=existing?(existing+', '+dibsTextClean):dibsTextClean;
+
+    // Renderitza pills DIRECTAMENT amb colors garantits (no passa per parseDibs)
+    const pillsEl=document.getElementById(g+'-dibs-pills');
+    const cartColor=g==='fig'?document.getElementById('fig-cart').value:'RAM';
+    const cc=ccls(cartColor);
+    let pillsHtml=finalList.map((raw,i)=>{
+      const isErr=raw.startsWith('#!');
+      const dib=isErr?raw.slice(2):raw;
+      const digits=dib.replace(/[^0-9]/g,'');
+      const last4=digits.slice(-4)||'????';
+      const prefix=dib.length>4?dib.slice(0,-4):'';
+      const bgOk='var(--'+cc+'-lt)';
+      const colOk='var(--'+cc+')';
+      const isBorr=dib.startsWith('BORR-');
+      const isInc=(dib.startsWith('-')&&!isBorr)||(/^\d{1,5}$/.test(dib));
+      const cleanDib=dib.replace(/^-/,'');
+      const bg=(isBorr||isInc)?'#FAEEDA':isErr?'#FCEBEB':bgOk;
+      const col=(isBorr||isInc)?'#854F0B':isErr?'#a02020':colOk;
+      const bdr=(isBorr||isInc)?'border:1.5px solid #e0c080;':isErr?'border:1.5px solid #e08080;':'';
+      return '<span style="display:inline-flex;align-items:center;gap:2px;padding:2px 7px;border-radius:8px;font-size:.7rem;font-family:DM Mono,monospace;background:'+bg+';color:'+col+';'+bdr+'" title="'+dib+'">'+
+        '<span style="opacity:.35;font-size:.6rem">'+(i+1)+'</span>'+
+        (isBorr?'<span style="font-weight:800;font-size:.72rem">'+dib+'</span>':
+          isInc?'<span style="opacity:.4">????</span><span style="opacity:.3">-</span><span style="font-weight:800;font-size:.75rem">'+cleanDib+'</span>':
+          (prefix&&!isErr?'<span style="opacity:.4">'+prefix+'</span>':'')+
+          '<span style="opacity:.3">-</span><span style="font-weight:800;font-size:.75rem">'+last4+'</span>')+
+        (isErr&&!isBorr&&!isInc?' ✗':'')+
+        '</span>';
+    }).join('');
+    pillsEl.innerHTML=pillsHtml;
+    document.getElementById(g+'-dibs-count').textContent=finalList.length+' animals';
+
+    const totalBons=finalList.filter(d=>!d.startsWith('#!')).length;
+    const totalParcials=finalList.filter(d=>d.startsWith('#!')).length;
+
+    let msg='';
+    if(totalParcials>0){
+      msg='<div style="color:#c44;font-weight:700">#!️ '+totalBons+' llegits bé · '+totalParcials+' amb errors (vermell) per corregir</div>';
+      if(totalDeclarat>0) msg='<div style="color:#c44;font-weight:700">#!️ '+totalBons+'/'+totalDeclarat+' llegits · '+totalParcials+' amb errors (vermell)</div>';
+      msg+='<div style="color:#854F0B;font-size:.65rem">Corregeix els vermells al textarea. ? = caràcter que no s\'ha pogut llegir.</div>';
+    } else if(totalDeclarat>0){
+      msg='<div style="color:var(--eco)"><strong>✓ '+totalBons+'/'+totalDeclarat+' crotals llegits correctament</strong></div>';
+    } else {
+      msg='<div style="color:var(--eco)">Extrets '+totalBons+' crotals</div>';
+    }
+    msg+='<div style="color:var(--muted);font-size:.65rem;margin-top:2px"><strong>Selecciona lot.</strong></div>';
+    document.getElementById(g+'-dibs-warn').innerHTML=msg;
+    if(!finalList.length){
+      document.getElementById(g+'-dibs-warn').innerHTML='<div>No s\'han trobat crotals al PDF. Enganxa\'ls manualment.</div>';
+    }
+    // Guardar sexes extrets del PDF per quan es confirmi el moviment
+    _pendingSexes={};
+    finalResults.forEach(r=>{
+      if(r.sex && r.dib && r.status==='ok'){
+        _pendingSexes[r.dib]=r.sex;
+      }
+    });
+    // Lot sempre NO seleccionat — forçar tria manual
+    document.getElementById(g+'-lot').value='';
+  }catch(e){
+    document.getElementById(g+'-dibs-warn').innerHTML='<div style="color:#c44">Error: '+e.message+'</div>';
+  }
+  ev.target.value='';
+}
+
+// ---- DETALL MOVIMENT ----
+let _detailG=null, _detailIdx=null;
+
+function openDetail(g, idx){
+  const {mes,any}=ma(g);
+  const ms=gmovs(g,mes,any).slice().sort((a,b)=>a.dia-b.dia);
+  const m=ms[idx];
+  if(!m) return;
+  _detailG=g; _detailIdx=idx;
+
+  const tipusText=nomTipus(m.tipus);
+  const cart=m.cart||'-';
+  const col='var(--'+ccls(cart)+')';
+  document.getElementById('m-detail-title').textContent=tipusText+' — Lot '+m.lot+' · Dia '+m.dia+'/'+mes+'/'+any;
+
+  let meta='';
+  if(cart!=='-') meta+='<span class="cc cc-'+ccls(cart)+'">'+cart+'</span> · ';
+  meta+=tipusText+' · '+m.dia+'/'+mes+'/'+any;
+  document.getElementById('m-detail-meta').innerHTML=meta;
+
+  // Guia
+  const guiaEl=document.getElementById('m-detail-guia');
+  if(m.guia) guiaEl.innerHTML='Guia: <strong>'+m.guia+'</strong>';
+  else guiaEl.innerHTML='<span style="color:var(--muted);font-style:italic">Sense guia registrada</span>';
+
+  // Total
+  document.getElementById('m-detail-total').innerHTML='<span style="color:'+col+'">'+m.qty+' animal'+(m.qty!==1?'s':'')+'</span>';
+
+  // DIBs en format llista vertical
+  const dibsEl=document.getElementById('m-detail-dibs');
+  if(m.dibs&&m.dibs.length){
+    dibsEl.innerHTML=m.dibs.map((d,i)=>{
+      const isPending=d==='????-????';
+      const isBorr=d.startsWith('BORR-');
+      const isIncomplete=(d.startsWith('-')&&!isBorr)||(/^\d{1,5}$/.test(d));
+      const cleanD=d.replace(/^-/,'');
+      const last4=d.slice(-4);
+      const prefix=d.length>4&&!isBorr&&!isIncomplete&&!isPending?d.slice(0,-4):'';
+      const rowBg=(isBorr||isIncomplete||isPending)?'background:#FAEEDA;':'';
+      const txtCol=(isBorr||isIncomplete||isPending)?'color:#854F0B;font-weight:700':'color:'+col;
+      const cartBadge=m.cart&&m.cart!=='-'?'<span style="margin-left:auto;font-size:.6rem;font-weight:700;padding:1px 6px;border-radius:4px;background:var(--'+ccls(m.cart)+'-lt);color:var(--'+ccls(m.cart)+')">'+m.cart+'</span>':'';
+      const sexBdg2='<span style="margin-left:'+(cartBadge?'6':'auto')+'px;font-size:.85rem">'+fmtSexe(g,d)+'</span>';
+      return '<div class="detail-dib-row" style="'+rowBg+'display:flex;align-items:center;">'+
+        '<span class="dib-idx">'+(i+1)+'</span>'+
+        (isPending?'<span style="'+txtCol+'">????-????</span>':
+          isBorr?'<span style="'+txtCol+'">'+d+'</span>':
+          isIncomplete?'<span style="opacity:.4;'+txtCol+'">????</span><span style="opacity:.3">-</span><span class="dib-last4" style="'+txtCol+'">'+cleanD+'</span>':
+          (prefix?'<span class="dib-prefix">'+prefix+'</span>':'')+
+          '<span style="opacity:.3">-</span><span class="dib-last4" style="'+txtCol+'">'+last4+'</span>')+
+        cartBadge+sexBdg2+
+        '</div>';
+    }).join('');
+  } else {
+    dibsEl.innerHTML='<div style="color:var(--muted);font-size:.78rem;padding:8px;text-align:center">Sense crotals registrats</div>';
+  }
+
+
+  document.getElementById('m-detail').classList.add('open');
+  // CRÍTIC: actualitzar botó "Editar moviment" amb el moviment correcte
+  const detailK=mk(mes,any);
+  const origMs=S[g].movs[detailK]||[];
+  const detailMi=origMs.indexOf(m);
+  const fullEditBtn2=document.getElementById('m-detail-fullEdit');
+  fullEditBtn2.onclick=function(){document.getElementById('m-detail').classList.remove('open');editarMov(g,detailK,detailMi);};
+}
+
+function closeDetail(){
+  document.getElementById('m-detail').classList.remove('open');
+  _detailG=null; _detailIdx=null;
+}
+
+function toggleDetailEdit(){
+  const editDiv=document.getElementById('m-detail-edit');
+  const editBtn=document.getElementById('m-detail-edit-btn');
+  const saveBtn=document.getElementById('m-detail-save');
+  if(editDiv.style.display==='none'){
+    editDiv.style.display='block';
+    editBtn.textContent='Cancel·lar edició';
+    saveBtn.style.display='';
+    // Pre-fill amb els DIBs actuals
+    const {mes,any}=ma(_detailG);
+    const ms=gmovs(_detailG,mes,any).slice().sort((a,b)=>a.dia-b.dia);
+    const m=ms[_detailIdx];
+    if(m&&m.dibs){
+      document.getElementById('m-detail-ta').value=m.dibs.join(', ');
+    }
+    document.getElementById('m-detail-ta').oninput=previewDetailEdit;
+  } else {
+    editDiv.style.display='none';
+    editBtn.textContent='Afegir / modificar crotals';
+    saveBtn.style.display='none';
+  }
+}
+
+function previewDetailEdit(){
+  const text=document.getElementById('m-detail-ta').value;
+  const {mes,any}=ma(_detailG);
+  const ms=gmovs(_detailG,mes,any).slice().sort((a,b)=>a.dia-b.dia);
+  const m=ms[_detailIdx];
+  const lotNum=m?m.lot:0;
+  const tipus=m?m.tipus:'entrada';
+  const cart=m?m.cart:'-';
+  const {dibs, warnings}=parseDibs(text, _detailG, lotNum, tipus);
+
+  const pillsEl=document.getElementById('m-detail-preview');
+  pillsEl.innerHTML=dibs.map((d,i)=>dibPillHtml(d, cart, false, i)).join('');
+
+  document.getElementById('m-detail-warn').innerHTML=warnings.map(w=>'<div>'+w+'</div>').join('');
+}
+
+function saveDetail(){
+  if(!_detailG) return;
+  const {mes,any}=ma(_detailG);
+  const k=mk(mes,any);
+  const ms=(S[_detailG].movs[k]||[]).slice().sort((a,b)=>a.dia-b.dia);
+  const m=ms[_detailIdx];
+  if(!m) return;
+
+  const text=document.getElementById('m-detail-ta').value;
+  const {dibs}=parseDibs(text, _detailG, m.lot, m.tipus);
+  const valid=dibs.filter(d=>d.status==='ok'||d.status==='dup-system'||d.status==='partial');
+
+  if(valid.length===0 && text.trim()){
+    alert('Cap DIB vàlid. Revisa els números.');
+    return;
+  }
+
+  // Troba el moviment original a l'array sense ordenar
+  const origIdx=S[_detailG].movs[k].findIndex(x=>x.dia===m.dia&&x.lot===m.lot&&x.tipus===m.tipus&&x.cart===m.cart);
+  if(origIdx<0) return;
+
+  // Fusionar: nous números reals substitueixen ????-???? existents
+  if(valid.length>0){
+    const oldDibs=m.dibs||[];
+    const newReal=valid.map(d=>d.dib).filter(d=>d!=='????-????');
+    // Reals existents (no pendents)
+    const oldReal=oldDibs.filter(d=>d!=='????-????');
+    // Combinar: existents reals + nous reals (sense duplicats)
+    const allReal=[...oldReal];
+    newReal.forEach(nr=>{if(!allReal.includes(nr)) allReal.push(nr);});
+    // Omplir fins al total original amb ????-????
+    const total=Math.max(m.qty, allReal.length);
+    const merged=[...allReal];
+    while(merged.length<total) merged.push('????-????');
+    S[_detailG].movs[k][origIdx].dibs=merged;
+    // Ajusta qty si hi ha MÉS reals que l'original
+    if(merged.length!==m.qty){
+      const oldQty=m.qty;
+      S[_detailG].movs[k][origIdx].qty=merged.length;
+      const lot=S[_detailG].lots.find(l=>l.num===m.lot);
+      if(lot){
+        const diff=merged.length-oldQty;
+        if(m.tipus==='entrada') lot.v+=diff;
+        else {lot.v-=diff; if(lot.v<0) lot.v=0;}
+      }
+    }
+  }
+
+  const savedG=_detailG, savedIdx=_detailIdx;
+  sv(); renderG(savedG);
+  // Tornar al detall actualitzat
+  closeDetail();
+  setTimeout(()=>openDetail(savedG, savedIdx), 50);
+}
+
+// ---- MOVIMENTS (antic) ----
+function afMov(g){
+  const dia=parseInt(document.getElementById(g+'-dia').value);
+  const tipus=document.getElementById(g+'-tipus').value;
+  const qty=parseInt(document.getElementById(g+'-qty').value);
+  const lotSel=document.getElementById(g+'-lot').value;
+  const cart=g==='fig'?document.getElementById('fig-cart').value:'-';
+  const {mes,any}=ma(g);
+  if(!dia||!qty){alert('Introdueix dia i quantitat');return;}
+  let lotNum;
+  if(lotSel==='__nou__'){
+    const nN=parseInt(document.getElementById(g+'-nl').value);
+    if(!nN){alert('Introdueix el número del nou lot');return;}
+    S[g].lots.push({num:nN,v:0,vIni:0,actiu:true,carts:{},emp:g==='costa'?'Ramaders':'Ecofutur'});
+    lotNum=nN;
+  } else lotNum=parseInt(lotSel);
+
+  // Validació sortida: no pot superar els vedells actuals del lot (per cartilla si aplica)
+  if(esSortida(tipus)){
+    const lot=S[g].lots.find(l=>l.num===lotNum);
+    if(lot){
+      // Calcula vedells actuals considerant tots els moviments fins avui
+      let vActual;
+      if(g==='fig' && cart && cart!=='-'){
+        vActual=vCartAlMes(g,lotNum,cart,mes,any);
+        // Resta moviments del mes actual ja registrats per aquesta cartilla i dies anteriors
+        const movsAvui=(S[g].movs[mk(mes,any)]||[])
+          .filter(m=>m.lot===lotNum&&m.cart===cart&&m.dia<dia);
+        movsAvui.forEach(m=>{if(m.tipus==='entrada')vActual+=m.qty;else vActual-=m.qty;});
+        vActual=Math.max(0,vActual);
+        if(qty>vActual){
+          alert(`#!️ No és possible: intentes treure ${qty} vedells de cartilla ${cart} del lot ${lotNum}, però només n'hi ha ${vActual} disponibles en aquest moment.`);
+          return;
+        }
+      } else {
+        vActual=vLotIniMes(g,lotNum,mes,any);
+        const movsAvui=(S[g].movs[mk(mes,any)]||[])
+          .filter(m=>m.lot===lotNum&&m.dia<dia);
+        movsAvui.forEach(m=>{if(m.tipus==='entrada')vActual+=m.qty;else vActual-=m.qty;});
+        vActual=Math.max(0,vActual);
+        if(qty>vActual){
+          alert(`#!️ No és possible: intentes treure ${qty} vedells del lot ${lotNum}, però només n'hi ha ${vActual} disponibles en aquest moment.`);
+          return;
+        }
+      }
+    }
+  }
+
+  const k=mk(mes,any);
+  if(!S[g].movs[k]) S[g].movs[k]=[];
+  S[g].movs[k].push({dia,tipus,qty,lot:lotNum,cart});
+  const lot=S[g].lots.find(l=>l.num===lotNum);
+  if(lot){if(tipus==='entrada') lot.v+=qty; else{lot.v-=qty;if(lot.v<0)lot.v=0;}}
+  sv(); renderG(g);
+  document.getElementById(g+'-dia').value='';
+  document.getElementById(g+'-qty').value='';
+}
+
+function delMov(g,idx){
+  const {mes,any}=ma(g);
+  const k=mk(mes,any);
+  const ms=S[g].movs[k]||[];
+  const sorted=ms.slice().sort((a,b)=>a.dia-b.dia);
+  const m=sorted[idx];
+  const lot=S[g].lots.find(l=>l.num===m.lot);
+  if(lot){if(m.tipus==='entrada') lot.v-=m.qty; else lot.v+=m.qty;}
+  const oi=S[g].movs[k].findIndex(x=>x.dia===m.dia&&x.qty===m.qty&&x.lot===m.lot&&x.tipus===m.tipus);
+  if(oi>=0) S[g].movs[k].splice(oi,1);
+  sv(); renderG(g);
+}
+
+// ---- LOTS ----
+const _hiddenLots={fig:new Set(), costa:new Set()};
+
+function amagaLot(g,num){
+  _hiddenLots[g].add(num);
+  rLots(g); rMovList(g);
+}
+function mostrarTots(g){
+  _hiddenLots[g].clear();
+  rLots(g); rMovList(g);
+}
+
+function eliminaLot(g,num){
+  const lot=S[g].lots.find(x=>x.num===num);
+  if(!lot) return;
+  let totalMovs=0;
+  const lotMovs={};
+  Object.entries(S[g].movs).forEach(([k,ms])=>{
+    const del=ms.filter(m=>m.lot===num);
+    if(del.length){totalMovs+=del.length;lotMovs[k]=del;}
+  });
+  if(!confirm('Eliminar lot '+num+'? ('+totalMovs+' moviments)\nAnirà a la paperera.')) return;
+  // Paperera
+  addToTrash({_type:'lot',_granja:g,lot:{...lot},movs:lotMovs});
+  // Elimina
+  Object.keys(S[g].movs).forEach(k=>{
+    S[g].movs[k]=S[g].movs[k].filter(m=>m.lot!==num);
+    if(!S[g].movs[k].length) delete S[g].movs[k];
+  });
+  S[g].lots=S[g].lots.filter(x=>x.num!==num);
+  sv(); renderG(g); openGestio(g);
+}
+
+// ---- PAPERERA ----
+function getTrash(){try{return JSON.parse(localStorage.getItem('vd29_trash')||'[]');}catch(e){return[];}}
+function svTrash(t){localStorage.setItem('vd29_trash',JSON.stringify(t));}
+function addToTrash(item){const t=getTrash();item._delDate=new Date().toISOString();t.push(item);svTrash(t);}
+function restoreFromTrash(idx){
+  const t=getTrash();
+  const item=t[idx];
+  if(!item)return;
+  if(item._type==='lot'){
+    S[item._granja].lots.push(item.lot);
+    if(item.movs){
+      Object.entries(item.movs).forEach(([k,ms])=>{
+        if(!S[item._granja].movs[k])S[item._granja].movs[k]=[];
+        S[item._granja].movs[k].push(...ms);
+      });
+    }
+  } else if(item._type==='mov'){
+    const k=item._key;
+    if(!S[item._granja].movs[k])S[item._granja].movs[k]=[];
+    S[item._granja].movs[k].push(item.mov);
+    const lot=S[item._granja].lots.find(l=>l.num===item.mov.lot);
+    if(lot){if(item.mov.tipus==='entrada')lot.v+=item.mov.qty;else{lot.v-=item.mov.qty;if(lot.v<0)lot.v=0;}}
+  }
+  t.splice(idx,1);svTrash(t);
+  sv();renderG(item._granja);
+  openGestio(item._granja);
+}
+function buidaPaperera(){if(!confirm('Buidar tota la paperera? No es podrà recuperar res.')){return;}svTrash([]);}
+
+// ---- GESTIÓ ----
+function openGestio(g){
+  const title=g==='fig'?'Figuera':'La Costa';
+  document.getElementById('m-gestio-title').textContent='Gestió — '+title;
+  const body=document.getElementById('m-gestio-body');
+  let html='';
+
+  // LOTS
+  S[g].lots.forEach(l=>{
+    let totalMovs=0;
+    const lotMovs=[];
+    Object.entries(S[g].movs).forEach(([k,ms])=>{
+      ms.forEach((m,mi)=>{if(m.lot===l.num){totalMovs++;lotMovs.push({k,mi,m,...parseMesAny(k)});}});
+    });
+    lotMovs.sort((a,b)=>a.any!==b.any?a.any-b.any:a.mes!==b.mes?a.mes-b.mes:a.m.dia-b.m.dia);
+
+    // Calcula vedells per cartilla (entrats i actuals)
+    let cartResum='';
+    let totalEntrada=0;
+    if(g==='fig'){
+      const cartsIn={},cartsNow={};
+      Object.values(S[g].movs).forEach(ms=>{
+        ms.filter(mv=>mv.lot===l.num).forEach(mv=>{
+          const c=mv.cart||'-';
+          if(!cartsIn[c])cartsIn[c]=0;
+          if(!cartsNow[c])cartsNow[c]=0;
+          if(mv.tipus==='entrada'){cartsIn[c]+=mv.qty;totalEntrada+=mv.qty;cartsNow[c]+=mv.qty;}
+          else cartsNow[c]-=mv.qty;
+        });
+      });
+      const parts=Object.entries(cartsIn).map(([c,vIn])=>{
+        const vNow=Math.max(0,cartsNow[c]||0);
+        const col='var(--'+ccls(c)+')';
+        return '<span style="color:'+col+'"><b>'+c+'</b>: '+vIn+' entrats, <u>'+vNow+' actualment</u></span>';
+      });
+      if(parts.length) cartResum='<div style="font-size:.72rem;margin-top:3px">'+parts.join(' &middot; ')+'</div>';
+    } else {
+      Object.values(S[g].movs).forEach(ms=>{ms.filter(mv=>mv.lot===l.num&&mv.tipus==='entrada').forEach(mv=>{totalEntrada+=mv.qty;});});
+    }
+    const esActiu=l.v>0;
+    html+='<div style="border:1px solid '+(esActiu?'var(--border)':'#e0e0d8')+';border-radius:10px;margin-bottom:8px;'+(esActiu?'':'opacity:.7;')+'">';
+    // Capçalera clicable per lots antics
+    html+='<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;padding:10px 12px;cursor:pointer" onclick="var d=this.nextElementSibling;d.style.display=d.style.display===\x27none\x27?\x27block\x27:\x27none\x27">';
+    html+='<div style="font-size:.95rem"><strong>Lot '+l.num+'</strong> <span style="color:var(--muted)">('+totalEntrada+' entrats, <b>'+l.v+' ara</b>)</span>';
+    html+=(esActiu?'':' <span style="font-size:.65rem;color:#999">▶ clic per obrir</span>')+'</div>';
+    html+='<div style="display:flex;gap:4px" onclick="event.stopPropagation()">';
+    html+='<button class="btn b-out" onclick="editarLotProp(\''+g+'\','+l.num+')" style="font-size:.68rem;padding:3px 8px">Editar</button>';
+    html+='<button class="btn b-out" onclick="eliminaLot(\''+g+'\','+l.num+')" style="font-size:.68rem;padding:3px 8px;color:#c44;border-color:#e99">Eliminar</button>';
+    html+='</div></div>';
+    // Cos del lot (plegat si no té vedells)
+    html+='<div style="padding:0 12px 10px;'+(esActiu?'':'display:none;')+'">';
+    html+=cartResum;
+
+    // Moviments del lot
+    if(lotMovs.length){
+      html+='<div style="margin-top:8px;font-size:.72rem;color:var(--muted);font-weight:600">'+totalMovs+' MOVIMENTS</div>';
+      html+='<div style="max-height:200px;overflow-y:auto;margin-top:4px">';
+      lotMovs.forEach((lm,idx)=>{
+        const m=lm.m;
+        const isIn=m.tipus==='entrada';
+        const bg=isIn?'#e8f5e9':'#fff3e0';
+        const icon=isIn?'↑':'↓';
+        const cc2=ccls(m.cart||'-');
+        const cartBadge=m.cart&&m.cart!=='-'?'<span class="cc cc-'+cc2+'" style="font-size:.6rem;padding:1px 5px">'+m.cart+'</span>':'';
+        const dibCount=m.dibs&&m.dibs.length?' · 🏷'+m.dibs.length:'';
+        const guia=m.guia?' · 📋':''; 
+        html+='<div style="display:flex;align-items:center;gap:6px;padding:4px 6px;border-radius:6px;margin-bottom:2px;background:'+bg+';font-size:.72rem">';
+        html+='<span style="min-width:55px;color:var(--muted)">'+String(m.dia).padStart(2,'0')+'/'+String(lm.mes).padStart(2,'0')+'/'+lm.any+'</span>';
+        html+='<span style="font-weight:700">'+(isIn?'↑ Ent':'↓ Sort')+'</span>';
+        html+='<span style="font-weight:700;min-width:20px">'+m.qty+'</span>';
+        html+=cartBadge+guia+dibCount;
+        html+='<span style="flex:1"></span>';
+        html+='<button onclick="editarMov(\''+g+'\',\''+lm.k+'\','+lm.mi+')" style="font-size:.6rem;background:none;border:1px solid var(--border);border-radius:4px;padding:2px 6px;cursor:pointer;color:var(--muted)">editar</button>';
+        html+='<button onclick="eliminarMov(\''+g+'\',\''+lm.k+'\','+lm.mi+')" style="font-size:.6rem;background:none;border:1px solid #e99;border-radius:4px;padding:2px 6px;cursor:pointer;color:#c44">✕</button>';
+        html+='</div>';
+      });
+      html+='</div>';
+    } else {
+      html+='<div style="font-size:.72rem;color:var(--muted);margin-top:4px">Sense moviments</div>';
+    }
+    html+='</div>'; // tanca cos plegable
+    html+='</div>'; // tanca lot card
+  });
+  if(!S[g].lots.length) html='<div class="empty">Cap lot creat</div>';
+
+  // PAPERERA
+  const trash=getTrash().filter(t=>t._granja===g);
+  if(trash.length){
+    html+='<div style="border-top:2px solid var(--border);margin-top:12px;padding-top:10px">';
+    html+='<div style="font-size:.78rem;font-weight:600;color:var(--muted)">🗑 Paperera ('+trash.length+' elements)</div>';
+    const allTrash=getTrash();
+    allTrash.forEach((item,idx)=>{
+      if(item._granja!==g) return;
+      const date=new Date(item._delDate);
+      const dateStr=date.getDate()+'/'+(date.getMonth()+1)+'/'+date.getFullYear();
+      if(item._type==='lot'){
+        html+='<div style="display:flex;align-items:center;gap:6px;padding:4px;font-size:.7rem;color:var(--muted)">';
+        html+='<span>Lot '+item.lot.num+' (eliminat '+dateStr+')</span>';
+        html+='<button onclick="restoreFromTrash('+idx+')" style="font-size:.6rem;background:none;border:1px solid var(--eco);border-radius:4px;padding:2px 6px;cursor:pointer;color:var(--eco)">Restaurar</button>';
+        html+='</div>';
+      } else if(item._type==='mov'){
+        const mv=item.mov;
+        html+='<div style="display:flex;align-items:center;gap:6px;padding:4px;font-size:.7rem;color:var(--muted)">';
+        html+='<span>'+(mv.tipus==='entrada'?'↑':'↓')+' '+mv.qty+' lot '+mv.lot+' (eliminat '+dateStr+')</span>';
+        html+='<button onclick="restoreFromTrash('+idx+')" style="font-size:.6rem;background:none;border:1px solid var(--eco);border-radius:4px;padding:2px 6px;cursor:pointer;color:var(--eco)">Restaurar</button>';
+        html+='</div>';
+      }
+    });
+    html+='<button class="btn b-out b-sm" onclick="buidaPaperera();openGestio(\''+g+'\')">Buidar paperera</button>';
+    html+='</div>';
+  }
+
+  body.innerHTML=html;
+  document.getElementById('m-gestio').classList.add('open');
+}
+
+function parseMesAny(k){const p=k.split('-');return{mes:parseInt(p[0]),any:parseInt(p[1])};}
+
+async function onEditMovFile(ev){
+  const file=ev.target.files[0];
+  if(!file) return;
+  try{
+    const buf=await file.arrayBuffer();
+    const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+    let allText='';
+    for(let i=1;i<=pdf.numPages;i++){
+      const page=await pdf.getPage(i);
+      const tc=await page.getTextContent();
+      allText+=tc.items.map(it=>it.str).join(' ')+' ';
+    }
+    const dibPattern=/\b([A-Z]{2}\d{8,14})\b/gi;
+    const found=[...new Set(allText.match(dibPattern)||[])].map(d=>d.toUpperCase()).filter(d=>!d.startsWith('ES08')&&!d.startsWith('ES25')&&!d.startsWith('ES43'));
+    const guiaPattern=/\b(9[23]\d{15,18})\b/g;
+    const guies=allText.match(guiaPattern)||[];
+    if(guies.length){const g=document.getElementById('em-guia');if(g&&!g.value) g.value=guies[0];}
+    if(found.length){
+      const ta=document.getElementById('em-dibs');
+      const existing=ta.value.trim();
+      ta.value=existing?(existing+', '+found.join(', ')):found.join(', ');
+      const norm=allText.replace(/\s+/g,' ');
+      const tm=norm.match(/Nombre d.animals\s+(\d+)/i);
+      const total=tm?parseInt(tm[1]):0;
+      let msg='<div style="color:var(--eco)">Extrets '+found.length+' crotals';
+      if(total>0&&found.length<total) msg='<div style="color:#c44;font-weight:700">'+found.length+'/'+total+' llegits. Falten '+(total-found.length);
+      else if(total>0) msg='<div style="color:var(--eco)">\u2713 '+found.length+'/'+total+' llegits';
+      document.getElementById('em-dibs-warn').innerHTML=msg+'</div>';
+    } else {
+      document.getElementById('em-dibs-warn').innerHTML='<div>No s\'han trobat crotals al PDF</div>';
+    }
+  }catch(e){document.getElementById('em-dibs-warn').innerHTML='<div style="color:#c44">Error: '+e.message+'</div>';}
+  ev.target.value='';
+}
+
+function fullEditFromDetail(){
+  if(_detailG===null||_detailIdx===null) return;
+  const g=_detailG, idx=_detailIdx;
+  closeDetail();
+  editMovFromList(g,idx);
+}
+
+function editMovFromList(g,sortedIdx){
+  const {mes,any}=ma(g);
+  const k=mk(mes,any);
+  const ms=(S[g].movs[k]||[]).slice().sort((a,b)=>a.dia-b.dia);
+  const m=ms[sortedIdx];
+  if(!m) return;
+  // Troba l'index real (no ordenat) dins l'array
+  const mi=S[g].movs[k].findIndex(x=>x===m);
+  if(mi<0){openDetail(g,sortedIdx);return;}
+  editarMov(g,k,mi);
+}
+
+let _editMov={g:null,k:null,mi:null};
+
+// ---- SEXE a l'EDITOR DE MOVIMENT ----
+function setEditSexeAll(val){
+  _editSexes=_editSexes.map(()=>val);
+  renderEditSexeList();
+}
+function toggleEditSexeDirect(idx,val){
+  if(idx>=0&&idx<_editSexes.length) _editSexes[idx]=val;
+  renderEditSexeList();
+}
+function renderEditSexeList(){
+  const list=document.getElementById('em-sex-list');
+  const summary=document.getElementById('em-sex-summary');
+  if(!list||!_editMov.g) return;
+  const g=_editMov.g, k=_editMov.k, mi=_editMov.mi;
+  const m=S[g].movs[k]?S[g].movs[k][mi]:null;
+  if(!m||!m.dibs) return;
+  const cart=m.cart||'-';
+  const col=ccls(cart);
+  // Resum
+  let nF=0,nM=0,nX=0;
+  _editSexes.forEach(s=>{if(s==='F')nF++;else if(s==='M')nM++;else nX++;});
+  const parts=[];
+  if(nF>0) parts.push('<span style="color:#d4508b;font-weight:700">'+nF+' ♀</span>');
+  if(nM>0) parts.push('<span style="color:#3d7bc8;font-weight:700">'+nM+' ♂</span>');
+  if(nX>0) parts.push('<span style="color:var(--muted);font-weight:600">'+nX+' sense sexe</span>');
+  summary.innerHTML=parts.join(' · ');
+  // Llista
+  list.innerHTML=m.dibs.map((d,i)=>{
+    const sex=_editSexes[i]||'';
+    const isPend=d==='????-????';
+    const isBorr=d.startsWith('BORR-');
+    const last4=d.slice(-4);
+    const prefix=d.length>4&&!isPend&&!isBorr?d.slice(0,-4):'';
+    let dibLabel;
+    if(isPend) dibLabel='<span style="color:#854F0B;font-family:DM Mono,monospace;font-size:.72rem">????-????</span>';
+    else if(isBorr) dibLabel='<span style="color:#854F0B;font-family:DM Mono,monospace;font-size:.72rem">'+d+'</span>';
+    else dibLabel='<span style="font-family:DM Mono,monospace;font-size:.72rem">'+(prefix?'<span style="opacity:.4">'+prefix+'</span>':'')+'-<span style="font-weight:800;color:var(--'+col+')">'+last4+'</span></span>';
+    const fSel=sex==='F', mSel=sex==='M', xSel=sex==='';
+    const btnFst=fSel?'background:#d4508b;color:#fff;border:2px solid #d4508b;transform:scale(1.05)':'background:transparent;color:#d4508b;border:1.5px solid #e8b0cc;opacity:.45';
+    const btnMst=mSel?'background:#3d7bc8;color:#fff;border:2px solid #3d7bc8;transform:scale(1.05)':'background:transparent;color:#3d7bc8;border:1.5px solid #a0bfe0;opacity:.45';
+    const btnXst=xSel?'background:var(--ink);color:#fff;border:2px solid var(--ink);transform:scale(1.05)':'background:transparent;color:var(--muted);border:1.5px solid var(--border);opacity:.45';
+    const rowBg=i%2===0?'#faf9f6':'#fff';
+    return '<div style="display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:6px;background:'+rowBg+'">'+
+      '<span style="font-size:.6rem;color:var(--muted);min-width:18px;text-align:right">'+(i+1)+'</span>'+
+      '<span style="flex:1;min-width:0;overflow:hidden">'+dibLabel+'</span>'+
+      '<div style="display:flex;gap:3px;flex-shrink:0">'+
+      '<button onclick="toggleEditSexeDirect('+i+',\'F\')" style="border-radius:6px;padding:2px 9px;font-size:.82rem;cursor:pointer;font-weight:700;transition:all .15s;'+btnFst+'">♀</button>'+
+      '<button onclick="toggleEditSexeDirect('+i+',\'M\')" style="border-radius:6px;padding:2px 9px;font-size:.82rem;cursor:pointer;font-weight:700;transition:all .15s;'+btnMst+'">♂</button>'+
+      '<button onclick="toggleEditSexeDirect('+i+',\'\')" style="border-radius:6px;padding:2px 7px;font-size:.72rem;cursor:pointer;font-weight:700;transition:all .15s;'+btnXst+'">—</button>'+
+      '</div></div>';
+  }).join('');
+}
+
+function editarMov(g,k,mi){
+  const m=S[g].movs[k]?S[g].movs[k][mi]:null;
+  if(!m){alert('Moviment no trobat');return;}
+  _editMov={g,k,mi};
+  const {mes,any}=parseMesAny(k);
+  // Títol dinàmic
+  const tipusT=nomTipus(m.tipus);
+  document.getElementById('m-edit-mov-title').textContent='Editar '+tipusT+' — Lot '+m.lot+' · '+m.qty+' animals';
+  document.getElementById('em-dia').value=m.dia;
+  document.getElementById('em-mes').value=mes;
+  document.getElementById('em-any').value=any;
+  document.getElementById('em-tipus').value=m.tipus;
+  document.getElementById('em-qty').value=m.qty;
+  // qty editable, però si té DIBs demana editar la llista
+  const qtyEl=document.getElementById('em-qty');
+  qtyEl.readOnly=false;
+  qtyEl.style.opacity='1';
+  qtyEl.title='';
+  document.getElementById('em-guia').value=m.guia||'';
+  document.getElementById('em-dibs').value=m.dibs?m.dibs.join(', '):'';
+  // Cartilles filtrades per granja
+  const cartSel=document.getElementById('em-cart');
+  if(g==='fig') cartSel.innerHTML='<option value="ECO">ECO</option><option value="SATF">SATF</option><option value="PE">PE</option><option value="-">—</option>';
+  else cartSel.innerHTML='<option value="RAM">RAM</option><option value="-">—</option>';
+  cartSel.value=m.cart||'-';
+  // Lots
+  const lotSel=document.getElementById('em-lot');
+  lotSel.innerHTML=S[g].lots.map(l=>'<option value="'+l.num+'">Lot '+l.num+' ('+l.v+')</option>').join('');
+  lotSel.value=m.lot;
+  document.getElementById('m-edit-mov-warn').innerHTML='';
+  // Omplir sexes
+  if(m.dibs&&m.dibs.length){
+    _editSexes=m.dibs.map(d=>{
+      if(!d||d==='????-????'||d.startsWith('BORR-')) return '';
+      return (S[g].sexes&&S[g].sexes[d])||'';
+    });
+    renderEditSexeList();
+    document.getElementById('em-sex-section').style.display='block';
+  } else {
+    _editSexes=[];
+    document.getElementById('em-sex-section').style.display='none';
+  }
+  document.getElementById('m-edit-mov').classList.add('open');
+}
+
+function cancelEditMov(){
+  const {g,k,mi}=_editMov;
+  document.getElementById('m-edit-mov').classList.remove('open');
+  _editMov={g:null,k:null,mi:null};
+  _editSexes=[];
+  if(g && k!==null && mi!==null){
+    try { openHistMov(g,k,mi); } catch(e){ alert('Error: '+e.message); }
+  }
+}
+
+function guardarEditMov(){
+  const {g,k,mi}=_editMov;
+  if(!g)return;
+  const m=S[g].movs[k]?S[g].movs[k][mi]:null;
+  if(!m){alert('Moviment no trobat');return;}
+  const diaInt=parseInt(document.getElementById('em-dia').value);
+  const mesInt=parseInt(document.getElementById('em-mes').value);
+  const anyInt=parseInt(document.getElementById('em-any').value);
+  const tipus=document.getElementById('em-tipus').value;
+  const qtyInt=parseInt(document.getElementById('em-qty').value);
+  const lotInt=parseInt(document.getElementById('em-lot').value);
+  const cart=document.getElementById('em-cart').value;
+  const guia=document.getElementById('em-guia').value.trim();
+  const dibsText=document.getElementById('em-dibs').value.trim();
+  const warn=document.getElementById('m-edit-mov-warn');
+  // DIBs: parsejar primer
+  let dibs=m.dibs||[];
+  if(dibsText){
+    const parsed=dibsText.replace(/[,;\n]+/g,' ').split(/\s+/).filter(Boolean);
+    if(parsed.length) dibs=parsed;
+  }
+  // Validacions bàsiques
+  if(isNaN(diaInt)||diaInt<1||diaInt>31){warn.innerHTML='Dia no vàlid (1-31)';return;}
+  if(isNaN(qtyInt)||qtyInt<1){warn.innerHTML='Nombre d\'animals ha de ser >= 1';return;}
+  if(isNaN(lotInt)){warn.innerHTML='Selecciona un lot';return;}
+  // Si té crotals i qty no coincideix → auto-ajustar ????-???? 
+  if(dibs.length>0 && qtyInt!==dibs.length){
+    const diff=qtyInt-dibs.length;
+    if(diff>0){
+      // Qty puja → afegir ????-???? al final
+      for(let i=0;i<diff;i++) dibs.push('????-????');
+    } else {
+      // Qty baixa → treure ????-???? del final primer
+      let toRemove=Math.abs(diff);
+      for(let i=dibs.length-1;i>=0&&toRemove>0;i--){
+        if(dibs[i]==='????-????'){dibs.splice(i,1);toRemove--;}
+      }
+      // Si encara sobren (caldria treure reals) → avisar
+      if(toRemove>0){
+        warn.innerHTML='<div style="color:#854F0B;background:#FAEEDA;padding:8px;border-radius:6px;margin:4px 0">'+
+          '⚠️ Has reduït <b>'+Math.abs(diff)+'</b> animal'+(Math.abs(diff)>1?'s':'')+' però només hi ha '+
+          (Math.abs(diff)-toRemove)+' pendents per treure. '+
+          '<b>Elimina '+toRemove+' crotal'+(toRemove>1?'s':'')+' real'+(toRemove>1?'s':'')+' de la llista</b> per guardar.</div>';
+        document.getElementById('em-dibs').style.border='2px solid #e0a030';
+        document.getElementById('em-dibs').focus();
+        return;
+      }
+    }
+    // Actualitza textarea amb la llista ajustada
+    document.getElementById('em-dibs').value=dibs.join(', ');
+  }
+  // Si canvia qty sense crotals → generar ????-????
+  let finalQty=dibs.length>0?dibs.length:qtyInt;
+  if(dibs.length===0 && qtyInt>0){
+    dibs=Array.from({length:qtyInt},()=>'????-????');
+    finalQty=qtyInt;
+  }
+  // Avisa si canvia el tipus
+  if(tipus!==m.tipus){
+    if(!confirm('⚠️ ATENCIÓ: Canvies de '+m.tipus.toUpperCase()+' a '+tipus.toUpperCase()+'.\n\nAixò afectarà tot el recompte de vedells del lot.\n\nEstàs segur?'))return;
+  }
+  // Avisa si canvia el lot
+  if(lotInt!==m.lot){
+    if(!confirm('⚠️ ATENCIÓ: Mous '+finalQty+' animals del Lot '+m.lot+' al Lot '+lotInt+'.\n\nAixò canviarà el recompte de vedells dels dos lots.\n\nEstàs segur?'))return;
+  }
+  // Ajusta lot antic
+  const oldLot=S[g].lots.find(l=>l.num===m.lot);
+  if(oldLot){if(m.tipus==='entrada')oldLot.v-=m.qty;else oldLot.v+=m.qty;if(oldLot.v<0)oldLot.v=0;}
+  // Canvi de mes?
+  const newK=mesInt+'-'+anyInt;
+  if(newK!==k){
+    S[g].movs[k].splice(mi,1);
+    if(!S[g].movs[k].length)delete S[g].movs[k];
+    if(!S[g].movs[newK])S[g].movs[newK]=[];
+    const newM={dia:diaInt,tipus,qty:finalQty,lot:lotInt,cart};
+    if(guia)newM.guia=guia;
+    if(dibs.length)newM.dibs=dibs;
+    S[g].movs[newK].push(newM);
+  } else {
+    m.dia=diaInt;m.tipus=tipus;m.qty=finalQty;m.lot=lotInt;m.cart=cart;
+    if(guia)m.guia=guia;else delete m.guia;
+    if(dibs.length)m.dibs=dibs;else delete m.dibs;
+  }
+  // Ajusta lot nou
+  const newLot=S[g].lots.find(l=>l.num===lotInt);
+  if(newLot){if(tipus==='entrada')newLot.v+=finalQty;else{newLot.v-=finalQty;if(newLot.v<0)newLot.v=0;}}
+  // Guardar sexes editats
+  if(!S[g].sexes) S[g].sexes={};
+  if(_editSexes.length>0 && dibs.length>0){
+    dibs.forEach((dib,i)=>{
+      if(!dib||dib==='????-????'||dib.startsWith('BORR-')) return;
+      const sex=_editSexes[i]||'';
+      if(sex==='F'||sex==='M') S[g].sexes[dib]=sex;
+      else delete S[g].sexes[dib];
+    });
+  }
+  _editSexes=[];
+  document.getElementById('m-edit-mov').classList.remove('open');
+  sv();renderG(g);
+  // Tornar al detall del moviment guardat (amb setTimeout per assegurar renderG complet)
+  const finalK=mesInt+'-'+anyInt;
+  setTimeout(()=>{
+    try{
+      if(finalK!==k){
+        const newMi=(S[g].movs[finalK]||[]).length-1;
+        if(newMi>=0) openHistMov(g,finalK,newMi);
+      } else {
+        if(S[g].movs[k]&&S[g].movs[k][mi]) openHistMov(g,k,mi);
+      }
+    }catch(e){console.error('Error tornant al detall:',e);}
+  },50);
+}
+
+function eliminarMov(g,k,mi){
+  const m=S[g].movs[k][mi];
+  if(!m)return;
+  if(!confirm('Eliminar moviment: '+nomTipus(m.tipus)+' '+m.qty+' animals del lot '+m.lot+'?'))return;
+  // Paperera
+  addToTrash({_type:'mov',_granja:g,_key:k,mov:{...m}});
+  // Ajusta lot
+  const lot=S[g].lots.find(l=>l.num===m.lot);
+  if(lot){if(m.tipus==='entrada')lot.v-=m.qty;else lot.v+=m.qty;if(lot.v<0)lot.v=0;}
+  S[g].movs[k].splice(mi,1);
+  if(!S[g].movs[k].length)delete S[g].movs[k];
+  sv();renderG(g);openGestio(g);
+}
+
+function editarLotProp(g,num){
+  const lot=S[g].lots.find(x=>x.num===num);
+  if(!lot)return;
+  const nouNum=prompt('Número de lot (actual: '+lot.num+'):',lot.num);
+  if(nouNum===null)return;
+  const nouEmp=prompt('Empresa — Ecofutur / SAT Figuera / Ramaders (actual: '+(lot.emp||'-')+'):',lot.emp||'');
+  if(nouEmp===null)return;
+  const newNum=parseInt(nouNum);
+  if(isNaN(newNum)){alert('Número de lot no vàlid');return;}
+  if(newNum!==lot.num){
+    if(S[g].lots.find(l=>l.num===newNum)){alert('Ja existeix un lot amb aquest número');return;}
+    if(!confirm('Canviar lot '+lot.num+' a lot '+newNum+'? Tots els moviments s\'actualitzaran.')){return;}
+    Object.keys(S[g].movs).forEach(k=>{S[g].movs[k].forEach(m=>{if(m.lot===lot.num)m.lot=newNum;});});
+  }
+  lot.num=newNum;
+  lot.emp=nouEmp;
+  sv();renderG(g);openGestio(g);
+}
+
+function openMLot(g){
+  _mg=g;
+  document.getElementById('m-lot-title').textContent='Nou lot — '+(g==='fig'?'Figuera':'La Costa');
+  document.getElementById('ml-eg').style.display=g==='costa'?'none':'block';
+  document.getElementById('ml-num').value='';
+  document.getElementById('ml-ved').value='';
+  document.getElementById('m-lot').classList.add('open');
+}
+function closeML(){document.getElementById('m-lot').classList.remove('open');}
+function confirML(){
+  const num=parseInt(document.getElementById('ml-num').value);
+  const v=parseInt(document.getElementById('ml-ved').value)||0;
+  const emp=_mg==='costa'?'Ramaders':document.getElementById('ml-emp').value;
+  if(!num){alert('Introdueix el número');return;}
+  if(S[_mg].lots.find(l=>l.num===num&&l.actiu)){alert('Lot ja existent');return;}
+  S[_mg].lots.push({num,v,vIni:v,actiu:true,carts:{},emp});
+  sv(); renderG(_mg); closeML();
+}
+
+// ---- ASSIGNAR EMPRESA ----
+function openMF(g,lotNum){
+  _mfg=g; _mfl=lotNum;
+  const {mes,any}=ma(g);
+  const lot=S[g].lots.find(l=>l.num===lotNum);
+  document.getElementById('m-fra-title').textContent=`Lot ${lotNum} — empresa facturació`;
+  const cartsEl=document.getElementById('m-fra-carts');
+  cartsEl.innerHTML=Object.entries(lot.carts||{}).map(([c,n])=>
+    `<span class="cc cc-${ccls(c)}">${c} ${n}</span>`
+  ).join('');
+  document.getElementById('m-fra-emp').value=gassig(g,lotNum,mes,any);
+  document.getElementById('m-fra').classList.add('open');
+}
+function closeMF(){document.getElementById('m-fra').classList.remove('open');}
+function confirMF(){
+  const {mes,any}=ma(_mfg);
+  S[_mfg].assig[ak(_mfl,mes,any)]=document.getElementById('m-fra-emp').value;
+  sv(); renderG(_mfg); closeMF();
+}
+
+
+// ---- HISTORIAL ----
+function openHistMov(g,k,mi){
+  const m=S[g].movs[k]?S[g].movs[k][mi]:null;
+  if(!m) return;
+  const [mes,any]=k.split('-').map(Number);
+  const modal=document.getElementById('m-detail');
+  modal.classList.add('open');
+  const tipusText=nomTipus(m.tipus);
+  const cart=m.cart||'-';
+  const col='var(--'+ccls(cart)+')';
+  document.getElementById('m-detail-title').textContent=tipusText+' \u2014 Lot '+m.lot+' \u00b7 Dia '+m.dia+'/'+mes+'/'+any;
+  let meta2='';
+  if(cart!=='-') meta2+='<span class="cc cc-'+ccls(cart)+'">'+cart+'</span> \u00b7 ';
+  meta2+=tipusText+' \u00b7 '+m.dia+'/'+mes+'/'+any;
+  document.getElementById('m-detail-meta').innerHTML=meta2;
+  const guiaEl=document.getElementById('m-detail-guia');
+  if(m.guia) guiaEl.innerHTML='Guia: <strong>'+m.guia+'</strong>';
+  else guiaEl.innerHTML='<span style="color:var(--muted);font-style:italic">Sense guia registrada</span>';
+  document.getElementById('m-detail-total').innerHTML='<span style="color:'+col+'">'+m.qty+' animal'+(m.qty!==1?'s':'')+'</span>';
+  const dibsEl=document.getElementById('m-detail-dibs');
+  if(m.dibs&&m.dibs.length){
+    dibsEl.innerHTML=m.dibs.map((d,i)=>{
+      const isPending=d==='????-????';
+      const isBorr=d.startsWith('BORR-');
+      const isInc=(d.startsWith('-')&&!isBorr)||(/^\d{1,5}$/.test(d));
+      const cleanD=d.replace(/^-/,'');
+      const last4=d.slice(-4);
+      const prefix=d.length>4&&!isBorr&&!isInc&&!isPending?d.slice(0,-4):'';
+      const rowBg=(isBorr||isInc||isPending)?'background:#FAEEDA;':'';
+      const txtCol=(isBorr||isInc||isPending)?'color:#854F0B;font-weight:700':'color:'+col;
+      const cartBdg=cart&&cart!=='-'?'<span style="margin-left:auto;font-size:.6rem;font-weight:700;padding:1px 6px;border-radius:4px;background:var(--'+ccls(cart)+'-lt);color:var(--'+ccls(cart)+')">'+cart+'</span>':'';
+      const sexBdg='<span style="margin-left:'+(cartBdg?'6':'auto')+'px;font-size:.85rem">'+fmtSexe(g,d)+'</span>';
+      return '<div class="detail-dib-row" style="'+rowBg+'display:flex;align-items:center;">'+
+        '<span class="dib-idx">'+(i+1)+'</span>'+
+        (isPending?'<span style="'+txtCol+'">????-????</span>':
+          isBorr?'<span style="'+txtCol+'">'+d+'</span>':
+          isInc?'<span style="opacity:.4;'+txtCol+'">????</span><span style="opacity:.3">-</span><span class="dib-last4" style="'+txtCol+'">'+cleanD+'</span>':
+          (prefix?'<span class="dib-prefix">'+prefix+'</span>':'')+
+          '<span style="opacity:.3">-</span><span class="dib-last4" style="'+txtCol+'">'+last4+'</span>')+
+        cartBdg+sexBdg+
+        '</div>';
+    }).join('');
+  } else {
+    dibsEl.innerHTML='<div style="color:var(--muted);font-size:.78rem;padding:8px;text-align:center">Sense crotals registrats</div>';
+  }
+  _detailG=g;_detailIdx=null;
+  const fullEditBtn=document.getElementById('m-detail-fullEdit');
+  fullEditBtn.onclick=function(){modal.classList.remove('open');editarMov(g,k,mi);};
+}
+
+const MESOS_CA=['','Gener','Febrer','Març','Abril','Maig','Juny','Juliol','Agost','Setembre','Octubre','Novembre','Desembre'];
+
+function rHistSel(g){
+  const sel=document.getElementById(g+'-hist-lot');
+  const prev=sel.value;
+  // Tots els lots (actius i tancats) que tinguin algun moviment o vedells inicials
+  const tots=S[g].lots.slice().sort((a,b)=>a.num-b.num);
+  sel.innerHTML='<option value="">— Selecciona lot —</option>';
+  tots.forEach(l=>{
+    const opt=document.createElement('option');
+    opt.value=l.num;
+    opt.textContent='Lot '+l.num+(l.actiu?'' :' (tancat)');
+    sel.appendChild(opt);
+  });
+  if(prev) sel.value=prev;
+}
+
+function rHist(g){
+  const lotNum=parseInt(document.getElementById(g+'-hist-lot').value);
+  const cont=document.getElementById(g+'-hist-cont');
+  if(!lotNum){cont.innerHTML='';return;}
+
+  const lot=S[g].lots.find(l=>l.num===lotNum);
+  if(!lot){cont.innerHTML='';return;}
+
+  // Recollir TOTS els moviments d'aquest lot, ordenats per mes/any/dia
+  const allMovs=[];
+  Object.entries(S[g].movs||{}).forEach(([k,ms])=>{
+    const [m,y]=k.split('-').map(Number);
+    ms.filter(mv=>mv.lot===lotNum).forEach((mv,mi)=>{
+      const origIdx=ms.indexOf(mv);
+      allMovs.push({...mv,mes:m,any:y,_k:k,_mi:origIdx});
+    });
+  });
+  allMovs.sort((a,b)=>{
+    if(a.any!==b.any) return a.any-b.any;
+    if(a.mes!==b.mes) return a.mes-b.mes;
+    return a.dia-b.dia;
+  });
+
+  // Calcular totals
+  const totEnt=allMovs.filter(m=>m.tipus==='entrada').reduce((s,m)=>s+m.qty,0);
+  const totSort=allMovs.filter(m=>esSortida(m.tipus)).reduce((s,m)=>s+m.qty,0);
+  const vIni=lot.vIni||0;
+  const totalEntratAmbIni=vIni+totEnt;
+  const queden=lot.v;
+  const dies_total=calcDiesTotals(g,lotNum,allMovs,lot);
+
+  // Cartilles actuals
+  const cAct=cartsActuals(g,lotNum);
+
+  // Resum superior
+  const ec=ecls(lot.emp);
+  const colorVar=ec==='eco'?'eco':ec==='pe'?'pe':ec==='sat'?'sat':'costa';
+
+  let html=`<div class="hist-card">
+    <div style="display:flex;justify-content:flex-end;gap:6px;padding:8px 14px 0">
+      <button class="btn b-out b-sm" onclick="window.print()">🖨</button>
+      <button class="section-close" onclick="document.getElementById('${g}-hist-cont').innerHTML='';document.getElementById('${g}-hist-lot').value=''">✕ Tancar</button>
+    </div>
+    <div class="hist-summary">
+      <div class="hist-stat">
+        <div class="hs-val" style="color:var(--${colorVar})">${totalEntratAmbIni}</div>
+        <div class="hs-lbl">Total entrats</div>
+      </div>
+      <div class="hist-stat">
+        <div class="hs-val" style="color:var(--pe)">${totSort}</div>
+        <div class="hs-lbl">Total sortides</div>
+      </div>
+      <div class="hist-stat">
+        <div class="hs-val">${queden}</div>
+        <div class="hs-lbl">Queden ara</div>
+      </div>
+      <div class="hist-stat">
+        <div class="hs-val">${dies_total}</div>
+        <div class="hs-lbl">Dies actiu</div>
+      </div>
+    </div>`;
+
+  // Si hi ha moviments amb cartilla, mostrar resum per cartilla
+  const cartMovs={};
+  allMovs.forEach(m=>{
+    if(!m.cart||m.cart==='-') return;
+    if(!cartMovs[m.cart]) cartMovs[m.cart]={ent:0,sort:0};
+    if(m.tipus==='entrada') cartMovs[m.cart].ent+=m.qty;
+    else cartMovs[m.cart].sort+=m.qty;
+  });
+  if(Object.keys(cartMovs).length>0){
+    // Si hi ha vIni i alguna cartilla no té entrada → és la cartilla dels vedells inicials
+    if(vIni>0){
+      const cartsAmbEntrada=Object.entries(cartMovs).filter(([c,v])=>v.ent>0).map(([c])=>c);
+      const cartsSenseEntrada=Object.entries(cartMovs).filter(([c,v])=>v.ent===0&&v.sort>0);
+      if(cartsSenseEntrada.length===1){
+        // Afegim vIni com entrades d'aquesta cartilla
+        cartMovs[cartsSenseEntrada[0][0]].ent+=vIni;
+      }
+    }
+    html+=`<div style="padding:10px 14px;border-bottom:1px solid var(--border);display:flex;gap:16px;flex-wrap:wrap">`;
+    Object.entries(cartMovs).forEach(([c,v])=>{
+      html+=`<div style="font-size:.78rem"><span class="cc cc-${ccls(c)}">${c}</span> <span style="color:var(--muted);margin-left:4px">↑${v.ent} ↓${v.sort}</span></div>`;
+    });
+    html+=`</div>`;
+  }
+
+  // Taula de moviments per mes
+  html+=`<table class="hist-table"><thead><tr>
+    <th>Data</th><th>Tipus</th><th>Vedells</th><th>Cartilla</th><th class="r">Acumulat</th>
+  </tr></thead><tbody>`;
+
+  let acum=vIni;
+  if(vIni>0){
+    html+=`<tr class="in-row"><td colspan="5" style="font-size:.75rem;color:var(--muted);padding:6px 12px">Vedells inicials registrats: ${vIni}</td></tr>`;
+  }
+
+  let lastMesAny='';
+  allMovs.forEach(mv=>{
+    const mesAny=`${mv.mes}-${mv.any}`;
+    if(mesAny!==lastMesAny){
+      html+=`<tr class="month-sep"><td colspan="5">${MESOS_CA[mv.mes]} ${mv.any}</td></tr>`;
+      lastMesAny=mesAny;
+    }
+    const isEnt=mv.tipus==='entrada';
+    if(isEnt) acum+=mv.qty; else acum-=mv.qty;
+    if(acum<0) acum=0;
+    const rowCls=isEnt?'in-row':mv.tipus==='baixa'?'baixa-row':'out-row';
+    const badge=tipusBadge(mv.tipus);
+    const cartBadge=mv.cart&&mv.cart!=='-'?`<span class="cc cc-${ccls(mv.cart)}">${mv.cart}</span>`:'<span style="color:var(--muted)">—</span>';
+    const clickable=mv._mi>=0?` style="cursor:pointer" onclick="openHistMov('${g}','${mv._k}',${mv._mi})"`:'';
+    html+=`<tr class="${rowCls}"${clickable}>
+      <td class="md">${String(mv.dia).padStart(2,'0')}/${String(mv.mes).padStart(2,'0')}/${mv.any}</td>
+      <td>${badge}</td>
+      <td><strong>${mv.qty}</strong></td>
+      <td>${cartBadge}</td>
+      <td class="r">${acum}</td>
+    </tr>`;
+  });
+
+  html+=`</tbody><tfoot><tr>
+    <td colspan="2"><strong>Totals</strong></td>
+    <td><strong>↑${totalEntratAmbIni} ↓${totSort}</strong></td>
+    <td></td>
+    <td class="r"><strong>${queden} queden</strong></td>
+  </tr></tfoot></table>`;
+
+  // ---- LLISTA DIBs ----
+  const avui=new Date();
+  const dibsList=[];
+  // Recull DIBs d'entrades
+  allMovs.filter(mv=>mv.tipus==='entrada').forEach(mv=>{
+    if(!mv.dibs||!mv.dibs.length) return;
+    mv.dibs.forEach((d,i)=>{
+      dibsList.push({
+        dib:d, cart:mv.cart||'-',
+        diaEnt:mv.dia, mesEnt:mv.mes, anyEnt:mv.any,
+        guia:mv.guia||'',
+        sortit:false, diaSort:0, mesSort:0, anySort:0, tipusSort:''
+      });
+    });
+  });
+  // Marca sortides: per DIBs reals creua per número, per ????-???? per ordre
+  const sortidesMov=allMovs.filter(mv=>esSortida(mv.tipus));
+  const pendentsSortida=[];
+  sortidesMov.forEach(mv=>{
+    if(!mv.dibs||!mv.dibs.length) return;
+    mv.dibs.forEach(d=>{
+      if(d!=='????-????'){
+        const found=dibsList.find(x=>x.dib===d&&!x.sortit);
+        if(found){found.sortit=true;found.diaSort=mv.dia;found.mesSort=mv.mes;found.anySort=mv.any;found.tipusSort=mv.tipus;}
+      } else {
+        pendentsSortida.push({dia:mv.dia,mes:mv.mes,any:mv.any,tipus:mv.tipus});
+      }
+    });
+  });
+  // Assigna sortides pendents a ????-???? d'entrada per ordre
+  pendentsSortida.forEach(ps=>{
+    const found=dibsList.find(x=>x.dib==='????-????'&&!x.sortit);
+    if(found){found.sortit=true;found.diaSort=ps.dia;found.mesSort=ps.mes;found.anySort=ps.any;found.tipusSort=ps.tipus;}
+  });
+
+  if(dibsList.length>0){
+    const nComplets=dibsList.filter(x=>dibComplet(x.dib)).length;
+    const nGranja=dibsList.filter(x=>!x.sortit).length;
+    html+=`<div style="border-top:2px solid var(--border);padding:14px">`;
+    html+=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px">`;
+    html+=`<div style="font-size:.67rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">Llista DIBs · ${dibsList.length} animals</div>`;
+    html+=`<div style="display:flex;gap:6px;align-items:center"><span style="font-size:.72rem;color:var(--muted)">${nComplets} identificats · ${nGranja} a granja</span><button class="btn b-out b-sm" onclick="window.print()">🖨</button></div>`;
+    html+=`</div>`;
+    html+=`<table class="hist-table" id="${g}-dibs-table-${lotNum}"><thead><tr>
+      <th style="width:24px">#</th><th class="sortable" onclick="sortDibsTable('${g}',${lotNum},'dib',this)">DIB</th><th class="sortable" onclick="sortDibsTable('${g}',${lotNum},'sexe',this)">Sexe</th><th class="sortable" onclick="sortDibsTable('${g}',${lotNum},'cart',this)">Cartilla</th><th class="sortable" onclick="sortDibsTable('${g}',${lotNum},'entrada',this)">Entrada</th><th class="sortable" onclick="sortDibsTable('${g}',${lotNum},'estat',this)">Estat</th><th class="r sortable" onclick="sortDibsTable('${g}',${lotNum},'dies',this)">Dies</th>
+    </tr></thead><tbody>`;
+    dibsList.forEach((d,i)=>{
+      const isPend=d.dib==='????-????';
+      const isComp=dibComplet(d.dib);
+      const isBorr=d.dib.startsWith('BORR-');
+      const dataEnt=new Date(d.anyEnt,d.mesEnt-1,d.diaEnt);
+      let dies, estat;
+      if(d.sortit){
+        const dataSort=new Date(d.anySort,d.mesSort-1,d.diaSort);
+        dies=Math.floor((dataSort-dataEnt)/(86400000))+1;
+        const tipS=d.tipusSort==='baixa'?'Baixa':'Sortida';
+        estat=`<span style="color:${d.tipusSort==='baixa'?'var(--baixa)':'var(--pe)'};font-weight:600;font-size:.72rem">${tipS} ${String(d.diaSort).padStart(2,'0')}/${String(d.mesSort).padStart(2,'0')}</span>`;
+      } else {
+        dies=Math.floor((avui-dataEnt)/(86400000))+1;
+        estat=`<span style="color:var(--eco);font-weight:600;font-size:.72rem">A granja</span>`;
+      }
+      // Format DIB
+      let dibHtml;
+      if(isPend) dibHtml='<span style="color:#854F0B;font-family:DM Mono,monospace;font-size:.72rem">????-????</span>';
+      else if(isBorr) dibHtml='<span style="color:#854F0B;font-family:DM Mono,monospace;font-size:.72rem">'+d.dib+'</span>';
+      else if(isComp){
+        const last4=d.dib.slice(-4);
+        const prefix=d.dib.slice(0,-4);
+        dibHtml=`<span style="font-family:DM Mono,monospace;font-size:.72rem"><span style="opacity:.4">${prefix}</span>-<span style="font-weight:800;color:var(--${ccls(d.cart)})">${last4}</span></span>`;
+      } else {
+        dibHtml=`<span style="font-family:DM Mono,monospace;font-size:.72rem;color:#854F0B"><span style="opacity:.4">????</span>-<span style="font-weight:800">${d.dib.replace(/^-/,'')}</span></span>`;
+      }
+      const cartBadge=d.cart&&d.cart!=='-'?`<span class="cc cc-${ccls(d.cart)}">${d.cart}</span>`:'—';
+      const rowBg=d.sortit?'':'';
+      const sexVal=(S[g]&&S[g].sexes&&S[g].sexes[d.dib])||'';
+      html+=`<tr style="${d.sortit?'opacity:.6':''}" data-dib="${d.dib}" data-sexe="${sexVal}" data-cart="${d.cart}" data-ent="${d.anyEnt*10000+d.mesEnt*100+d.diaEnt}" data-estat="${d.sortit?1:0}" data-dies="${dies}">
+        <td style="color:var(--muted);font-size:.65rem">${i+1}</td>
+        <td>${dibHtml}</td>
+        <td style="text-align:center">${fmtSexe(g,d.dib)}</td>
+        <td>${cartBadge}</td>
+        <td class="md">${String(d.diaEnt).padStart(2,'0')}/${String(d.mesEnt).padStart(2,'0')}/${d.anyEnt}</td>
+        <td>${estat}</td>
+        <td class="r" style="font-family:DM Mono,monospace;font-size:.75rem">${dies}d</td>
+      </tr>`;
+    });
+    html+=`</tbody></table></div>`;
+  }
+  html+=`</div>`;
+
+  cont.innerHTML=html;
+}
+
+// ---- ANIMALS PER CARTILLA ----
+function rCartLlista(g){
+  const cont=document.getElementById(g+'-cart-cont');
+  const dateEl=document.getElementById(g+'-cart-date');
+  if(!dateEl.value){cont.innerHTML='';return;}
+  const selDate=new Date(dateEl.value);
+  const selY=selDate.getFullYear(), selM=selDate.getMonth()+1, selD=selDate.getDate();
+  const dataStr=String(selD).padStart(2,'0')+'/'+String(selM).padStart(2,'0')+'/'+selY;
+
+  const animals=[];
+  S[g].lots.forEach(lot=>{
+    const movs=[];
+    Object.entries(S[g].movs||{}).forEach(([k,ms])=>{
+      const [m,y]=k.split('-').map(Number);
+      ms.filter(mv=>mv.lot===lot.num).forEach(mv=>{movs.push({...mv,mes:m,any:y});});
+    });
+    movs.sort((a,b)=>{if(a.any!==b.any)return a.any-b.any;if(a.mes!==b.mes)return a.mes-b.mes;return a.dia-b.dia;});
+    movs.filter(mv=>mv.tipus==='entrada').forEach(mv=>{
+      const dEnt=new Date(mv.any,mv.mes-1,mv.dia);
+      if(dEnt>selDate) return;
+      if(!mv.dibs||!mv.dibs.length) return;
+      mv.dibs.forEach(d=>{
+        animals.push({dib:d, cart:mv.cart||'-', lot:lot.num, diaEnt:mv.dia, mesEnt:mv.mes, anyEnt:mv.any, guia:mv.guia||'', sortit:false, diaSort:0, mesSort:0, anySort:0, tipusSort:''});
+      });
+    });
+    movs.filter(mv=>esSortida(mv.tipus)).forEach(mv=>{
+      const dSort=new Date(mv.any,mv.mes-1,mv.dia);
+      if(dSort>selDate) return;
+      if(!mv.dibs||!mv.dibs.length) return;
+      mv.dibs.forEach(d=>{
+        if(d!=='????-????'){
+          const found=animals.find(a=>a.dib===d&&a.lot===lot.num&&!a.sortit);
+          if(found){found.sortit=true;found.diaSort=mv.dia;found.mesSort=mv.mes;found.anySort=mv.any;found.tipusSort=mv.tipus;}
+        } else {
+          const found=animals.find(a=>a.dib==='????-????'&&a.lot===lot.num&&!a.sortit);
+          if(found){found.sortit=true;found.diaSort=mv.dia;found.mesSort=mv.mes;found.anySort=mv.any;found.tipusSort=mv.tipus;}
+        }
+      });
+    });
+  });
+
+  const aGranja=animals.filter(a=>!a.sortit);
+  if(!aGranja.length){
+    cont.innerHTML='<div class="empty">Cap animal a la granja el '+dataStr+'</div>';
+    return;
+  }
+
+  const perCart={};
+  aGranja.forEach(a=>{const c=a.cart||'-';if(!perCart[c])perCart[c]=[];perCart[c].push(a);});
+
+  const totalHtml='<div style="margin-bottom:10px;padding:10px 14px;background:var(--card);border-radius:10px;box-shadow:var(--shadow);display:flex;gap:12px;flex-wrap:wrap;align-items:center">'+
+    '<strong>'+aGranja.length+' animals a granja</strong>'+
+    Object.entries(perCart).map(([c,items])=>'<span class="cc cc-'+ccls(c)+'" style="font-size:.75rem;padding:2px 8px">'+c+': '+items.length+'</span>').join('')+
+    '<span style="color:var(--muted);font-size:.72rem;margin-left:auto">'+dataStr+'</span>'+
+    '<button class="section-close" onclick="document.getElementById(\''+g+'-cart-cont\').innerHTML=\'\';document.getElementById(\''+g+'-cart-date\').value=\'\'">✕ Tancar</button>'+
+    '<button class="btn b-out b-sm" onclick="window.print()">🖨</button>'+
+    '</div>';
+
+  let html='';
+  Object.entries(perCart).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([cart,items])=>{
+    const nComp=items.filter(a=>dibComplet(a.dib)).length;
+    const col=ccls(cart);
+    html+='<div class="hist-card" style="margin-bottom:12px;border-top:4px solid var(--'+col+')">';
+    html+='<div style="padding:12px 14px;display:flex;justify-content:space-between;align-items:center">';
+    html+='<div><span class="cc cc-'+col+'" style="font-size:.8rem;padding:3px 10px">'+cart+'</span> <strong style="margin-left:6px">'+items.length+' animals</strong></div>';
+    html+='<div style="font-size:.72rem;color:var(--muted)">'+nComp+' identificats</div>';
+    html+='</div>';
+    html+='<table class="hist-table" id="'+g+'-cart-table-'+cart+'"><thead><tr>';
+    html+='<th style="width:24px">#</th>';
+    html+='<th class="sortable" onclick="sortCartTable(\''+g+'\',\''+cart+'\',\'dib\',this)">DIB</th>';
+    html+='<th class="sortable" onclick="sortCartTable(\''+g+'\',\''+cart+'\',\'sexe\',this)">Sexe</th>';
+    html+='<th class="sortable" onclick="sortCartTable(\''+g+'\',\''+cart+'\',\'lot\',this)">Lot</th>';
+    html+='<th class="sortable" onclick="sortCartTable(\''+g+'\',\''+cart+'\',\'entrada\',this)">Entrada</th>';
+    html+='<th class="sortable" onclick="sortCartTable(\''+g+'\',\''+cart+'\',\'dies\',this)">Dies</th>';
+    html+='</tr></thead><tbody>';
+    items.forEach((a,i)=>{
+      const isPend=a.dib==='????-????';
+      const isComp=dibComplet(a.dib);
+      const dEnt=new Date(a.anyEnt,a.mesEnt-1,a.diaEnt);
+      const dies=Math.floor((selDate-dEnt)/86400000)+1;
+      let dibHtml;
+      if(isPend) dibHtml='<span style="color:#854F0B;font-family:DM Mono,monospace;font-size:.72rem">????-????</span>';
+      else if(isComp){
+        const last4=a.dib.slice(-4);const prefix=a.dib.slice(0,-4);
+        dibHtml='<span style="font-family:DM Mono,monospace;font-size:.72rem"><span style="opacity:.4">'+prefix+'</span>-<span style="font-weight:800;color:var(--'+col+')">'+last4+'</span></span>';
+      } else {
+        dibHtml='<span style="font-family:DM Mono,monospace;font-size:.72rem;color:#854F0B"><span style="opacity:.4">????</span>-<span style="font-weight:800">'+a.dib.replace(/^-/,'')+'</span></span>';
+      }
+      const lotBadge='<span style="display:inline-block;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:1px 7px;font-size:.68rem;font-weight:600;color:var(--ink);min-width:36px;text-align:center">L'+a.lot+'</span>';
+      const sexValC=(S[g]&&S[g].sexes&&S[g].sexes[a.dib])||'';
+      html+='<tr data-dib="'+a.dib+'" data-sexe="'+sexValC+'" data-lot="'+a.lot+'" data-ent="'+a.anyEnt*10000+a.mesEnt*100+a.diaEnt+'" data-dies="'+dies+'">';
+      html+='<td style="color:var(--muted);font-size:.65rem">'+(i+1)+'</td>';
+      html+='<td>'+dibHtml+'</td>';
+      html+='<td style="text-align:center">'+fmtSexe(g,a.dib)+'</td>';
+      html+='<td>'+lotBadge+'</td>';
+      html+='<td class="md">'+String(a.diaEnt).padStart(2,'0')+'/'+String(a.mesEnt).padStart(2,'0')+'/'+a.anyEnt+'</td>';
+      html+='<td class="r" style="font-family:DM Mono,monospace;font-size:.75rem">'+dies+'d</td>';
+      html+='</tr>';
+    });
+    html+='</tbody></table></div>';
+  });
+
+  cont.innerHTML=totalHtml+html;
+}
+
+// Ordenar taules per columna
+function sortCartTable(g,cart,col,th){
+  const table=document.getElementById(g+'-cart-table-'+cart);
+  if(!table) return;
+  const tbody=table.querySelector('tbody');
+  const rows=Array.from(tbody.querySelectorAll('tr'));
+  // Toggle direction
+  const heads=table.querySelectorAll('.sortable');
+  const wasAsc=th.classList.contains('asc');
+  heads.forEach(h=>{h.classList.remove('asc','desc');});
+  const dir=wasAsc?'desc':'asc';
+  th.classList.add(dir);
+  rows.sort((a,b)=>{
+    let va,vb;
+    if(col==='dib'){va=a.dataset.dib;vb=b.dataset.dib;}
+    else if(col==='sexe'){va=a.dataset.sexe||'Z';vb=b.dataset.sexe||'Z';}
+    else if(col==='lot'){va=parseInt(a.dataset.lot);vb=parseInt(b.dataset.lot);}
+    else if(col==='entrada'){va=parseInt(a.dataset.ent);vb=parseInt(b.dataset.ent);}
+    else if(col==='dies'){va=parseInt(a.dataset.dies);vb=parseInt(b.dataset.dies);}
+    else return 0;
+    if(typeof va==='number'){return dir==='asc'?va-vb:vb-va;}
+    return dir==='asc'?String(va).localeCompare(String(vb)):String(vb).localeCompare(String(va));
+  });
+  rows.forEach((r,i)=>{
+    r.querySelector('td').textContent=i+1;
+    tbody.appendChild(r);
+  });
+}
+
+function sortDibsTable(g,lotNum,col,th){
+  const table=document.getElementById(g+'-dibs-table-'+lotNum);
+  if(!table) return;
+  const tbody=table.querySelector('tbody');
+  const rows=Array.from(tbody.querySelectorAll('tr'));
+  const heads=table.querySelectorAll('.sortable');
+  const wasAsc=th.classList.contains('asc');
+  heads.forEach(h=>{h.classList.remove('asc','desc');});
+  const dir=wasAsc?'desc':'asc';
+  th.classList.add(dir);
+  rows.sort((a,b)=>{
+    let va,vb;
+    if(col==='dib'){va=a.dataset.dib;vb=b.dataset.dib;}
+    else if(col==='sexe'){va=a.dataset.sexe||'Z';vb=b.dataset.sexe||'Z';}
+    else if(col==='cart'){va=a.dataset.cart;vb=b.dataset.cart;}
+    else if(col==='entrada'){va=parseInt(a.dataset.ent);vb=parseInt(b.dataset.ent);}
+    else if(col==='estat'){va=parseInt(a.dataset.estat);vb=parseInt(b.dataset.estat);}
+    else if(col==='dies'){va=parseInt(a.dataset.dies);vb=parseInt(b.dataset.dies);}
+    else return 0;
+    if(typeof va==='number'){return dir==='asc'?va-vb:vb-va;}
+    return dir==='asc'?String(va).localeCompare(String(vb)):String(vb).localeCompare(String(va));
+  });
+  rows.forEach((r,i)=>{
+    r.querySelector('td').textContent=i+1;
+    tbody.appendChild(r);
+  });
+}
+
+
+function calcDiesTotals(g,lotNum,allMovs,lot){
+  if(!allMovs.length) return 0;
+  // Primer dia = primera entrada (o primer moviment si vIni>0)
+  const entrades=allMovs.filter(m=>m.tipus==='entrada');
+  const primer=entrades.length?entrades[0]:allMovs[0];
+  const primerData=new Date(primer.any,primer.mes-1,primer.dia);
+  // Últim dia = última sortida si lot tancat, sinó avui
+  let darrData;
+  if(!lot.actiu){
+    const sortides=allMovs.filter(m=>esSortida(m.tipus));
+    const darr=sortides.length?sortides[sortides.length-1]:allMovs[allMovs.length-1];
+    darrData=new Date(darr.any,darr.mes-1,darr.dia);
+  } else {
+    darrData=new Date();
+  }
+  // Dies inclusius (primer dia compta, últim dia compta)
+  return Math.floor((darrData-primerData)/(1000*60*60*24))+1;
+}
+
+document.getElementById('avui').textContent=new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'});
+renderG('fig');renderG('costa');
+loadNotes();
+// Init historial
+_hist=[JSON.stringify(S)]; _histIdx=0; updUndoBtn();
+// Keyboard shortcuts Cmd+Z / Cmd+Shift+Z
+document.addEventListener('keydown',function(e){
+  if((e.metaKey||e.ctrlKey)&&e.key==='z'&&!e.shiftKey){
+    const g=document.querySelector('.page.active').id.replace('page-','');
+    undo(g); e.preventDefault();
+  }
+  if((e.metaKey||e.ctrlKey)&&(e.key==='y'||(e.key==='z'&&e.shiftKey))){
+    const g=document.querySelector('.page.active').id.replace('page-','');
+    redo(g); e.preventDefault();
+  }
+});
+</script>
+</body>
+</html>
